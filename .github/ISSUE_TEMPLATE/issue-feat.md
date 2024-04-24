@@ -1,6 +1,6 @@
 ---
 name: "[FEAT] 기능 구현"
-about: "\b[FEAT] 작업 사항 입력"
+about: "[FEAT] 작업 사항 입력"
 title: ''
 labels: ''
 assignees: ''
