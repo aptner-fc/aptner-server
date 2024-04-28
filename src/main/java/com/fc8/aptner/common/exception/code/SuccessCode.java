@@ -1,4 +1,4 @@
-package com.fc8.aptner.common.code;
+package com.fc8.aptner.common.exception.code;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

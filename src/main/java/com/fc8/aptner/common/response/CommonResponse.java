@@ -1,7 +1,7 @@
 package com.fc8.aptner.common.response;
 
-import com.fc8.aptner.common.code.ErrorCode;
-import com.fc8.aptner.common.code.SuccessCode;
+import com.fc8.aptner.common.exception.code.ErrorCode;
+import com.fc8.aptner.common.exception.code.SuccessCode;
 import lombok.Builder;
 import lombok.Getter;
 
