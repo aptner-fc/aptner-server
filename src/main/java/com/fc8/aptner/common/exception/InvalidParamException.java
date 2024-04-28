@@ -1,6 +1,6 @@
 package com.fc8.aptner.common.exception;
 
-import com.fc8.aptner.common.code.ErrorCode;
+import com.fc8.aptner.common.exception.code.ErrorCode;
 
 public class InvalidParamException extends BaseException {
 
