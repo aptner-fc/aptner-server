@@ -30,3 +30,9 @@ spring:
         show_sql: true        # 쿼리 로그 출력
     show-sql: true
 
+  jwt:
+    secret: ZmNfYXB0bmVyX3Byb2plY3Rfand0X3NlY3JldF9rZXlfdmFsdWVfYmFzZV82NF9lbmNvZGluZw==
+
+aws:
+  kms:
+    key: 69ee4900-f7d9-4c99-9ac8-224f0210f16d
