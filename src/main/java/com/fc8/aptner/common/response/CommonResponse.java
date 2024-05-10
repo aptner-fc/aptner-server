@@ -4,6 +4,7 @@ import com.fc8.aptner.common.exception.code.ErrorCode;
 import com.fc8.aptner.common.exception.code.SuccessCode;
 import lombok.Builder;
 import lombok.Getter;
+    import org.springframework.http.ResponseEntity;
 
 @Getter
 public class CommonResponse<T> {
@@ -19,12 +20,12 @@ public class CommonResponse<T> {
 
     }
 
-    public static <T> CommonResponse<T> success(SuccessCode successCode) {
-        return new CommonResponse<>(true, successCode.getMessage(), null);
+    public static <T> ResponseEntity<CommonResponse<T>> success(SuccessCode successCode) {
+        return ResponseEntity.status(successCode.getHttpStatus()).body(new CommonResponse<>(true, successCode.getMessage(), null));
     }
 
-    public static <T> CommonResponse<T> success(SuccessCode successCode, T data) {
-        return new CommonResponse<>(true, successCode.getMessage(), data);
+    public static <T> ResponseEntity<CommonResponse<T>> success(SuccessCode successCode, T data) {
+        return ResponseEntity.status(successCode.getHttpStatus()).body(new CommonResponse<>(true, successCode.getMessage(), data));
     }
 
     public static <T> CommonResponse<T> fail(ErrorCode errorCode) {
