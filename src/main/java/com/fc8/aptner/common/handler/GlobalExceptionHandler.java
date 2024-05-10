@@ -18,5 +18,4 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(errorCode.getHttpStatus()).body(CommonResponse.fail(errorCode));
     }
 
-
 }
