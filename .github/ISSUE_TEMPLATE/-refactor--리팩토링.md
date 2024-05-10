@@ -1,8 +1,8 @@
 ---
-name: "[FEAT] 기능 구현"
-about: "[FEAT] 작업 사항 입력"
+name: "[REFACTOR] 리팩토링"
+about: "[REFACTOR] 수정 사항 입력"
 title: ''
-labels: "[FEAT]"
+labels: "[REFACTOR]"
 assignees: ''
 
 ---
@@ -11,7 +11,7 @@ assignees: ''
 이슈 설명을 작성한다. (ex. 게시판 기능 구현)
 
 ## 👨‍💻 기능
-구현 기능을 작성한다. (ex. 게시글 작성 기능 구현)
+리팩토링 내역을 작성한다. (ex. 게시글 작성 기능 구현)
 - [ ] 도메인 생성
 - [ ] 게시글 수정
 
