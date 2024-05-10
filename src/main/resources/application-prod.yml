@@ -24,6 +24,9 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
 
+  jwt:
+    secret: ZmNfYXB0bmVyX3Byb2plY3Rfand0X3NlY3JldF9rZXlfdmFsdWVfYmFzZV82NF9lbmNvZGluZw==
+
 logging:
   level:
     '[org.springframework.boot.web]': INFO
@@ -40,3 +43,8 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: 'false'
+    '[org.springframework.boot.web]':
+
+aws:
+  kms:
+    key: 69ee4900-f7d9-4c99-9ac8-224f0210f16d
