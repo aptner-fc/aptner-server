@@ -1,5 +1,6 @@
 package com.fc8.aptner.infrastructure.jwt;
 
+import com.fc8.aptner.common.exception.code.ErrorCode;
 import com.fc8.aptner.security.AptnerMember;
 import com.fc8.aptner.security.CustomUserDetailsService;
 import io.jsonwebtoken.*;
@@ -53,6 +54,18 @@ public class JwtTokenProvider {
                 .compact();
     }
 
+    public String createAccessToken(String email) {
+        Date now = new Date();
+        long accessTokenExpireTime = now.getTime() + ACCESS_TOKEN_EXPIRE_TIME;
+
+        return Jwts.builder()
+                .subject(email)
+                .issuedAt(now)
+                .expiration(new Date(accessTokenExpireTime))
+                .signWith(key)
+                .compact();
+    }
+
     public Authentication getAuthentication(String token) {
         AptnerMember principal = (AptnerMember) customUserDetailsService.loadUserByUsername(getSubjectByToken(token));
         return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
@@ -70,11 +83,11 @@ public class JwtTokenProvider {
         return !getExpirationByToken(token).before(new Date());
     }
 
-    private String getSubjectByToken(String token) {
+    public String getSubjectByToken(String token) {
         return parseClaims(token).getSubject();
     }
 
-    private Date getExpirationByToken(String token) {
+    public Date getExpirationByToken(String token) {
         return parseClaims(token).getExpiration();
     }
 
@@ -86,15 +99,15 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (SignatureException ex) {
-            throw new JwtException("Invalid JWT signature.");
+            throw new JwtException(ErrorCode.SIGNATURE_EXCEPTION.getMessage());
         } catch (MalformedJwtException ex) {
-            throw new JwtException("Invalid JWT token.");
+            throw new JwtException(ErrorCode.MALFORMED_JWT_EXCEPTION.getMessage());
         } catch (ExpiredJwtException ex) {
-            throw new JwtException("Expired JWT token.");
+            throw new JwtException(ErrorCode.EXPIRED_JWT_EXCEPTION.getMessage());
         } catch (UnsupportedJwtException ex) {
-            throw new JwtException("Unsupported JWT token.");
+            throw new JwtException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION.getMessage());
         } catch (IllegalArgumentException ex) {
-            throw new JwtException("JWT claims string is empty.");
+            throw new JwtException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getMessage());
         }
     }
 

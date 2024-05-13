@@ -61,13 +61,21 @@ dependencies {
 	// kms
 	implementation 'com.amazonaws:aws-java-sdk-kms:1.12.711'
 
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	// lombok
 	compileOnly 'org.projectlombok:lombok'
-	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	annotationProcessor 'org.projectlombok:lombok'
+
+	// mapstruct
+	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+//	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	runtimeOnly 'com.h2database:h2'
-	annotationProcessor 'org.projectlombok:lombok'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
 }
 
 tasks.named('test') {
@@ -82,16 +90,34 @@ jar {
 	enabled = false
 }
 
-def generated = "$buildDir/main/generated"
-
-tasks.withType(JavaCompile) {
-	options.getGeneratedSourceOutputDirectory().set(file(generated))
+configurations.all {
+	exclude group: 'commons-logging', module: 'commons-logging'
 }
+
+def generatedQueryDsl = 'src/main/generated'
 
 sourceSets {
-	main.java.srcDirs += [ generated ]
+	main.java.srcDirs += [generatedQueryDsl]
 }
 
-clean {
-	delete file(generated)
+tasks.withType(JavaCompile).configureEach {
+	options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
 }
+
+clean.doLast {
+	file(generatedQueryDsl).deleteDir()
+}
+
+//def generated = "src/main/generated"
+//
+//tasks.withType(JavaCompile) {
+//	options.getGeneratedSourceOutputDirectory().set(file(generated))
+//}
+//
+//sourceSets {
+//	main.java.srcDirs += [ generated ]
+//}
+//
+//clean {
+//	delete file(generated)
+//}

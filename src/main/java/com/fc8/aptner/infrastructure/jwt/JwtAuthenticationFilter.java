@@ -21,6 +21,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // TODO 회원 인증 없이 가능한 API 추가
+        if (request.getHeader(HttpHeaders.AUTHORIZATION) == null) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         String token = jwtTokenProvider.resolveToken(request.getHeader(HttpHeaders.AUTHORIZATION));
         if (jwtTokenProvider.isValidateToken(token)) {
             authenticate(token);

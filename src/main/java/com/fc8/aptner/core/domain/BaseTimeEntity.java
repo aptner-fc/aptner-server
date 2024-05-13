@@ -16,11 +16,11 @@ import java.time.LocalDateTime;
 public class BaseTimeEntity {
 
     @CreatedDate
-    @Column(name = "created_at")
+    @Column(name = "created_at", updatable = false, columnDefinition = "datetime comment '생성일'")
     private LocalDateTime createdAt;
 
     @LastModifiedDate
-    @Column(name = "updated_at")
+    @Column(name = "updated_at", columnDefinition = "datetime comment '수정일'")
     private LocalDateTime updatedAt;
 
 }

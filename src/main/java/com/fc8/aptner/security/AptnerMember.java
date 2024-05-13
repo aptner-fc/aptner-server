@@ -1,6 +1,7 @@
 package com.fc8.aptner.security;
 
-import com.fc8.aptner.core.domain.member.Member;
+import com.fc8.aptner.core.domain.entity.member.Member;
+import com.fc8.aptner.core.domain.enums.MemberStatus;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -13,7 +14,6 @@ import java.util.Collections;
 @Getter
 @RequiredArgsConstructor
 public class AptnerMember implements UserDetails {
-
     private final Member member;
 
     @Override
@@ -34,12 +34,12 @@ public class AptnerMember implements UserDetails {
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return member.getStatus() != MemberStatus.WITHDRAWAL;
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return member.getStatus() != MemberStatus.BLOCKED;
     }
 
     @Override
@@ -49,6 +49,6 @@ public class AptnerMember implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return member.getStatus() == MemberStatus.ACTIVE;
     }
 }

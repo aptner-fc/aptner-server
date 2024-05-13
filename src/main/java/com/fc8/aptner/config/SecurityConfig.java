@@ -1,6 +1,7 @@
 package com.fc8.aptner.config;
 
 import com.fc8.aptner.infrastructure.jwt.JwtAuthenticationFilter;
+import com.fc8.aptner.infrastructure.jwt.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 public class SecurityConfig {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final JwtExceptionFilter jwtExceptionFilter;
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -38,32 +41,33 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
                 .authorizeHttpRequests(authorize ->
-                        authorize
-
-                        // static
-                        .requestMatchers(
-                                "/**",
-                                "/error",
-                                "/favicon.ico")
-                        .permitAll()
-                        .requestMatchers(
-                                "/api/auth/**"
-                        )
-                        .permitAll()
-
-                        // role
-                        .requestMatchers(
-                                "/api/auth/signout"
-                        )
-                        .hasRole("USER")
-
-                        .anyRequest()
-                        .authenticated()
+                                authorize
+                                        .requestMatchers(
+                                                "/",
+                                                "/*",
+                                                "/**",
+                                                "/error",
+                                                "/favicon.ico")
+                                        .permitAll()
+//                        .requestMatchers(
+//                                "/api/auth/**"
+//                        )
+//                        .permitAll()
+//
+//                        // role
+//                        .requestMatchers(
+//                                "/api/auth/signout"
+//                        )
+//                        .hasRole("USER")
+                                        .requestMatchers("/api/member/sign-up")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated()
                 )
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-//                .addFilterBefore(jwtFailureFilter, JwtAuthenticationFilter.class)
-//
+                .addFilterBefore(jwtExceptionFilter, JwtAuthenticationFilter.class)
+
 //                .exceptionHandling(exception ->
 //                        exception
 //                        .authenticationEntryPoint(customAuthenticationEntryPoint)

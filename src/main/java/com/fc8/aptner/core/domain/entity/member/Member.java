@@ -1,7 +1,10 @@
-package com.fc8.aptner.core.domain.member;
+package com.fc8.aptner.core.domain.entity.member;
 
 import com.fc8.aptner.core.domain.BaseTimeEntity;
+import com.fc8.aptner.core.domain.entity.apartment.Apartment;
+import com.fc8.aptner.core.domain.enums.Gender;
 import com.fc8.aptner.core.domain.enums.MemberRole;
+import com.fc8.aptner.core.domain.enums.MemberStatus;
 import com.fc8.aptner.core.domain.enums.Provider;
 import jakarta.persistence.*;
 import lombok.*;
@@ -14,10 +17,10 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-        name = "member",
-        uniqueConstraints = {
-                @UniqueConstraint(name = "UK_email", columnNames = "email")
-        }
+        name = "member"
+//        uniqueConstraints = {
+//                @UniqueConstraint(name = "UK_email", columnNames = "email")
+//        }
 )
 public class Member extends BaseTimeEntity {
 
@@ -48,6 +51,14 @@ public class Member extends BaseTimeEntity {
     @Column(name = "introduce", columnDefinition = "varchar(255) comment '자기 소개'")
     private String introduce;
 
+    @Column(name = "gender", nullable = false, columnDefinition = "varchar(20) comment '성별'")
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '회원 상태'")
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
+
     @Column(name = "provider", nullable = false, columnDefinition = "varchar(20) comment '가입 정보'")
     @Enumerated(EnumType.STRING)
     private Provider provider;
@@ -57,7 +68,30 @@ public class Member extends BaseTimeEntity {
     @Column(name = "role", nullable = false, columnDefinition = "varchar(20) comment '권한'")
     private MemberRole role = MemberRole.ROLE_USER;
 
+    @Embedded
+    private Apartment apartment;
+
     @Column(name = "deleted_at", columnDefinition = "datetime comment '탈퇴 일시'")
     private LocalDateTime deletedAt;
 
+    public static Member create(String email,
+                                String name,
+                                String nickname,
+                                String encPassword,
+                                String phone,
+                                Gender gender,
+                                Apartment apart) {
+        return Member.builder()
+                .email(email)
+                .name(name)
+                .nickname(nickname)
+                .password(encPassword)
+                .phone(phone)
+                .gender(gender)
+                .status(MemberStatus.INACTIVE)
+                .provider(Provider.APTNER)
+                .role(MemberRole.ROLE_USER)
+                .apartment(apart)
+                .build();
+    }
 }
