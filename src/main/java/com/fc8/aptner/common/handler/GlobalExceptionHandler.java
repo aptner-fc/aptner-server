@@ -15,7 +15,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
         ErrorCode errorCode = e.getErrorCode();
-        return ResponseEntity.status(errorCode.getHttpStatus()).body(CommonResponse.fail(errorCode));
+        return CommonResponse.fail(errorCode);
     }
 
 }
