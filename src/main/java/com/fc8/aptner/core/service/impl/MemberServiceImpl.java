@@ -3,7 +3,7 @@ package com.fc8.aptner.core.service.impl;
 import com.fc8.aptner.common.exception.InvalidParamException;
 import com.fc8.aptner.common.exception.code.ErrorCode;
 import com.fc8.aptner.common.utils.ListUtils;
-import com.fc8.aptner.core.domain.entity.history.TermsMemberMapping;
+import com.fc8.aptner.core.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.aptner.core.domain.entity.member.Member;
 import com.fc8.aptner.core.domain.entity.terms.Terms;
 import com.fc8.aptner.core.dto.MemberInfo;

@@ -1,4 +1,4 @@
-package com.fc8.aptner.core.domain.entity.history;
+package com.fc8.aptner.core.domain.entity.mapping;
 
 import com.fc8.aptner.core.domain.entity.member.Member;
 import com.fc8.aptner.core.domain.entity.terms.Terms;

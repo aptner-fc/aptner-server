@@ -36,7 +36,7 @@ public class SignUpMemberRequest {
     @NotNull
     private Gender gender;
 
-    private ApartmentInfo apartmentInfo;
+    private ApartmentInfo apartment;
 
     private List<TermsAgreement> termsAgreements;
 }

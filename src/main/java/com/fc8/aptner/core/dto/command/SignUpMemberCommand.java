@@ -25,12 +25,13 @@ public class SignUpMemberCommand {
 
     private final Gender gender;
 
-    private final ApartmentInfo apartmentInfo;
+    private final ApartmentInfo apartment;
 
     private final List<TermsAgreement> termsAgreements;
 
     public Member toEntity(String encPassword) {
-        var apart = com.fc8.aptner.core.domain.entity.apartment.Apartment.build(apartmentInfo.dong(), apartmentInfo.ho());
+        var apart = com.fc8.aptner.core.domain.entity.apartment.Apartment.build(apartment.dong(), apartment.ho());
         return Member.create(email, name, nickname, encPassword, phone, gender, apart);
     }
+
 }

@@ -1,7 +1,7 @@
 package com.fc8.aptner.datasource.repository.impl;
 
-import com.fc8.aptner.core.domain.entity.history.QTermsMemberMapping;
-import com.fc8.aptner.core.domain.entity.history.TermsMemberMapping;
+import com.fc8.aptner.core.domain.entity.mapping.QTermsMemberMapping;
+import com.fc8.aptner.core.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.aptner.core.repository.TermsMemberMappingRepository;
 import com.fc8.aptner.datasource.repository.TermsMemberMappingJpaRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
