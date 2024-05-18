@@ -7,7 +7,4 @@ import com.fc8.platform.dto.command.SignUpMemberCommand;
 
 public interface MemberService {
 
-    Long signUp(SignUpMemberCommand command);
-
-    SignInMemberInfo signIn(SignInMemberCommand command);
 }

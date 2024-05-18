@@ -46,6 +46,7 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    @Transactional
     public SignInAdminInfo signIn(SignInAdminCommand command) {
         String email = command.getEmail();
         String password = command.getPassword();

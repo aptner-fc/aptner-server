@@ -11,10 +11,7 @@ import com.fc8.platform.dto.response.SignUpAdminResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = {"/v1/api/admin", "/api/admin"})
@@ -31,7 +28,8 @@ public class AdminController {
     }
 
     @PostMapping(value = "/sign-in")
-    public ResponseEntity<CommonResponse<SignInAdminResponse>> signIn(@Valid @RequestBody SignInAdminRequest request) {
+    public ResponseEntity<CommonResponse<SignInAdminResponse>> signIn(@Valid @RequestBody SignInAdminRequest request
+    ) {
         var command = adminMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, adminFacade.signIn(command));
     }
