@@ -6,8 +6,11 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.response.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+import java.util.Objects;
 
 @Slf4j
 @RestControllerAdvice
@@ -22,6 +25,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
+        return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
     }
 
 }

@@ -1,7 +1,6 @@
 package com.fc8.platform.dto.command;
 
 
-import com.fc8.platform.domain.embedded.Apartment;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.enums.Gender;
 import com.fc8.platform.dto.ApartmentInfo;
@@ -32,8 +31,7 @@ public class SignUpMemberCommand {
     private final List<TermsAgreement> termsAgreements;
 
     public Member toEntity(String encPassword) {
-        var apart = Apartment.build(apartment.dong(), apartment.ho());
-        return Member.create(email, name, nickname, encPassword, phone, gender, apart);
+        return Member.create(email, name, nickname, encPassword, phone, gender);
     }
 
 }

@@ -1,7 +1,7 @@
 package com.fc8.platform.domain.entity.member;
 
 import com.fc8.platform.domain.BaseTimeEntity;
-import com.fc8.platform.domain.embedded.Apartment;
+import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.enums.Gender;
 import com.fc8.platform.domain.enums.MemberRole;
 import com.fc8.platform.domain.enums.MemberStatus;
@@ -10,6 +10,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Builder
@@ -68,19 +70,19 @@ public class Member extends BaseTimeEntity {
     @Column(name = "role", nullable = false, columnDefinition = "varchar(20) comment '권한'")
     private MemberRole role = MemberRole.ROLE_USER;
 
-    @Embedded
-    private Apartment apartment;
-
     @Column(name = "deleted_at", columnDefinition = "datetime comment '탈퇴 일시'")
     private LocalDateTime deletedAt;
+
+    @Builder.Default
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ApartMemberMapping> apartMemberMappings = new ArrayList<>();
 
     public static Member create(String email,
                                 String name,
                                 String nickname,
                                 String encPassword,
                                 String phone,
-                                Gender gender,
-                                Apartment apart) {
+                                Gender gender) {
         return Member.builder()
                 .email(email)
                 .name(name)
@@ -91,7 +93,6 @@ public class Member extends BaseTimeEntity {
                 .status(MemberStatus.INACTIVE)
                 .provider(Provider.APTNER)
                 .role(MemberRole.ROLE_USER)
-                .apartment(apart)
                 .build();
     }
 }

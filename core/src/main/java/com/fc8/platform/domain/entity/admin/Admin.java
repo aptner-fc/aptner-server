@@ -77,11 +77,4 @@ public class Admin extends BaseTimeEntity {
                 .build();
     }
 
-    public void updateApart(Apart apart) {
-        if (this.apart == apart) {
-            return;
-        }
-
-        this.apart = apart;
-    }
 }

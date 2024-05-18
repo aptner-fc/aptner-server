@@ -44,4 +44,18 @@ public class Terms extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static Terms create(String title,
+                               String content,
+                               TermsType type,
+                               boolean isUsed,
+                               boolean isRequired) {
+        return Terms.builder()
+                .title(title)
+                .content(content)
+                .type(type)
+                .isUsed(isUsed)
+                .isRequired(isRequired)
+                .build();
+    }
+
 }

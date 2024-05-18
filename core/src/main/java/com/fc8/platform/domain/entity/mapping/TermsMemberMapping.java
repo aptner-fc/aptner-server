@@ -1,6 +1,7 @@
 package com.fc8.platform.domain.entity.mapping;
 
 
+import com.fc8.platform.domain.BaseTimeEntity;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.terms.Terms;
 import jakarta.persistence.*;
@@ -16,7 +17,7 @@ import java.time.LocalDateTime;
 @Table(
         name = "terms_member_mapping"
 )
-public class TermsMemberMapping {
+public class TermsMemberMapping extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

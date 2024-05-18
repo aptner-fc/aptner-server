@@ -5,6 +5,8 @@ import com.fc8.platform.domain.enums.ApartType;
 
 public interface AdminRepository {
 
+    Admin getAdminWithApartByEmail(String email);
+
     Admin getMemberByEmail(String email);
 
     ApartType getApartTypeByAdmin(Admin admin);
@@ -14,4 +16,5 @@ public interface AdminRepository {
     boolean existNickname(String nickname);
 
     Admin store(Admin admin);
+
 }

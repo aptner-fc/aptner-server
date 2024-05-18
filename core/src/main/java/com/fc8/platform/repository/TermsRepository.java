@@ -12,4 +12,6 @@ public interface TermsRepository {
     List<Terms> getAllByIds(List<Long> ids);
 
     List<Terms> getAllByIsUsed();
+
+    Terms store(Terms terms);
 }

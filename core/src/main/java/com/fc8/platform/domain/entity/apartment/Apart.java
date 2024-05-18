@@ -41,6 +41,9 @@ public class Apart extends BaseTimeEntity {
     @Column(name = "address", nullable = false, columnDefinition = "mediumtext comment '주소'")
     private String address;
 
+    @Column(name = "link", nullable = false, columnDefinition = "varchar(255) comment '연결 링크'")
+    private String link;
+
     @Column(name = "is_used", columnDefinition = "tinyint comment '사용 여부'")
     private boolean isUsed;
 }
