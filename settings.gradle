@@ -1,8 +1,6 @@
 rootProject.name = 'aptner-multi'
 include 'core'
-include 'infrastructure'
-include 'admin'
 include 'datasource'
-include 'core'
-include 'core'
+include 'admin'
+include 'client'
 
