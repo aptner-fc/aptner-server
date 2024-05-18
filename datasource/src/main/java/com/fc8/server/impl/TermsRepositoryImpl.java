@@ -53,8 +53,13 @@ public class TermsRepositoryImpl implements TermsRepository {
                 .fetch();
     }
 
+    @Override
+    public Terms store(Terms terms) {
+        return termsJpaRepository.save(terms);
+    }
+
     private BooleanExpression isNotDeleted() {
-        return terms.deletedAt.isNotNull();
+        return terms.deletedAt.isNull();
     }
 
     private BooleanExpression isUsed() {

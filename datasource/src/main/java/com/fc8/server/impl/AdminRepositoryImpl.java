@@ -24,6 +24,18 @@ public class AdminRepositoryImpl implements AdminRepository {
     QApart apart = QApart.apart;
 
     @Override
+    public Admin getAdminWithApartByEmail(String email) {
+        return jpaQueryFactory
+                .selectFrom(aptAdmin)
+                .innerJoin(apart).fetchJoin()
+                .where(
+                        eqEmail(email),
+                        isActive()
+                )
+                .fetchFirst();
+    }
+
+    @Override
     public Admin getMemberByEmail(String email) {
         return adminJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN));
