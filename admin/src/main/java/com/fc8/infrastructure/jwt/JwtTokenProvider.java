@@ -68,7 +68,7 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        AptnerAdmin principal = (AptnerAdmin) customUserDetailsService.loadUserByUsername(getSubjectByToken(token));
+        AptnerAdmin principal = (AptnerAdmin) customUserDetailsService.loadUserByUsername(getEmailByToken(token));
         return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
     }
 
@@ -84,7 +84,7 @@ public class JwtTokenProvider {
         return !getExpirationByToken(token).before(new Date());
     }
 
-    public String getSubjectByToken(String token) {
+    public String getEmailByToken(String token) {
         return parseClaims(token).getSubject();
     }
 
