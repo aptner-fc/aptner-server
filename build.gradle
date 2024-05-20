@@ -1,123 +1,210 @@
 plugins {
-	id 'java'
-	id 'org.springframework.boot' version '3.2.5'
-	id 'io.spring.dependency-management' version '1.1.4'
-}
-
-group = 'com.fc8'
-version = '0.0.1-SNAPSHOT'
-
-java {
-	sourceCompatibility = '17'
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
+    id 'java'
+    id 'org.springframework.boot' version '3.2.5'
+    id 'io.spring.dependency-management' version '1.1.4'
 }
 
 repositories {
-	mavenCentral()
+    mavenCentral()
 }
 
-dependencies {
-	// h2
-	implementation 'com.h2database:h2'
-	// jpa
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	// web
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	// S3
-	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+bootJar.enabled = false
 
-	// Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+subprojects {
 
-	// queryDSL
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    apply plugin: 'java'
+    apply plugin: 'org.springframework.boot'
+    apply plugin: 'io.spring.dependency-management'
 
-	// jwt
-	implementation 'io.jsonwebtoken:jjwt:0.12.5'
+    group = 'com.fc8'
+    version = '0.0.1-SNAPSHOT'
 
-	// kms
-	implementation 'com.amazonaws:aws-java-sdk-kms:1.12.711'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 
-	// Security
-	implementation 'org.springframework.boot:spring-boot-starter-security'
+    compileJava.options.encoding = 'UTF-8'
 
-	// queryDSL
-	implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
-	annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
-	annotationProcessor "jakarta.annotation:jakarta.annotation-api"
-	annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
 
-	// jwt
-	implementation 'io.jsonwebtoken:jjwt:0.12.5'
+    repositories {
+        mavenCentral()
+    }
 
-	// kms
-	implementation 'com.amazonaws:aws-java-sdk-kms:1.12.711'
+    dependencies {
+        // h2
+        implementation 'com.h2database:h2'
 
-	// lombok
-	compileOnly 'org.projectlombok:lombok'
-	annotationProcessor 'org.projectlombok:lombok'
+        // jpa
+        implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 
-	// mapstruct
-	implementation 'org.mapstruct:mapstruct:1.5.5.Final'
-	annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
-	annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+        // web
+        implementation 'org.springframework.boot:spring-boot-starter-web'
 
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-//	developmentOnly 'org.springframework.boot:spring-boot-devtools'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	runtimeOnly 'com.h2database:h2'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        // S3
+        implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
 
+        // Security
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        // redis
+        implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
+        // queryDSL
+        implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+        annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+        annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+        // kms
+        implementation 'com.amazonaws:aws-java-sdk-kms:1.12.711'
+
+        // Security
+        implementation 'org.springframework.boot:spring-boot-starter-security'
+
+        // queryDSL
+        implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+        annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+        annotationProcessor "jakarta.annotation:jakarta.annotation-api"
+        annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+
+        // cool-sms
+        implementation 'net.nurigo:sdk:4.3.0'
+
+        // lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        // mapstruct
+        implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+        annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+        annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+//		developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        runtimeOnly 'com.mysql:mysql-connector-j'
+        runtimeOnly 'com.h2database:h2'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+}
+
+project(':core') {
+
+    group = 'com.fc8.platform'
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+    }
+
+    dependencies {
+        // lombok
+        compileOnly 'org.projectlombok:lombok'
+        annotationProcessor 'org.projectlombok:lombok'
+
+        // mapstruct
+        implementation 'org.mapstruct:mapstruct:1.5.5.Final'
+        annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.5.Final'
+        annotationProcessor 'org.projectlombok:lombok-mapstruct-binding:0.2.0'
+
+        // validate
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+    }
+}
+
+project(':datasource') {
+
+    group = 'com.fc8.server'
+
+    bootJar {
+        enabled = false
+    }
+
+    jar {
+        enabled = true
+    }
+
+    dependencies {
+        implementation project(':core')
+    }
+}
+
+project(':admin') {
+
+    bootJar {
+        enabled = true
+    }
+
+    jar {
+        enabled = false
+    }
+
+    dependencies {
+        implementation project(':core')
+        implementation project(':datasource')
+
+        // jwt
+        implementation 'io.jsonwebtoken:jjwt:0.12.5'
+    }
+}
+
+project(':client') {
+
+    bootJar {
+        enabled = true
+    }
+
+    jar {
+        enabled = false
+    }
+
+    dependencies {
+        implementation project(':core')
+        implementation project(':datasource')
+
+        // jwt
+        implementation 'io.jsonwebtoken:jjwt:0.12.5'
+    }
 }
 
 tasks.named('test') {
-	useJUnitPlatform()
+    useJUnitPlatform()
 }
 
 tasks.withType(Test) {
-	enabled= false
+    enabled= false
 }
 
 jar {
-	enabled = false
+    enabled = false
 }
 
 configurations.all {
-	exclude group: 'commons-logging', module: 'commons-logging'
+    exclude group: 'commons-logging', module: 'commons-logging'
 }
 
 def generatedQueryDsl = 'src/main/generated'
 
 sourceSets {
-	main.java.srcDirs += [generatedQueryDsl]
+    main.java.srcDirs += [generatedQueryDsl]
 }
 
 tasks.withType(JavaCompile).configureEach {
-	options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
+    options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
 }
 
 clean.doLast {
-	file(generatedQueryDsl).deleteDir()
+    file(generatedQueryDsl).deleteDir()
 }
 
-//def generated = "src/main/generated"
-//
-//tasks.withType(JavaCompile) {
-//	options.getGeneratedSourceOutputDirectory().set(file(generated))
-//}
-//
-//sourceSets {
-//	main.java.srcDirs += [ generated ]
-//}
-//
-//clean {
-//	delete file(generated)
-//}
