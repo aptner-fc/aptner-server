@@ -1,4 +1,4 @@
-package com.fc8.platform.dto;
+package com.fc8.platform.dto.record;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Builder;

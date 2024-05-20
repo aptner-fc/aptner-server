@@ -1,8 +1,10 @@
-package com.fc8.platform.dto;
+package com.fc8.platform.dto.record;
 
 import com.fc8.platform.domain.entity.apartment.Apart;
 import com.fc8.platform.domain.enums.ApartType;
 import lombok.Builder;
+
+import java.util.List;
 
 @Builder
 public record ApartInfo(Long id,
@@ -16,6 +18,13 @@ public record ApartInfo(Long id,
                 .title(apart.getTitle())
                 .type(apart.getType())
                 .build();
+    }
+
+    public static List<ApartInfo> fromEntityList(List<Apart> apartList) {
+        return apartList
+                .stream()
+                .map(ApartInfo::fromEntity)
+                .toList();
     }
 
 }

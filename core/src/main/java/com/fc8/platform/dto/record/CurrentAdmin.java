@@ -1,4 +1,4 @@
-package com.fc8.platform.dto;
+package com.fc8.platform.dto.record;
 
 import com.fc8.platform.domain.entity.admin.Admin;
 import lombok.Builder;
