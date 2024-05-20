@@ -1,10 +1,13 @@
 package com.fc8.facade;
 
-import com.fc8.platform.dto.SignInAdminInfo;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
+import com.fc8.platform.dto.record.ApartInfo;
+import com.fc8.platform.dto.record.AuthMemberInfo;
+import com.fc8.platform.dto.record.SignInAdminInfo;
 import com.fc8.platform.dto.response.SignInAdminResponse;
 import com.fc8.platform.dto.response.SignUpAdminResponse;
+import com.fc8.platform.dto.response.AuthMemberResponse;
 import com.fc8.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,4 +28,14 @@ public class AdminFacade {
         SignInAdminInfo signInAdminInfo = adminService.signIn(command);
         return new SignInAdminResponse(new SignInAdminResponse.SignInAdmin(signInAdminInfo.adminInfo()), signInAdminInfo.tokenInfo());
     }
+
+    public AuthMemberResponse authenticateMember(Long adminId, Long memberId, ApartInfo apartInfo) {
+        AuthMemberInfo authMemberInfo = adminService.authenticateMember(adminId, memberId, apartInfo);
+        return new AuthMemberResponse(
+                new AuthMemberResponse.AuthMember(authMemberInfo.memberInfo()),
+                new AuthMemberResponse.AuthAdmin(authMemberInfo.adminInfo()),
+                authMemberInfo.apartInfo(),
+                authMemberInfo.authenticatedAt());
+    }
+
 }

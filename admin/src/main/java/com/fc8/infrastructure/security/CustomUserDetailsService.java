@@ -20,7 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Admin admin = adminRepository.getMemberByEmail(username);
+        Admin admin = adminRepository.getByEmail(username);
         ApartType apartType = adminRepository.getApartTypeByAdmin(admin);
 
         validateAdminApart(apartType);

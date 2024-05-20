@@ -7,13 +7,15 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.admin.Admin;
-import com.fc8.platform.dto.AdminInfo;
-import com.fc8.platform.dto.SignInAdminInfo;
-import com.fc8.platform.dto.TokenInfo;
+import com.fc8.platform.domain.entity.member.Member;
+import com.fc8.platform.domain.entity.member.MemberAuth;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.AdminRepository;
 import com.fc8.platform.repository.ApartRepository;
+import com.fc8.platform.repository.MemberAuthRepository;
+import com.fc8.platform.repository.MemberRepository;
 import com.fc8.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,6 +32,8 @@ public class AdminServiceImpl implements AdminService {
 
     private final AdminRepository adminRepository;
     private final ApartRepository apartRepository;
+    private final MemberRepository memberRepository;
+    private final MemberAuthRepository memberAuthRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -62,6 +66,27 @@ public class AdminServiceImpl implements AdminService {
         final TokenInfo tokenInfo = getTokenInfoByEmail(email);
 
         return new SignInAdminInfo(adminInfo, tokenInfo);
+    }
+
+    @Override
+    @Transactional
+    public AuthMemberInfo authenticateMember(Long adminId, Long memberId, ApartInfo apartInfo) {
+        var admin = adminRepository.getById(adminId);
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        member.updateActive();
+
+        Member storedMember = memberRepository.store(member);
+
+        MemberAuth memberAuth = MemberAuth.of(storedMember, admin);
+        MemberAuth newMemberAuth = memberAuthRepository.store(memberAuth);
+
+        return new AuthMemberInfo(
+                newMemberAuth.getId(),
+                MemberInfo.fromEntity(storedMember),
+                AdminInfo.fromEntity(admin),
+                apartInfo,
+                memberAuth.getAuthenticatedAt());
     }
 
     private TokenInfo getTokenInfoByEmail(String email) {
