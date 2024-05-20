@@ -46,6 +46,7 @@ public enum ErrorCode {
     NOT_FOUND_ADMIN_APART(HttpStatus.BAD_REQUEST, "어드민 관리 아파트를 찾을 수 없습니다."),
 
     NOT_FOUND_MEMBER(HttpStatus.BAD_REQUEST, "회원 정보를 찾을 수 없습니다."),
+    NOT_FOUND_MEMBER_APART(HttpStatus.BAD_REQUEST, "회원 메인 아파트를 찾을 수 없습니다."),
     EXIST_EMAIL(HttpStatus.BAD_REQUEST, "중복된 이메일입니다."),
     EXIST_NICKNAME(HttpStatus.BAD_REQUEST, "중복된 닉네임입니다."),
     FAIL_LOGIN(HttpStatus.BAD_REQUEST, "이메일 또는 비밀번호가 잘못되었습니다."),
@@ -60,6 +61,7 @@ public enum ErrorCode {
     /**
      * Apart
      */
+    NOT_PERMISSION_APART(HttpStatus.BAD_REQUEST, "해당 아파트의 권한이 없습니다."),
     NOT_FOUND_USED_APART(HttpStatus.BAD_REQUEST, "사용중인 아파트 정보를 찾을 수 없습니다.")
 
     ;
