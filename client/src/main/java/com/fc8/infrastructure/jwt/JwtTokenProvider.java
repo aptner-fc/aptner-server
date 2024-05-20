@@ -2,6 +2,7 @@ package com.fc8.infrastructure.jwt;
 
 import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
+import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -16,6 +17,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtTokenProvider {
@@ -41,12 +43,7 @@ public class JwtTokenProvider {
         Date now = new Date();
         long accessTokenExpireTime = now.getTime() + ACCESS_TOKEN_EXPIRE_TIME;
 
-//        String authorities = authentication.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(","));
-
         return Jwts.builder()
-//                .claim(ROLE, authorities)
                 .subject(authentication.getName())
                 .issuedAt(now)
                 .expiration(new Date(accessTokenExpireTime))
@@ -67,12 +64,14 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        AptnerMember principal = (AptnerMember) customUserDetailsService.loadUserByUsername(getSubjectByToken(token));
+        AptnerMember principal = (AptnerMember) customUserDetailsService.loadUserByUsername(getEmailByToken(token));
         return new UsernamePasswordAuthenticationToken(principal, "", principal.getAuthorities());
     }
 
     public String resolveToken(String header) {
-        return header.replace(TOKEN_PREFIX, "");
+        return Optional.ofNullable(header)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION))
+                .replace(TOKEN_PREFIX, "");
     }
 
     public boolean isValidateToken(String token) {
@@ -83,7 +82,7 @@ public class JwtTokenProvider {
         return !getExpirationByToken(token).before(new Date());
     }
 
-    public String getSubjectByToken(String token) {
+    public String getEmailByToken(String token) {
         return parseClaims(token).getSubject();
     }
 

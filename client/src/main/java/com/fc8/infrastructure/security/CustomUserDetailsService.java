@@ -18,7 +18,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Member member = memberRepository.getMemberByEmail(username);
+        Member member = memberRepository.getByEmail(username);
 
         AptnerMember aptnerMember = new AptnerMember(member);
         validateAuthenticate(aptnerMember);
