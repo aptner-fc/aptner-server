@@ -11,6 +11,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class MemberRepositoryImpl implements MemberRepository {
@@ -21,7 +23,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     QMember member = QMember.member;
 
     @Override
-    public Member getMemberByEmail(String email) {
+    public Member getByEmail(String email) {
         return memberJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
     }
@@ -48,12 +50,29 @@ public class MemberRepositoryImpl implements MemberRepository {
         return memberJpaRepository.save(member);
     }
 
+    @Override
+    public Member getActiveMemberById(Long id) {
+        Member activeMember = jpaQueryFactory
+                .selectFrom(member)
+                .where(
+                        eqId(id),
+                        isActive()
+                )
+                .fetchOne();
+        return Optional.ofNullable(activeMember)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
     private BooleanExpression isActive() {
         return member.deletedAt.isNull();
     }
 
     private BooleanExpression eqEmail(String email) {
         return member.email.eq(email);
+    }
+
+    private BooleanExpression eqId(Long id) {
+        return member.id.eq(id);
     }
 
 }

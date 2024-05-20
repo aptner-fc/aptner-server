@@ -13,6 +13,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class AdminRepositoryImpl implements AdminRepository {
@@ -25,26 +27,34 @@ public class AdminRepositoryImpl implements AdminRepository {
 
     @Override
     public Admin getAdminWithApartByEmail(String email) {
-        return jpaQueryFactory
+        Admin admin = jpaQueryFactory
                 .selectFrom(aptAdmin)
-                .innerJoin(apart).fetchJoin()
+                .innerJoin(apart).on(aptAdmin.apart.eq(apart))
                 .where(
                         eqEmail(email),
                         isActive()
                 )
                 .fetchFirst();
+        return Optional.ofNullable(admin)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN));
     }
 
     @Override
-    public Admin getMemberByEmail(String email) {
+    public Admin getByEmail(String email) {
         return adminJpaRepository.findByEmail(email)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN));
 
     }
 
     @Override
+    public Admin getById(Long id) {
+        return adminJpaRepository.findById(id)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN));
+    }
+
+    @Override
     public ApartType getApartTypeByAdmin(Admin admin) {
-        return jpaQueryFactory
+        ApartType apartType = jpaQueryFactory
                 .select(
                         apart.type
                 )
@@ -55,6 +65,9 @@ public class AdminRepositoryImpl implements AdminRepository {
                         apart.isUsed.isTrue()
                 )
                 .fetchFirst();
+
+        return Optional.ofNullable(apartType)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_ADMIN_APART));
     }
 
     @Override

@@ -14,4 +14,5 @@ public interface TermsRepository {
     List<Terms> getAllByIsUsed();
 
     Terms store(Terms terms);
+
 }

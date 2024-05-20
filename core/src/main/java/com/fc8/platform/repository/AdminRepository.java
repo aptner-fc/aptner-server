@@ -7,7 +7,9 @@ public interface AdminRepository {
 
     Admin getAdminWithApartByEmail(String email);
 
-    Admin getMemberByEmail(String email);
+    Admin getByEmail(String email);
+
+    Admin getById(Long id);
 
     ApartType getApartTypeByAdmin(Admin admin);
 

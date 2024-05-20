@@ -1,8 +1,8 @@
 package com.fc8.platform.dto.response;
 
 import com.fc8.platform.domain.enums.MemberStatus;
-import com.fc8.platform.dto.MemberInfo;
-import com.fc8.platform.dto.TokenInfo;
+import com.fc8.platform.dto.record.MemberInfo;
+import com.fc8.platform.dto.record.TokenInfo;
 import lombok.Getter;
 
 @Getter

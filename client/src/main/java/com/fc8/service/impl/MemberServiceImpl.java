@@ -5,15 +5,14 @@ import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
-import com.fc8.platform.common.utils.ListUtils;
-import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.*;
 import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.terms.Terms;
-import com.fc8.platform.dto.*;
 import com.fc8.platform.dto.command.SignInMemberCommand;
 import com.fc8.platform.dto.command.SignUpMemberCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.MemberService;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +41,9 @@ public class MemberServiceImpl implements MemberService {
     private final PasswordEncoder passwordEncoder;
 
     private final CustomUserDetailsService customUserDetailsService;
+
+    private final SMSUtils smsUtils;
+    private final RedisUtils redisUtils;
 
     /**
      * 현재 약관 동의 여부가 되지 않은 상태로 들어올 때 회원 엔티티를 영속화하였다가 롤백시키기 때문에 auto increment 증가된다.

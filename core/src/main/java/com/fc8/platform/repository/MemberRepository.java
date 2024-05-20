@@ -7,7 +7,9 @@ public interface MemberRepository {
 
     Member store(Member member);
 
-    Member getMemberByEmail(String email);
+    Member getActiveMemberById(Long id);
+
+    Member getByEmail(String email);
 
     boolean existActiveEmail(String email);
 

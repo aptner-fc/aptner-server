@@ -3,8 +3,8 @@ package com.fc8.platform.dto.command;
 
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.enums.Gender;
-import com.fc8.platform.dto.ApartmentInfo;
-import com.fc8.platform.dto.TermsAgreement;
+import com.fc8.platform.dto.record.ApartmentInfo;
+import com.fc8.platform.dto.record.TermsAgreement;
 import lombok.Builder;
 import lombok.Getter;
 

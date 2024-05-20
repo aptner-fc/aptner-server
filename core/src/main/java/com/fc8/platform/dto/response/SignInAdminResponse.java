@@ -1,7 +1,7 @@
 package com.fc8.platform.dto.response;
 
-import com.fc8.platform.dto.AdminInfo;
-import com.fc8.platform.dto.TokenInfo;
+import com.fc8.platform.dto.record.AdminInfo;
+import com.fc8.platform.dto.record.TokenInfo;
 import lombok.Getter;
 
 @Getter

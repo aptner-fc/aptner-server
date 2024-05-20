@@ -1,20 +1,18 @@
 package com.fc8.application;
 
 import com.fc8.facade.MemberFacade;
-import com.fc8.mapper.MemberMapper;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.request.SignInMemberRequest;
 import com.fc8.platform.dto.request.SignUpMemberRequest;
+import com.fc8.platform.dto.response.SendSMSCodeResponse;
 import com.fc8.platform.dto.response.SignInMemberResponse;
 import com.fc8.platform.dto.response.SignUpMemberResponse;
+import com.fc8.platform.mapper.MemberMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping(value = {"/v1/api/member", "/api/member"})
@@ -35,5 +33,15 @@ public class MemberController {
         var command = memberMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.signIn(command));
     }
+
+    @GetMapping(value = "/send-verification")
+    public ResponseEntity<CommonResponse<SendSMSCodeResponse>> sendVerificationCode(String phone) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.sendVerificationCode(phone));
+    }
+
+//    @GetMapping(value = "/verify-code")
+//    public ResponseEntity<CommonResponse<VerifySMSCodeResponse>> verifyCode(String verificationCode) {
+//        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.verifyCode(verificationCode));
+//    }
 
 }

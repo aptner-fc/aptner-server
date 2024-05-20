@@ -1,8 +1,8 @@
 package com.fc8.platform.dto.request;
 
 import com.fc8.platform.domain.enums.Gender;
-import com.fc8.platform.dto.ApartmentInfo;
-import com.fc8.platform.dto.TermsAgreement;
+import com.fc8.platform.dto.record.ApartmentInfo;
+import com.fc8.platform.dto.record.TermsAgreement;
 import jakarta.validation.constraints.*;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
