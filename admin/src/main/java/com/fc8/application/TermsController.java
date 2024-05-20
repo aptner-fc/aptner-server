@@ -1,11 +1,11 @@
 package com.fc8.application;
 
 import com.fc8.facade.TermsFacade;
-import com.fc8.mapper.TermsMapper;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.request.SavedTermsRequest;
 import com.fc8.platform.dto.response.SavedTermsResponse;
+import com.fc8.platform.mapper.TermsMapper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

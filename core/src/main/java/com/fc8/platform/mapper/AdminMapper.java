@@ -1,4 +1,4 @@
-package com.fc8.mapper;
+package com.fc8.platform.mapper;
 
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
