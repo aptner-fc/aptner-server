@@ -9,6 +9,7 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-@PreAuthorize("@apartTypePermissionEvaluator.hasPermission(authentication, #apartCode)")
+//@PreAuthorize("@apartTypePermissionEvaluator.hasPermission(authentication, #apartCode)")
+@PreAuthorize("@apartTypePermissionEvaluator.hasPermission(#currentAdmin, #apartCode)")
 public @interface CheckApartType {
 }
