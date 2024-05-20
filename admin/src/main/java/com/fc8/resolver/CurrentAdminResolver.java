@@ -5,8 +5,8 @@ import com.fc8.infrastructure.jwt.JwtTokenProvider;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.admin.Admin;
-import com.fc8.platform.dto.ApartInfo;
-import com.fc8.platform.dto.CurrentAdmin;
+import com.fc8.platform.dto.record.ApartInfo;
+import com.fc8.platform.dto.record.CurrentAdmin;
 import com.fc8.platform.repository.AdminRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.MethodParameter;
@@ -31,7 +31,7 @@ public class CurrentAdminResolver implements HandlerMethodArgumentResolver {
 
     @Override
     public Object resolveArgument(MethodParameter parameter, ModelAndViewContainer mavContainer, NativeWebRequest webRequest, WebDataBinderFactory binderFactory) throws Exception {
-        String accessToken = webRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        String accessToken = jwtTokenProvider.resolveToken(webRequest.getHeader(HttpHeaders.AUTHORIZATION));
         String email = jwtTokenProvider.getEmailByToken(accessToken);
 
         Admin admin = adminRepository.getAdminWithApartByEmail(email);

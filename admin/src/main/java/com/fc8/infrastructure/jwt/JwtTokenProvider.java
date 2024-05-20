@@ -3,6 +3,7 @@ package com.fc8.infrastructure.jwt;
 import com.fc8.infrastructure.security.AptnerAdmin;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
 import com.fc8.platform.common.exception.AuthenticationException;
+import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -17,6 +18,7 @@ import javax.crypto.SecretKey;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Date;
+import java.util.Optional;
 
 @Component
 public class JwtTokenProvider {
@@ -73,7 +75,9 @@ public class JwtTokenProvider {
     }
 
     public String resolveToken(String header) {
-        return header.replace(TOKEN_PREFIX, "");
+        return Optional.ofNullable(header)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.INVALID_AUTHENTICATION))
+                .replace(TOKEN_PREFIX, "");
     }
 
     public boolean isValidateToken(String token) {
