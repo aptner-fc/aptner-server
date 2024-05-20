@@ -95,4 +95,8 @@ public class Member extends BaseTimeEntity {
                 .role(MemberRole.ROLE_USER)
                 .build();
     }
+
+    public void updateActive() {
+        this.status = MemberStatus.ACTIVE;
+    }
 }
