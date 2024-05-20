@@ -1,0 +1,71 @@
+server:
+  port: 5050
+  servlet:
+    encoding:
+      charset: utf-8
+
+spring:
+
+  data:
+    redis:
+      host: ${redis.host}
+      port: 6379
+
+  datasource:
+    url: jdbc:mysql://${rds.hostname}:${rds.port}/${rds.db.name}?allowPublicKeyRetrieval=true&useSSL=false
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    username: ${rds.username}
+    password: ${rds.password}
+  servlet:
+    multipart:
+      max-file-size: 20MB
+
+  jpa:
+    open-in-view: true
+    hibernate:
+      ddl-auto: none
+      naming:
+        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQL8Dialect
+
+  jwt:
+    secret: ${jwt.secret}
+
+logging:
+  level:
+    '[org.springframework.boot.web]': INFO
+
+springdoc:
+  api-docs:
+    path: /api-docs
+    groups:
+      enabled: true
+  packages-to-scan: com.fc8.application
+  swagger-ui:
+    tags-sorter: alpha
+    groups-order: asc
+    syntax-highlight:
+      activated: true
+    try-it-out-enabled: false
+  enable-kotlin: false
+
+#s3
+cloud:
+  aws:
+    credentials:
+      access-key: ${aws.credentials.access.key}
+      secret-key: ${aws.credentials.secret.key}
+    s3:
+      bucket: ${aws.s3.bucket}
+    region:
+      static: ap-northeast-2
+    stack:
+      auto: 'false'
+    '[org.springframework.boot.web]':
+
+coolsms:
+  api:
+    key: ${sms.api.key}
+    secret: ${sms.api.secret}
