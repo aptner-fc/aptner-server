@@ -100,15 +100,15 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (SignatureException ex) {
-            throw new AuthenticationException(ErrorCode.SIGNATURE_EXCEPTION.getMessage());
+            throw new AuthenticationException(ErrorCode.SIGNATURE_EXCEPTION);
         } catch (MalformedJwtException ex) {
-            throw new AuthenticationException(ErrorCode.MALFORMED_JWT_EXCEPTION.getMessage());
+            throw new AuthenticationException(ErrorCode.MALFORMED_JWT_EXCEPTION);
         } catch (ExpiredJwtException ex) {
-            throw new AuthenticationException(ErrorCode.EXPIRED_JWT_EXCEPTION.getMessage());
+            throw new AuthenticationException(ErrorCode.EXPIRED_JWT_EXCEPTION);
         } catch (UnsupportedJwtException ex) {
-            throw new AuthenticationException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION.getMessage());
+            throw new AuthenticationException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION);
         } catch (IllegalArgumentException ex) {
-            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getMessage());
+            throw new AuthenticationException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION);
         }
     }
 
