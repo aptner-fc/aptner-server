@@ -30,7 +30,7 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PERMIT_PATHS = {
-        "/api/admin/**", "/swagger-ui/**", "/api-docs/**", "/*", "/**", "/error", "/favicon.ico", "/"
+        "/api/admin/**", "/swagger-ui/**", "/api-docs/**", "/*", "/**", "/error", "/favicon.ico", "/", "/health"
     };
 
     private static final String[] ALLOW_ORIGINS = {
