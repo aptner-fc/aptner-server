@@ -30,12 +30,13 @@ public class SecurityConfig {
     private final JwtExceptionFilter jwtExceptionFilter;
 
     private static final String[] PERMIT_PATHS = {
-        "/api/admin/**", "/swagger-ui/**", "/api-docs/**", "/*", "/**", "/error", "/favicon.ico", "/", "/health"
+        "/api/admin/**", "/swagger-ui/**", "/api-docs/**", "/*", "/**", "/error", "/favicon.ico", "/"
     };
 
     private static final String[] ALLOW_ORIGINS = {
+        "http://localhost:8086",
         "http://localhost:8080",
-        "http://localhost:5173",
+        "http://localhost:3000",
         "https://api.aptner.site",
         "https://aptner.site"
     };

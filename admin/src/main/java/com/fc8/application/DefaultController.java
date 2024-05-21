@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class DefaultController {
 
-    @GetMapping("/health")
+    @GetMapping("/")
     public String home() {
         return "<h1>aptner<h1>";
     }
