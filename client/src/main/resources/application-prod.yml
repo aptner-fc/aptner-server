@@ -1,5 +1,5 @@
 server:
-  port: 5050
+  port: 5000
   servlet:
     encoding:
       charset: utf-8
@@ -63,7 +63,6 @@ cloud:
       static: ap-northeast-2
     stack:
       auto: 'false'
-    '[org.springframework.boot.web]':
 
 coolsms:
   api:
