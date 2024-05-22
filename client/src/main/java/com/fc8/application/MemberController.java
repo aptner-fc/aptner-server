@@ -41,7 +41,7 @@ public class MemberController {
 
     @Operation(summary = "댓글 작성 API", description = "댓글 작성 API 입니다.")
     @GetMapping(value = "/send-verification")
-    public ResponseEntity<CommonResponse<SendSMSCodeResponse>> sendVerificationCode(@RequestParam("phone") String phone) {
+    public ResponseEntity<CommonResponse<SendSMSCodeResponse>> sendVerificationCode(@RequestParam String phone) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.sendVerificationCode(phone));
     }
 

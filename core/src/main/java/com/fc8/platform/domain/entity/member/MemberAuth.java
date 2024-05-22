@@ -18,7 +18,7 @@ public class MemberAuth {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '회원 고유 번호'")
+    @Column(name = "id", columnDefinition = "BIGINT UNSIGNED comment '인증 고유 번호'")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
