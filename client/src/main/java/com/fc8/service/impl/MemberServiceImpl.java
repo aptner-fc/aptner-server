@@ -3,6 +3,7 @@ package com.fc8.service.impl;
 import com.fc8.infrastructure.jwt.JwtTokenProvider;
 import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
+import com.fc8.platform.common.exception.CustomRedisException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.*;
@@ -52,17 +53,22 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public Long signUp(SignUpMemberCommand command) {
-        // 1. 유효성 검사 및 회원 정보 생성
+        // 1. 휴대전화 인증 검사
+        if (redisUtils.isValidateAndVerified(command.getPhone(), command.getVerificationCode())) {
+            throw new CustomRedisException(ErrorCode.INVALID_OR_EXPIRED_SMS);
+        }
+
+        // 2. 유효성 검사 및 회원 정보 생성
         validateDuplication(command);
         var newMember = memberRepository.store(command.toEntity(passwordEncoder.encode(command.getPassword())));
 
-        // 2. 유효성 검사 및 회원 약관 동의 정보 생성
+        // 3. 유효성 검사 및 회원 약관 동의 정보 생성
         List<TermsMemberMapping> termsMemberMappings = getAndValidateTermsWithMapping(newMember, command.getTermsAgreements());
         if (!termsMemberMappings.isEmpty()) {
             termsMemberMappingRepository.storeAll(termsMemberMappings);
         }
 
-        // 3. 회원의 아파트 등록 정보 생성
+        // 4. 회원의 아파트 등록 정보 생성
         createMemberApartInfo(newMember, command);
 
         return newMember.getId();
@@ -88,8 +94,8 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private void createMemberApartInfo(Member newMember, SignUpMemberCommand command) {
-        ApartmentInfo apartment = command.getApartment();
-        ApartDetailInfo apartDetailInfo = apartment.apartDetailInfo();
+        final ApartmentInfo apartment = command.getApartment();
+        final ApartDetailInfo apartDetailInfo = apartment.apartDetailInfo();
 
         var apart = apartRepository.getByCode(apartment.code());
         var apartMemberMapping = ApartMemberMapping.createFirst(apart, newMember, apartDetailInfo.toDomain());
@@ -98,13 +104,13 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private TokenInfo getTokenInfoByEmail(String email) {
-        String accessToken = jwtTokenProvider.createAccessToken(email);
-        Date accessExpiredAt = jwtTokenProvider.getExpirationByToken(accessToken);
+        final String accessToken = jwtTokenProvider.createAccessToken(email);
+        final Date accessExpiredAt = jwtTokenProvider.getExpirationByToken(accessToken);
         return new TokenInfo(accessToken, accessExpiredAt);
     }
 
     private List<TermsMemberMapping> getAndValidateTermsWithMapping(Member member, List<TermsAgreement> termsAgreements) {
-        final List<Terms> usedTermsList = termsRepository.getAllByIsUsed();
+        List<Terms> usedTermsList = termsRepository.getAllByIsUsed();
         // 1. 사용중인 약관이 존재하지 않을 경우 생성하지 않는다.
         if (!usedTermsList.isEmpty()) {
             validateTermsList(usedTermsList, termsAgreements);

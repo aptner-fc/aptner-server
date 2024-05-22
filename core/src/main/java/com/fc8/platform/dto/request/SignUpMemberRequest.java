@@ -31,7 +31,11 @@ public class SignUpMemberRequest {
     @Size(min = 8, max = 16, message = "비밀번호는 최소 8글자 이상 최대 16글자 이하로 작성해야 합니다.")
     private String password;
 
+    @NotNull(message = "전화번호가 누락되었습니다.")
     private String phone;
+
+    @NotNull(message = "인증 코드가 누락되었습니다.")
+    private String verificationCode;
 
     @NotNull
     private Gender gender;

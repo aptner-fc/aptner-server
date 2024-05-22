@@ -24,6 +24,8 @@ public class SignUpMemberCommand {
 
     private final String phone;
 
+    private final String verificationCode;
+
     private final Gender gender;
 
     private final ApartmentInfo apartment;

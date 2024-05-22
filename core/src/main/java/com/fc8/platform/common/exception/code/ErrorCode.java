@@ -40,6 +40,13 @@ public enum ErrorCode {
     EXPIRED_CREDENTIAL(HttpStatus.BAD_REQUEST, "사용자 인증 정보가 만료되었습니다."),
 
     /**
+     * SMS
+     */
+    INVALID_OR_EXPIRED_SMS(HttpStatus.BAD_REQUEST, "SMS 인증 시간이 만료되었거나 인증을 받지 않았습니다."),
+    INVALID_SMS_CODE(HttpStatus.BAD_REQUEST, "잘못된 SMS 코드입니다."),
+    MAX_VERIFY_ATTEMPTS(HttpStatus.BAD_REQUEST, "SMS 인증 시도에 실패했습니다."),
+
+    /**
      * Admin, Member
      */
     NOT_FOUND_ADMIN(HttpStatus.BAD_REQUEST, "어드민 정보를 찾을 수 없습니다."),

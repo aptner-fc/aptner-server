@@ -3,6 +3,7 @@ package com.fc8.platform.common.handler;
 
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.exception.CustomRedisException;
 import com.fc8.platform.common.response.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -25,6 +26,12 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
+    }
+
+    @ExceptionHandler(CustomRedisException.class)
+    public ResponseEntity<CommonResponse<String>> handle(CustomRedisException e) {
+        ErrorCode errorCode = e.getErrorCode();
+        return CommonResponse.fail(errorCode);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

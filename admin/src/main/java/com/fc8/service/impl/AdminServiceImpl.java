@@ -90,8 +90,8 @@ public class AdminServiceImpl implements AdminService {
     }
 
     private TokenInfo getTokenInfoByEmail(String email) {
-        String accessToken = jwtTokenProvider.createAccessToken(email);
-        Date accessExpiredAt = jwtTokenProvider.getExpirationByToken(accessToken);
+        final String accessToken = jwtTokenProvider.createAccessToken(email);
+        final Date accessExpiredAt = jwtTokenProvider.getExpirationByToken(accessToken);
         return new TokenInfo(accessToken, accessExpiredAt);
     }
 

@@ -18,4 +18,11 @@ public class GenerateUtils {
                 .mapToObj(i -> String.valueOf(RANDOM.nextInt(10)))
                 .collect(Collectors.joining());
     }
+
+    public static String generateRandomCode() {
+        return IntStream.range(0, RedisProperties.VERIFICATION_CODE_LENGTH)
+                .mapToObj(i -> String.valueOf(RedisProperties.CODE_CHARACTERS.charAt(RANDOM.nextInt(RedisProperties.CODE_CHARACTERS.length()))))
+                .collect(Collectors.joining());
+    }
+
 }
