@@ -74,8 +74,8 @@ jobs:
         with:
           aws_access_key: ${{ secrets.AWS_ACCESS_KEY }}
           aws_secret_key: ${{ secrets.AWS_SECRET_KEY }}
-          application_name: aptnerelb # 엘라스틱 빈스톡 애플리케이션 이름
-          environment_name: Aptnerelb-env # 엘라스틱 빈스톡 환경 이름
+          application_name: aptnereb # 엘라스틱 빈스톡 애플리케이션 이름
+          environment_name: Aptnereb-env # 엘라스틱 빈스톡 환경 이름
           version_label: aptner-${{steps.current-time.outputs.formattedTime}}
           region: ap-northeast-2
           deployment_package: deploy/deploy.zip   # 배포패키지 경로
