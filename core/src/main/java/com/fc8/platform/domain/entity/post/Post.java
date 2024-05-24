@@ -7,6 +7,8 @@ import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder()
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -32,12 +34,17 @@ public class Post extends BaseApartEntity {
     @Column(name = "content", nullable = false, columnDefinition = "mediumtext comment '내용'")
     private String content;
 
+    // 게시글 상태 추가 TODO
+
     @ManyToOne
     @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
     private Member member;
 
     @Column(name = "thumbnail_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
     private String thumbnailPath;
+
+    @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
+    private LocalDateTime deletedAt;
 
     public static Post create(Category category,
                               Member member,
