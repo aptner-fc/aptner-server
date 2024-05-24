@@ -69,7 +69,12 @@ public enum ErrorCode {
      * Apart
      */
     NOT_PERMISSION_APART(HttpStatus.BAD_REQUEST, "해당 아파트의 권한이 없습니다."),
-    NOT_FOUND_USED_APART(HttpStatus.BAD_REQUEST, "사용중인 아파트 정보를 찾을 수 없습니다.")
+    NOT_FOUND_USED_APART(HttpStatus.BAD_REQUEST, "사용중인 아파트 정보를 찾을 수 없습니다."),
+
+    /**
+     * Category
+     */
+    NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
 
     ;
 

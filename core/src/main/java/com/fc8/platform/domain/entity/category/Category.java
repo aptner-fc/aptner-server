@@ -39,6 +39,7 @@ public class Category {
     @JoinColumn(name = "parent_id", columnDefinition = "bigint unsigned comment '카테고리 부모 번호'")
     private Category parent;
 
+    @Builder.Default
     @OneToMany(mappedBy = "parent", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<Category> children = new ArrayList<>();
 

@@ -158,7 +158,33 @@ VALUES (
        );
 
 /**
-    아파트
+  아파트
  */
-INSERT INTO apart (code, type, title, content, address, link, is_used)
-VALUES ('RO000', 'AT000', '리더스원', '삼성물산 건설부문 대표이사 오세철서울특별시 사업자등록번호 468-85-00111', '1강동구 상일로 6길 26', 'https://www.raemian.co.kr/sales/s/LeadersOne', 1);
+INSERT INTO apart (code, type, title, content, address, link, is_used, contact, created_at, updated_at)
+VALUES ('RO000', 'AT000', '리더스원', '삼성물산 건설부문 대표이사 오세철서울특별시 사업자등록번호 468-85-00111', '1강동구 상일로 6길 26', 'https://www.raemian.co.kr/sales/s/LeadersOne', 1, '3845-1189', now(), now());
+
+/**
+  카테고리
+ */
+INSERT INTO category (type, code, name, is_used, parent_id)
+VALUES ('POST', 'PT000', '소통게시판', 1, NULL);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT001', '자유게시판', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT002', '나눔장터', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT003', '취미게시판', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT004', '주변 추천', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT005', '분실물', 1);
+
+UPDATE category c
+JOIN (SELECT id FROM category WHERE code = 'PT000') parent
+SET c.parent_id = parent.id
+WHERE c.code IN ('PT001', 'PT002', 'PT003', 'PT004', 'PT005');

@@ -59,6 +59,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                         isActive()
                 )
                 .fetchOne();
+
         return Optional.ofNullable(activeMember)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
     }

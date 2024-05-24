@@ -14,4 +14,9 @@ public class BaseApartEntity extends BaseTimeEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "apart_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '아파트 정보'")
     private Apart apart;
+
+    protected void updateApart(Apart apart) {
+        this.apart = apart;
+    }
+
 }

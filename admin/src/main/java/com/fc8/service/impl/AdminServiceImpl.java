@@ -6,8 +6,6 @@ import com.fc8.infrastructure.security.CustomUserDetailsService;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
-import com.fc8.platform.domain.entity.admin.Admin;
-import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.MemberAuth;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
@@ -52,12 +50,12 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @Transactional
     public SignInAdminInfo signIn(SignInAdminCommand command) {
-        String email = command.getEmail();
-        String password = command.getPassword();
+        final String email = command.getEmail();
+        final String password = command.getPassword();
 
         // 1. 회원 조회
-        AptnerAdmin aptnerAdmin = (AptnerAdmin) customUserDetailsService.loadUserByUsername(email);
-        Admin admin = aptnerAdmin.getAptnerAdmin();
+        var aptnerAdmin = (AptnerAdmin) customUserDetailsService.loadUserByUsername(email);
+        var admin = aptnerAdmin.getAptnerAdmin();
 
         // 2. 비밀번호 검증
         ValidateUtils.validatePassword(password, admin.getPassword());
@@ -76,10 +74,10 @@ public class AdminServiceImpl implements AdminService {
 
         member.updateActive();
 
-        Member storedMember = memberRepository.store(member);
+        var storedMember = memberRepository.store(member);
 
-        MemberAuth memberAuth = MemberAuth.of(storedMember, admin);
-        MemberAuth newMemberAuth = memberAuthRepository.store(memberAuth);
+        var memberAuth = MemberAuth.of(storedMember, admin);
+        var newMemberAuth = memberAuthRepository.store(memberAuth);
 
         return new AuthMemberInfo(
                 newMemberAuth.getId(),

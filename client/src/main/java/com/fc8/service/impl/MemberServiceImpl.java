@@ -63,7 +63,7 @@ public class MemberServiceImpl implements MemberService {
         var newMember = memberRepository.store(command.toEntity(passwordEncoder.encode(command.getPassword())));
 
         // 3. 유효성 검사 및 회원 약관 동의 정보 생성
-        List<TermsMemberMapping> termsMemberMappings = getAndValidateTermsWithMapping(newMember, command.getTermsAgreements());
+        var termsMemberMappings = getAndValidateTermsWithMapping(newMember, command.getTermsAgreements());
         if (!termsMemberMappings.isEmpty()) {
             termsMemberMappingRepository.storeAll(termsMemberMappings);
         }
@@ -77,12 +77,12 @@ public class MemberServiceImpl implements MemberService {
     @Override
     @Transactional
     public SignInMemberInfo signIn(SignInMemberCommand command) {
-        String email = command.getEmail();
-        String password = command.getPassword();
+        final String email = command.getEmail();
+        final String password = command.getPassword();
 
         // 1. 회원 조회
-        AptnerMember aptnerMember = (AptnerMember) customUserDetailsService.loadUserByUsername(email);
-        Member member = aptnerMember.getMember();
+        var aptnerMember = (AptnerMember) customUserDetailsService.loadUserByUsername(email);
+        var member = aptnerMember.getMember();
 
         // 2. 비밀번호 검증
         ValidateUtils.validatePassword(password, member.getPassword());
@@ -110,7 +110,7 @@ public class MemberServiceImpl implements MemberService {
     }
 
     private List<TermsMemberMapping> getAndValidateTermsWithMapping(Member member, List<TermsAgreement> termsAgreements) {
-        List<Terms> usedTermsList = termsRepository.getAllByIsUsed();
+        var usedTermsList = termsRepository.getAllByIsUsed();
         // 1. 사용중인 약관이 존재하지 않을 경우 생성하지 않는다.
         if (!usedTermsList.isEmpty()) {
             validateTermsList(usedTermsList, termsAgreements);
@@ -127,7 +127,7 @@ public class MemberServiceImpl implements MemberService {
 
     private List<TermsMemberMapping> getTermsMemberMappings(Member member, List<Terms> usedTermsList, List<TermsAgreement> termsAgreements) {
         List<TermsMemberMapping> mappings = new ArrayList<>();
-        LocalDateTime now = LocalDateTime.now();
+        final LocalDateTime now = LocalDateTime.now();
 
         usedTermsList.forEach(terms -> {
             TermsAgreement termsAgreement = termsAgreements.stream()
@@ -135,7 +135,7 @@ public class MemberServiceImpl implements MemberService {
                     .findFirst()
                     .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_TERMS));
 
-            boolean isAgreed = termsAgreement.isAgreed();
+            final boolean isAgreed = termsAgreement.isAgreed();
 
             if (terms.isRequired() && !isAgreed) {
                 throw new InvalidParamException(ErrorCode.MISSING_REQUIRED_AGREEMENT);

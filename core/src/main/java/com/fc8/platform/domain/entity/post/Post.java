@@ -1,13 +1,14 @@
 package com.fc8.platform.domain.entity.post;
 
 import com.fc8.platform.domain.BaseApartEntity;
+import com.fc8.platform.domain.entity.apartment.Apart;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Getter
-@Builder
+@Builder()
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
@@ -35,7 +36,27 @@ public class Post extends BaseApartEntity {
     @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
     private Member member;
 
-    @Column(name = "image_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
-    private String imagePath;
+    @Column(name = "thumbnail_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
+    private String thumbnailPath;
+
+    public static Post create(Category category,
+                              Member member,
+                              Apart apart,
+                              String title,
+                              String content) {
+        Post post = Post.builder()
+                .category(category)
+                .member(member)
+                .title(title)
+                .content(content)
+                .build();
+        post.updateApart(apart);
+
+        return post;
+    }
+
+    public void updateThumbnail(String thumbnailPath) {
+        this.thumbnailPath = thumbnailPath;
+    }
 
 }

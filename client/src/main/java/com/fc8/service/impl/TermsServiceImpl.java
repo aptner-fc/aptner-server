@@ -1,6 +1,5 @@
 package com.fc8.service.impl;
 
-import com.fc8.platform.domain.entity.terms.Terms;
 import com.fc8.platform.dto.record.UsedTermsInfo;
 import com.fc8.platform.repository.TermsRepository;
 import com.fc8.service.TermsService;
@@ -19,7 +18,7 @@ public class TermsServiceImpl implements TermsService {
 
     @Override
     public List<UsedTermsInfo> loadUsedTermsList() {
-        List<Terms> termsList = termsRepository.getAllByIsUsed();
+        var termsList = termsRepository.getAllByIsUsed();
         return UsedTermsInfo.fromEntityList(termsList);
     }
 

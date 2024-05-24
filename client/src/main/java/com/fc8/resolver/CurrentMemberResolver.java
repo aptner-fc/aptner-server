@@ -5,7 +5,6 @@ import com.fc8.infrastructure.jwt.JwtTokenProvider;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ListUtils;
-import com.fc8.platform.domain.entity.apartment.Apart;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.dto.record.ApartInfo;
 import com.fc8.platform.dto.record.CurrentMember;
@@ -19,8 +18,6 @@ import org.springframework.web.bind.support.WebDataBinderFactory;
 import org.springframework.web.context.request.NativeWebRequest;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.method.support.ModelAndViewContainer;
-
-import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -43,9 +40,9 @@ public class CurrentMemberResolver implements HandlerMethodArgumentResolver {
         /**
          * TODO refactor : 조회 로직 변경
          */
-        Member member = memberRepository.getByEmail(email);
-        Apart mainApart = apartRepository.getMainApartByMember(member);
-        List<Apart> apartList = apartRepository.getNotMainApartListByMember(member);
+        var member = memberRepository.getByEmail(email);
+        var mainApart = apartRepository.getMainApartByMember(member);
+        var apartList = apartRepository.getNotMainApartListByMember(member);
         validateCurrentMember(member);
 
         return CurrentMember.fromEntityWithApartInfo(member, ApartInfo.fromEntity(mainApart), ApartInfo.fromEntityList(apartList));

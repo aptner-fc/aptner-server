@@ -21,14 +21,19 @@ public class PostReply extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
+    @JoinColumn(name = "post_id", columnDefinition = "bigint unsigned comment '소통 게시판 ID'")
+    private Post post;
+
+    @ManyToOne
+    @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
+    private Member member;
+
+    @ManyToOne
     @JoinColumn(name = "post_reply_id", columnDefinition = "bigint unsigned comment '상위 댓글 ID'")
     private PostReply parent;
 
     @Column(name = "content", columnDefinition = "varchar(255) comment '댓글 내용'")
     private String content;
 
-    @ManyToOne
-    @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
-    private Member member;
 
 }

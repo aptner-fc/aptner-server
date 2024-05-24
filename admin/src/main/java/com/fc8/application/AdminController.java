@@ -29,7 +29,7 @@ public class AdminController {
     @PostMapping(value = "/sign-up")
     public ResponseEntity<CommonResponse<SignUpAdminResponse>> signUp(@Valid @RequestBody SignUpAdminRequest request) {
         var command = adminMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS, adminFacade.signUp(command));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, adminFacade.signUp(command));
     }
 
     @PostMapping(value = "/sign-in")
