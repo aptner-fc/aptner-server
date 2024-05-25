@@ -20,7 +20,7 @@ public class QnaReplyImage {
 
     @ManyToOne
     @JoinColumn(name = "qna_reply_id", columnDefinition = "bigint unsigned comment '민원 게시판 댓글 ID'")
-    private QnaReply qnaReply;
+    private QnaComment qnaComment;
 
     @Column(name = "image_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
     private String imagePath;

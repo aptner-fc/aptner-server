@@ -13,4 +13,6 @@ public interface QnaRepository {
     Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode);
 
     void delete(Qna qna);
+
+    Qna getByIdAndApartCode(Long qnaId, String apartCode);
 }

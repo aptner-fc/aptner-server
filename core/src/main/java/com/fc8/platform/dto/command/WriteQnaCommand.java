@@ -9,7 +9,7 @@ import lombok.Getter;
 
 @Getter
 @Builder
-public class CreateQnaCommand {
+public class WriteQnaCommand {
 
     private final String categoryCode;
 

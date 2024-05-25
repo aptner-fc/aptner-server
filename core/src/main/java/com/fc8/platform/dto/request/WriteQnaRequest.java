@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-public class CreateQnaRequest {
+public class WriteQnaRequest {
 
     @NotBlank(message = "카테고리가 누락되었습니다.")
     private String categoryCode;

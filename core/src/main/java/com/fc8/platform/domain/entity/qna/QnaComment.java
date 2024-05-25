@@ -5,15 +5,17 @@ import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-    name = "qna_reply"
+    name = "qna_comment"
 )
-public class QnaReply extends BaseTimeEntity {
+public class QnaComment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,10 +31,30 @@ public class QnaReply extends BaseTimeEntity {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "qna_reply_id", columnDefinition = "bigint unsigned comment '상위 댓글 ID'")
-    private QnaReply parent;
+    @JoinColumn(name = "parent_id", columnDefinition = "bigint unsigned comment '상위 댓글 ID'")
+    private QnaComment parent;
 
     @Column(name = "content", columnDefinition = "varchar(255) comment '댓글 내용'")
     private String content;
+
+    @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
+    private LocalDateTime deletedAt;
+
+    public static QnaComment createComment(Qna qna, Member member, String content) {
+        return QnaComment.builder()
+            .qna(qna)
+            .member(member)
+            .content(content)
+            .build();
+    }
+
+    public static QnaComment createReply(Qna qna, QnaComment comment, Member member, String content) {
+        return QnaComment.builder()
+            .qna(qna)
+            .parent(comment)
+            .member(member)
+            .content(content)
+            .build();
+    }
 
 }

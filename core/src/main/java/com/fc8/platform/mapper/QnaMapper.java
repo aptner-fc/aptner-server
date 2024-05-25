@@ -1,9 +1,9 @@
 package com.fc8.platform.mapper;
 
-import com.fc8.platform.dto.command.CreateQnaCommand;
-import com.fc8.platform.dto.record.SearchPageCommand;
-import com.fc8.platform.dto.request.CreateQnaRequest;
-import com.fc8.platform.dto.request.SearchPageRequest;
+import com.fc8.platform.dto.command.WriteQnaCommand;
+import com.fc8.platform.dto.command.WriteQnaCommentCommand;
+import com.fc8.platform.dto.request.WriteQnaRequest;
+import com.fc8.platform.dto.request.WriteQnaCommentRequest;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -15,8 +15,8 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface QnaMapper {
 
-    CreateQnaCommand of(CreateQnaRequest request);
+    WriteQnaCommand of(WriteQnaRequest request);
 
-    SearchPageCommand of(SearchPageRequest request);
+    WriteQnaCommentCommand of(WriteQnaCommentRequest request);
 
 }

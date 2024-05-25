@@ -75,6 +75,20 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
+    public Qna getByIdAndApartCode(Long qnaId, String apartCode) {
+        Qna activeQna = jpaQueryFactory
+            .selectFrom(qna)
+            .where(
+                eqId(qna, qnaId),
+                eqApartCode(qna, apartCode)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeQna)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
     public Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode) {
         Qna activeQna = jpaQueryFactory
             .selectFrom(qna)

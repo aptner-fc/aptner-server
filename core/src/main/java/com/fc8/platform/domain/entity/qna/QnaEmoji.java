@@ -32,4 +32,12 @@ public class QnaEmoji {
     @Column(name = "emoji", nullable = false, columnDefinition = "varchar(20) comment '이모지'")
     private EmojiType emoji;
 
+    public static QnaEmoji create(Qna qna, Member member, EmojiType emoji) {
+        return QnaEmoji.builder()
+            .qna(qna)
+            .member(member)
+            .emoji(emoji)
+            .build();
+    }
+
 }
