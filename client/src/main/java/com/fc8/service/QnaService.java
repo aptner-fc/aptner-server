@@ -11,4 +11,6 @@ public interface QnaService {
     Long create(Long memberId, String apartCode, CreateQnaCommand command, MultipartFile image);
 
     Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command);
+
+    void deleteQna(Long memberId, Long qnaId, String apartCode);
 }

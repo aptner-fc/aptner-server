@@ -73,4 +73,17 @@ public class QnaServiceImpl implements QnaService {
 
         return new PageImpl<>(qnaInfoList, pageable, qnaList.getTotalElements());
     }
+
+    @Override
+    @Transactional
+    public void deleteQna(Long memberId, Long qnaId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+
+        // 3. 삭제
+        qnaRepository.delete(qna);
+    }
 }

@@ -31,4 +31,8 @@ public class QnaFacade {
         // 상단 고정 게시물
         return new PageResponse<>(qnas, new LoadQnaListResponse(qnas.getContent(), null));
     }
+
+    public void deleteQna(Long memberId, Long qnaId, String apartCode) {
+        qnaService.deleteQna(memberId, qnaId, apartCode);
+    }
 }

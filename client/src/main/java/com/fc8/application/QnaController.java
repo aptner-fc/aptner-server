@@ -11,6 +11,7 @@ import com.fc8.platform.dto.request.SearchPageRequest;
 import com.fc8.platform.dto.response.CreateQnaResponse;
 import com.fc8.platform.dto.response.LoadQnaListResponse;
 import com.fc8.platform.dto.response.PageResponse;
+import com.fc8.platform.mapper.PageMapper;
 import com.fc8.platform.mapper.QnaMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -29,6 +30,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class QnaController {
 
     private final QnaMapper qnaMapper;
+    private final PageMapper pageMapper;
     private final QnaFacade qnaFacade;
 
     @Operation(summary = "민원 등록 API")
@@ -44,6 +46,20 @@ public class QnaController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.create(currentMember.id(), apartCode, command, image));
     }
 
+    // 민원 수정
+    @Operation(summary = "민원 삭제 API")
+    @CheckApartType
+    @DeleteMapping("/{apartCode}/{qnaId}")
+    public ResponseEntity<CommonResponse<CreateQnaResponse>> deleteQna(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @CheckCurrentMember CurrentMember currentMember
+    ) {
+        qnaFacade.deleteQna(currentMember.id(), qnaId, apartCode);
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+    }
+    // 민원 상세 조회
+
     @Operation(summary = "민원 게시판 목록 조회 API")
     @CheckApartType
     @GetMapping(value = "/{apartCode}")
@@ -52,8 +68,13 @@ public class QnaController {
         @CheckCurrentMember CurrentMember currentMember,
         SearchPageRequest request
     ) {
-        var command = qnaMapper.of(request);
+        var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadQnaList(currentMember.id(), apartCode, command));
     }
+
+    // 민원 댓글 등록
+    // 민원 댓글 수정
+    // 민원 댓글 삭제
+    // 민원 댓글 목록 조회
 
 }

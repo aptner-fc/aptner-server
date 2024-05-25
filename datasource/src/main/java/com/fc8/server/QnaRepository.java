@@ -10,5 +10,7 @@ public interface QnaRepository {
 
     Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search);
 
+    Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode);
 
+    void delete(Qna qna);
 }

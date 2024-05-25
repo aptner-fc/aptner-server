@@ -1,5 +1,7 @@
 package com.fc8.server.impl;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.qna.QQna;
@@ -16,6 +18,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -42,7 +45,7 @@ public class QnaRepositoryImpl implements QnaRepository {
                 // 1. 삭제된 게시글
                 isNotDeleted(),
                 // 2. 아파트 코드
-                eqApartCode(apartCode)
+                eqApartCode(qna, apartCode)
                 // 3. 회원 차단 TODO
 
                 // 4. 검색어
@@ -59,14 +62,38 @@ public class QnaRepositoryImpl implements QnaRepository {
                 // 1. 삭제된 게시글
                 isNotDeleted(),
                 // 2. 아파트 코드
-                eqApartCode(apartCode)
+                eqApartCode(qna, apartCode)
                 // 3. 회원 차단 TODO
             );
 
         return PageableExecutionUtils.getPage(qnaList, pageable, count::fetchOne);
     }
 
-    private BooleanExpression eqApartCode(String apartCode) {
+    @Override
+    public void delete(Qna qna) {
+        qnaJpaRepository.delete(qna);
+    }
+
+    @Override
+    public Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode) {
+        Qna activeQna = jpaQueryFactory
+            .selectFrom(qna)
+            .innerJoin(category).on(qna.category.id.eq(category.id))
+            .where(
+                eqId(qna, qnaId),
+                eqApartCode(qna, apartCode)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeQna)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    private BooleanExpression eqId(QQna qna, Long qnaId) {
+        return qna.id.eq(qnaId);
+    }
+
+    private BooleanExpression eqApartCode(QQna qna, String apartCode) {
         return qna.apart.code.eq(apartCode);
     }
 
