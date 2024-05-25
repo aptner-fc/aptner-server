@@ -1,5 +1,7 @@
 package com.fc8.server.impl;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.post.Post;
@@ -16,6 +18,7 @@ import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -40,9 +43,9 @@ public class PostRepositoryImpl implements PostRepository {
                 .innerJoin(category).on(post.category.id.eq(category.id))
                 .where(
                         // 1. 삭제된 포스트
-                        isNotDeleted(),
+                        isNotDeleted(post),
                         // 2. 아파트 코드
-                        eqApartCode(apartCode)
+                        eqApartCode(post, apartCode)
                         // 3. 회원 차단 TODO
 
                         // 4. 검색어
@@ -57,20 +60,53 @@ public class PostRepositoryImpl implements PostRepository {
                 .innerJoin(category).on(post.category.id.eq(category.id))
                 .where(
                         // 1. 삭제된 포스트
-                        isNotDeleted(),
+                        isNotDeleted(post),
                         // 2. 아파트 코드
-                        eqApartCode(apartCode)
+                        eqApartCode(post, apartCode)
                         // 3. 회원 차단 TODO
                 );
 
         return PageableExecutionUtils.getPage(postList, pageable, count::fetchOne);
     }
 
-    private BooleanExpression eqApartCode(String apartCode) {
+    @Override
+    public Post getByIdAndApartCode(Long postId, String apartCode) {
+        Post activePost = jpaQueryFactory
+                .selectFrom(post)
+                .where(
+                        eqId(post, postId),
+                        eqApartCode(post, apartCode)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activePost)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public Post getPostWithCategoryByIdAndApartCode(Long postId, String apartCode) {
+        Post activePost = jpaQueryFactory
+                .selectFrom(post)
+                .innerJoin(category).on(post.category.id.eq(category.id))
+                .where(
+                        eqId(post, postId),
+                        eqApartCode(post, apartCode)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activePost)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    private BooleanExpression eqId(QPost post, Long postId) {
+        return post.id.eq(postId);
+    }
+
+    private BooleanExpression eqApartCode(QPost post, String apartCode) {
         return post.apart.code.eq(apartCode);
     }
 
-    private BooleanExpression isNotDeleted() {
+    private BooleanExpression isNotDeleted(QPost post) {
         return post.deletedAt.isNull();
     }
 

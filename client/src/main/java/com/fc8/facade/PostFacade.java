@@ -1,11 +1,11 @@
 package com.fc8.facade;
 
+import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
+import com.fc8.platform.dto.command.WritePostCommentCommand;
 import com.fc8.platform.dto.record.PostInfo;
 import com.fc8.platform.dto.record.SearchPageCommand;
-import com.fc8.platform.dto.response.LoadPostListResponse;
-import com.fc8.platform.dto.response.PageResponse;
-import com.fc8.platform.dto.response.WritePostResponse;
+import com.fc8.platform.dto.response.*;
 import com.fc8.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +13,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -28,9 +30,32 @@ public class PostFacade {
 
     @Transactional(readOnly = true)
     public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 1. 소통 게시판 게시물 조회
         final Page<PostInfo> posts = postService.loadPostList(memberId, apartCode, command);
-        // 상단 고정 게시물
+
+        // 2. 상단 고정 게시물 조회
+
         return new PageResponse<>(posts, new LoadPostListResponse(posts.getContent(), null));
+    }
+
+    public WritePostCommentResponse writeComment(Long memberId, Long postId, String apartCode, WritePostCommentCommand command, MultipartFile image) {
+        return new WritePostCommentResponse(
+                Optional.ofNullable(command.getParentId())
+                        .map(parentId -> postService.writeReply(memberId, postId, apartCode, command, image))
+                        .orElseGet(() -> postService.writeComment(memberId, postId, apartCode, command, image))
+        );
+    }
+
+    public LoadPostDetailResponse loadPostDetail(Long memberId, Long postId, String apartCode) {
+        return new LoadPostDetailResponse(postService.loadPostDetail(memberId, postId, apartCode));
+    }
+
+    public RegisterEmojiResponse registerEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {
+        return new RegisterEmojiResponse(postService.registerEmoji(memberId, postId, apartCode, emoji));
+    }
+
+    public void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {
+        postService.deleteEmoji(memberId, postId, apartCode, emoji);
     }
 
 }

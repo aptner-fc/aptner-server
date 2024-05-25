@@ -19,25 +19,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BaseException.class)
     public ResponseEntity<CommonResponse<String>> handle(BaseException e) {
-        ErrorCode errorCode = e.getErrorCode();
-        return CommonResponse.fail(errorCode);
+        log.error("BaseException : {} ", e.getMessage());
+        return CommonResponse.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<CommonResponse<String>> handle(RuntimeException e) {
-        e.printStackTrace();
+        log.error("RuntimeException : {}", e.getMessage());
         return CommonResponse.fail(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage());
     }
 
     @ExceptionHandler(CustomRedisException.class)
     public ResponseEntity<CommonResponse<String>> handle(CustomRedisException e) {
-        e.printStackTrace();
+        log.error("CustomRedisException : {} ", e.getMessage());
         return CommonResponse.fail(e.getErrorCode());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<CommonResponse<String>> handle(MethodArgumentNotValidException e) {
-        e.printStackTrace();
+        log.error("MethodArgumentNotValidException : {}", e.getMessage());
         return CommonResponse.fail(ErrorCode.VALIDATION_ERROR, Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage());
     }
 

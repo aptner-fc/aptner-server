@@ -32,4 +32,14 @@ public class PostEmoji {
     @Column(name = "emoji", nullable = false, columnDefinition = "varchar(20) comment '이모지'")
     private EmojiType emoji;
 
+    public static PostEmoji create(Post post,
+                                   Member member,
+                                   EmojiType emoji) {
+        return PostEmoji.builder()
+                .post(post)
+                .member(member)
+                .emoji(emoji)
+                .build();
+    }
+
 }

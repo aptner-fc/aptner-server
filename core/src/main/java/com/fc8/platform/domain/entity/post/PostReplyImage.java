@@ -20,7 +20,7 @@ public class PostReplyImage {
 
     @ManyToOne
     @JoinColumn(name = "post_reply_id", columnDefinition = "bigint unsigned comment '소통 게시판 댓글 ID'")
-    private PostReply postReply;
+    private PostComment postComment;
 
     @Column(name = "seq", columnDefinition = "int comment '이미지 순서'")
     private Integer seq;

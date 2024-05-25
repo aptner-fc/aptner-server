@@ -9,4 +9,8 @@ public interface PostRepository {
     Post store(Post post);
 
     Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search);
+
+    Post getByIdAndApartCode(Long postId, String apartCode);
+
+    Post getPostWithCategoryByIdAndApartCode(Long postId, String apartCode);
 }

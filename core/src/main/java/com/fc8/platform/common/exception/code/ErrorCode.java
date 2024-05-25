@@ -76,6 +76,18 @@ public enum ErrorCode {
      */
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
 
+    /**
+     * POST
+     */
+    NOT_FOUND_POST(HttpStatus.BAD_REQUEST, "게시글을 찾을 수 없습니다."),
+    NOT_FOUND_POST_COMMENT(HttpStatus.BAD_REQUEST, "게시글 댓글을 찾을 수 없습니다."),
+
+    /**
+     * EMOJI
+     */
+    ALREADY_REGISTER_EMOJI(HttpStatus.BAD_REQUEST, "이미 해당 감정 표현이 등록되어있습니다."),
+    NOT_FOUND_EMOJI(HttpStatus.BAD_REQUEST, "회원이 등록한 감정 표현을 찾을 수 없습니다."),
+
     ;
 
     private final HttpStatus httpStatus;
