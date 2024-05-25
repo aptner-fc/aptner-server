@@ -7,7 +7,10 @@ import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.record.CurrentMember;
 import com.fc8.platform.dto.request.CreateQnaRequest;
+import com.fc8.platform.dto.request.SearchPageRequest;
 import com.fc8.platform.dto.response.CreateQnaResponse;
+import com.fc8.platform.dto.response.LoadQnaListResponse;
+import com.fc8.platform.dto.response.PageResponse;
 import com.fc8.platform.mapper.QnaMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -39,6 +42,18 @@ public class QnaController {
     ) {
         var command = qnaMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.create(currentMember.id(), apartCode, command, image));
+    }
+
+    @Operation(summary = "민원 게시판 목록 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}")
+    public ResponseEntity<CommonResponse<PageResponse<LoadQnaListResponse>>> loadQnaList(
+        @NotNull @PathVariable String apartCode,
+        @CheckCurrentMember CurrentMember currentMember,
+        SearchPageRequest request
+    ) {
+        var command = qnaMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadQnaList(currentMember.id(), apartCode, command));
     }
 
 }

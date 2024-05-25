@@ -2,6 +2,8 @@ package com.fc8.service.impl;
 
 import com.fc8.platform.common.s3.S3Uploader;
 import com.fc8.platform.dto.command.CreateQnaCommand;
+import com.fc8.platform.dto.record.QnaInfo;
+import com.fc8.platform.dto.record.SearchPageCommand;
 import com.fc8.platform.repository.ApartRepository;
 import com.fc8.platform.repository.CategoryRepository;
 import com.fc8.platform.repository.MemberRepository;
@@ -9,11 +11,16 @@ import com.fc8.server.QnaRepository;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @Slf4j
 @Service
@@ -50,5 +57,20 @@ public class QnaServiceImpl implements QnaService {
 
         // 5. 파일 저장 TODO
         return srotedQna.getId();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 게시글 조회 (아파트 코드, 차단 사용자)
+        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search());
+        List<QnaInfo> qnaInfoList = qnaList.stream()
+            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
+            .toList();
+
+        return new PageImpl<>(qnaInfoList, pageable, qnaList.getTotalElements());
     }
 }

@@ -1,9 +1,14 @@
 package com.fc8.server;
 
 import com.fc8.platform.domain.entity.qna.Qna;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface QnaRepository {
 
     Qna store(Qna qna);
+
+    Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search);
+
 
 }
