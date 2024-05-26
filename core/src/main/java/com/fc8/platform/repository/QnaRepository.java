@@ -1,4 +1,4 @@
-package com.fc8.server;
+package com.fc8.platform.repository;
 
 import com.fc8.platform.domain.entity.qna.Qna;
 import org.springframework.data.domain.Page;

@@ -7,7 +7,7 @@ import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.server.QnaJpaRepository;
-import com.fc8.server.QnaRepository;
+import com.fc8.platform.repository.QnaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;

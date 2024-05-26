@@ -10,7 +10,7 @@ import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
-import com.fc8.server.QnaRepository;
+import com.fc8.platform.repository.QnaRepository;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
