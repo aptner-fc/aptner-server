@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.post;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.BaseApartEntity;
 import com.fc8.platform.domain.entity.apartment.Apart;
 import com.fc8.platform.domain.entity.category.Category;
@@ -64,6 +66,14 @@ public class Post extends BaseApartEntity {
 
     public void updateThumbnail(String thumbnailPath) {
         this.thumbnailPath = thumbnailPath;
+    }
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST);
+        }
+
+        this.deletedAt = LocalDateTime.now();
     }
 
 }

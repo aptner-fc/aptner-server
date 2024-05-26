@@ -24,8 +24,8 @@ public class PostFacade {
     private final PostService postService;
 //    private final PinnedPostService pinnedPostService;
 
-    public WritePostResponse write(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
-        return new WritePostResponse(postService.write(memberId, apartCode, command, image));
+    public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
+        return new WritePostResponse(postService.writePost(memberId, apartCode, command, image));
     }
 
     @Transactional(readOnly = true)
@@ -54,8 +54,13 @@ public class PostFacade {
         return new RegisterEmojiResponse(postService.registerEmoji(memberId, postId, apartCode, emoji));
     }
 
+    public DeletePostResponse deletePost(Long memberId, Long postId, String apartCode) {
+        return new DeletePostResponse(postService.deletePost(memberId, postId, apartCode));
+    }
+
     public void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {
         postService.deleteEmoji(memberId, postId, apartCode, emoji);
     }
+
 
 }

@@ -36,13 +36,13 @@ public class PostController {
     @Operation(summary = "소통 게시판 글 작성 API", description = "소통 게시판 글 작성 API 입니다.")
     @CheckApartType
     @PostMapping(value = "/{apartCode}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<CommonResponse<WritePostResponse>> write(
+    public ResponseEntity<CommonResponse<WritePostResponse>> writePost(
             @NotNull @PathVariable String apartCode,
             @CheckCurrentMember CurrentMember currentMember,
             @Valid @RequestPart(value = "request") WritePostRequest request,
             @RequestPart(value = "image", required = false) MultipartFile image) {
         var command = postMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.write(currentMember.id(), apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.writePost(currentMember.id(), apartCode, command, image));
     }
 
     @Operation(summary = "소통 게시판 목록 조회", description = "소통 게시판의 목록을 조회합니다.")
@@ -64,6 +64,16 @@ public class PostController {
             @NotNull @PathVariable Long postId,
             @CheckCurrentMember CurrentMember currentMember) {
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostDetail(currentMember.id(), postId, apartCode));
+    }
+
+    @Operation(summary = "소통 게시판 글 삭제 API", description = "소통 게시판 글 삭제 API 입니다.")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{postId}")
+    public ResponseEntity<CommonResponse<DeletePostResponse>> deletePost(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @CheckCurrentMember CurrentMember currentMember) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deletePost(currentMember.id(), postId, apartCode));
     }
 
     @Operation(summary = "소통 게시판 댓글 작성", description = "소통 게시판의 댓글을 작성합니다.")

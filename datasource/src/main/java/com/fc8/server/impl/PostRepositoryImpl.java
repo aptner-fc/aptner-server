@@ -3,6 +3,7 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.QPost;
@@ -96,6 +97,19 @@ public class PostRepositoryImpl implements PostRepository {
 
         return Optional.ofNullable(activePost)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public boolean isWriter(Post activePost, Member loginMember) {
+        return jpaQueryFactory
+                .selectOne()
+                .from(post)
+                .innerJoin(member).on(post.member.eq(member))
+                .where(
+                        post.eq(activePost),
+                        member.eq(loginMember)
+                )
+                .fetchFirst() != null;
     }
 
     private BooleanExpression eqId(QPost post, Long postId) {

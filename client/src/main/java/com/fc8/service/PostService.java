@@ -12,7 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface PostService {
 
-    Long write(Long memberId, String apartCode, WritePostCommand command, MultipartFile image);
+    Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image);
 
     Page<PostInfo> loadPostList(Long memberId, String apartCode, SearchPageCommand command);
 
@@ -23,6 +23,8 @@ public interface PostService {
     PostDetailInfo loadPostDetail(Long memberId, Long postId, String apartCode);
 
     EmojiInfo registerEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji);
+
+    Long deletePost(Long memberId, Long postId, String apartCode);
 
     void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji);
 }

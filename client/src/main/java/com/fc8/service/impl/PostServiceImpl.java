@@ -41,7 +41,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Long write(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
+    public Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
         // 1. 회원 및 카테고리 조회 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var member = memberRepository.getActiveMemberById(memberId);
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
@@ -140,7 +140,7 @@ public class PostServiceImpl implements PostService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+        var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
         boolean affected = postEmojiRepository.existsByPostAndMemberAndEmoji(post, member, emoji);
@@ -156,12 +156,33 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
+    public Long deletePost(Long memberId, Long postId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회 (본인 게시글 여부)
+        var post = postRepository.getByIdAndApartCode(postId, apartCode);
+
+        // 3. 본인 작성글 여부
+        boolean affected = postRepository.isWriter(post, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_WRITER);
+        }
+
+        // 4. 삭제
+        post.delete();
+
+        return postId;
+    }
+
+    @Override
+    @Transactional
     public void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {
         // 1. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+        var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 3. 레코드 검사 (등록된 감정 표현이 없을 경우 등록이 필요하다.)
         PostEmoji postEmoji = postEmojiRepository.getByPostAndMemberAndEmoji(post, member, emoji);
