@@ -29,9 +29,9 @@ public class QnaFacade {
 
     @Transactional(readOnly = true)
     public PageResponse<LoadQnaListResponse> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
-        final Page<QnaInfo> qnas = qnaService.loadQnaList(memberId, apartCode, command);
+        final Page<QnaInfo> qnaList = qnaService.loadQnaList(memberId, apartCode, command);
         // 상단 고정 게시물
-        return new PageResponse<>(qnas, new LoadQnaListResponse(qnas.getContent(), null));
+        return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), null));
     }
 
     public void deleteQna(Long memberId, Long qnaId, String apartCode) {
