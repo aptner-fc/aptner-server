@@ -77,7 +77,7 @@ public enum ErrorCode {
     NOT_FOUND_CATEGORY(HttpStatus.BAD_REQUEST, "카테고리를 찾을 수 없습니다."),
 
     /**
-     * POST
+     * POST & QNA
      */
     NOT_FOUND_POST(HttpStatus.BAD_REQUEST, "게시글을 찾을 수 없습니다."),
     NOT_FOUND_POST_COMMENT(HttpStatus.BAD_REQUEST, "게시글 댓글을 찾을 수 없습니다."),
