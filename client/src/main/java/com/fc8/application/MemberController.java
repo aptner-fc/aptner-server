@@ -43,7 +43,7 @@ public class MemberController {
 
     @Operation(summary = "인증 메세지 발급 API", description = "인증 메세지 발급 API 입니다.")
     @GetMapping(value = "/send-verification")
-    public ResponseEntity<CommonResponse<SendSMSCodeResponse>> sendVerificationCode(@NotNull(message = "전화번호가 누락되었습니다.") @RequestParam String phone) {
+    public ResponseEntity<CommonResponse<SendSMSCodeResponse>> sendVerificationCode(@NotNull(message = "전화번호가 누락되었습니다.") @RequestParam("phone") String phone) {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.sendVerificationCode(phone));
     }
 
