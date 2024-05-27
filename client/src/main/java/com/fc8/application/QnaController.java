@@ -46,6 +46,19 @@ public class QnaController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.write(currentMember.id(), apartCode, command, image));
     }
 
+    @Operation(summary = "민원 등록 API TEST")
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<CommonResponse<WriteQnaResponse>> writeQnaTest(
+        @NotNull @PathVariable String apartCode,
+        @CheckCurrentMember CurrentMember currentMember,
+        @Valid @RequestPart(value = "request") WriteQnaRequest request,
+        @RequestParam(value = "image", required = false) MultipartFile image
+    ) {
+        var command = qnaMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.write(currentMember.id(), apartCode, command, image));
+    }
+
     // 민원 수정
 
     @Operation(summary = "민원 삭제 API")
