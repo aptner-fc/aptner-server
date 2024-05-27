@@ -3,6 +3,9 @@ package com.fc8.platform.repository;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaComment;
+import com.fc8.platform.dto.record.SearchPageCommand;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface QnaCommentRepository {
 
@@ -12,4 +15,5 @@ public interface QnaCommentRepository {
 
     boolean isWriter(QnaComment comment, Member member);
 
+    Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable, String search);
 }

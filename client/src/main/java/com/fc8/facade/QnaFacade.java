@@ -3,6 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
+import com.fc8.platform.dto.record.QnaCommentInfo;
 import com.fc8.platform.dto.record.QnaInfo;
 import com.fc8.platform.dto.record.SearchPageCommand;
 import com.fc8.platform.dto.response.*;
@@ -60,5 +61,10 @@ public class QnaFacade {
 
     public DeleteQnaCommentResponse deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
         return new DeleteQnaCommentResponse(qnaService.deleteComment(memberId, qnaId, qnaCommentId, apartCode));
+    }
+
+    public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+        final Page<QnaCommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
+        return new PageResponse<>(commentList, new LoadQnaCommentListResponse(commentList.getContent()));
     }
 }

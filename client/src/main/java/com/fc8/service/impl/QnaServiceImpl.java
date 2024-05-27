@@ -213,4 +213,22 @@ public class QnaServiceImpl implements QnaService {
 
         return qnaCommentId;
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 게시글 조회
+        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
+
+        // 3. 댓글 조회
+        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable, command.search());
+        List<QnaCommentInfo> qnaCommentInfoList = commentList.stream()
+            .map(comment -> QnaCommentInfo.fromEntity(comment, comment.getMember()))
+            .toList();
+
+        return new PageImpl<>(qnaCommentInfoList, pageable, commentList.getTotalElements());
+    }
 }

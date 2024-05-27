@@ -110,7 +110,18 @@ public class QnaController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE, qnaFacade.deleteComment(currentMember.id(), qnaId, qnaCommentId, apartCode));
     }
 
-    // 민원 댓글 목록 조회
+    @Operation(summary = "민원 게시판 댓글 목록 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/{qnaId}/comments")
+    public ResponseEntity<CommonResponse<PageResponse<LoadQnaCommentListResponse>>> loadCommentList(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @CheckCurrentMember CurrentMember currentMember,
+        SearchPageRequest request
+    ) {
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadCommentList(currentMember.id(), apartCode, qnaId, command));
+    }
 
     @Operation(summary = "민원 게시판 이모지 등록 API")
     @CheckApartType
