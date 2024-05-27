@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.qna;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.BaseApartEntity;
 import com.fc8.platform.domain.entity.apartment.Apart;
 import com.fc8.platform.domain.entity.category.Category;
@@ -59,6 +61,14 @@ public class Qna extends BaseApartEntity {
         qna.updateApart(apart);
 
         return qna;
+    }
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST);
+        }
+
+        this.deletedAt = LocalDateTime.now();
     }
 
 }

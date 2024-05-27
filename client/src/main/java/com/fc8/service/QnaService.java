@@ -16,7 +16,7 @@ public interface QnaService {
 
     Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command);
 
-    void deleteQna(Long memberId, Long qnaId, String apartCode);
+    Long deleteQna(Long memberId, Long qnaId, String apartCode);
 
     QnaDetailInfo loadQnaDetail(Long memberId, Long qnaId, String apartCode);
 

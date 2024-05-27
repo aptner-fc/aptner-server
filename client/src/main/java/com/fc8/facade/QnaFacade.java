@@ -34,8 +34,8 @@ public class QnaFacade {
         return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), null));
     }
 
-    public void deleteQna(Long memberId, Long qnaId, String apartCode) {
-        qnaService.deleteQna(memberId, qnaId, apartCode);
+    public DeleteQnaResponse deleteQna(Long memberId, Long qnaId, String apartCode) {
+        return new DeleteQnaResponse(qnaService.deleteQna(memberId, qnaId, apartCode));
     }
 
     public LoadQnaDetailResponse loadQnaDetail(Long memberId, Long qnaId, String apartCode) {

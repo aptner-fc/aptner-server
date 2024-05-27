@@ -3,11 +3,12 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.Qna;
-import com.fc8.server.QnaJpaRepository;
 import com.fc8.platform.repository.QnaRepository;
+import com.fc8.server.QnaJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -70,11 +71,6 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public void delete(Qna qna) {
-        qnaJpaRepository.delete(qna);
-    }
-
-    @Override
     public Qna getByIdAndApartCode(Long qnaId, String apartCode) {
         Qna activeQna = jpaQueryFactory
             .selectFrom(qna)
@@ -101,6 +97,19 @@ public class QnaRepositoryImpl implements QnaRepository {
 
         return Optional.ofNullable(activeQna)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public boolean isWriter(Qna activeQna, Member loginMember) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(qna)
+            .innerJoin(member).on(qna.member.eq(member))
+            .where(
+                qna.eq(activeQna),
+                member.eq(loginMember)
+            )
+            .fetchFirst() != null;
     }
 
     private BooleanExpression eqId(QQna qna, Long qnaId) {

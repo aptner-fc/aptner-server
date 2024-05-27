@@ -51,13 +51,12 @@ public class QnaController {
     @Operation(summary = "민원 삭제 API")
     @CheckApartType
     @DeleteMapping("/{apartCode}/{qnaId}")
-    public ResponseEntity<CommonResponse<WriteQnaResponse>> deleteQna(
+    public ResponseEntity<CommonResponse<DeleteQnaResponse>> deleteQna(
         @NotNull @PathVariable String apartCode,
         @NotNull @PathVariable Long qnaId,
         @CheckCurrentMember CurrentMember currentMember
     ) {
-        qnaFacade.deleteQna(currentMember.id(), qnaId, apartCode);
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, qnaFacade.deleteQna(currentMember.id(), qnaId, apartCode));
     }
 
     @Operation(summary = "민원 상세 조회 API")

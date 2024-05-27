@@ -82,15 +82,23 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional
-    public void deleteQna(Long memberId, Long qnaId, String apartCode) {
+    public Long deleteQna(Long memberId, Long qnaId, String apartCode) {
         // 1. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
 
-        // 3. 삭제
-        qnaRepository.delete(qna);
+        // 3. 본인 작성글 여부
+        boolean affected = qnaRepository.isWriter(qna, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_WRITER);
+        }
+
+        // 4. 삭제
+        qna.delete();
+
+        return qnaId;
     }
 
     @Override

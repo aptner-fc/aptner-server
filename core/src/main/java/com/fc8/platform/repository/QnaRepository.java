@@ -1,5 +1,6 @@
 package com.fc8.platform.repository;
 
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.qna.Qna;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -12,7 +13,7 @@ public interface QnaRepository {
 
     Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode);
 
-    void delete(Qna qna);
+    boolean isWriter(Qna qna, Member member);
 
     Qna getByIdAndApartCode(Long qnaId, String apartCode);
 }
