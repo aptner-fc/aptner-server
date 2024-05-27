@@ -27,4 +27,6 @@ public interface QnaService {
     Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
 
     Long writeComment(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
+
+    Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode);
 }

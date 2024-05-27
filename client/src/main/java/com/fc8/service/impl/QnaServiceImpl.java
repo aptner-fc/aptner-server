@@ -4,6 +4,7 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.s3.S3Uploader;
+import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
@@ -188,5 +189,28 @@ public class QnaServiceImpl implements QnaService {
         // 4. 댓글 이미지 저장 TODO
 
         return newQnaComment.getId();
+    }
+
+    @Override
+    public Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
+
+        // 3. 댓글 조회
+        var comment = qnaCommentRepository.getByIdAndQna(qnaCommentId, qna);
+
+        // 3. 본인 작성 댓글 여부
+        boolean affected = qnaCommentRepository.isWriter(comment, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
+        }
+
+        // 4. 삭제
+        comment.delete();
+
+        return qnaCommentId;
     }
 }

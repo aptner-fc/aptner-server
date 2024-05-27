@@ -57,4 +57,8 @@ public class QnaFacade {
                 .orElseGet(() -> qnaService.writeComment(memberId, qnaId, apartCode, command, image))
         );
     }
+
+    public DeleteQnaCommentResponse deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
+        return new DeleteQnaCommentResponse(qnaService.deleteComment(memberId, qnaId, qnaCommentId, apartCode));
+    }
 }

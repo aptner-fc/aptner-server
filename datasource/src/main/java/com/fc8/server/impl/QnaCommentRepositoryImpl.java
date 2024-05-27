@@ -1,5 +1,9 @@
 package com.fc8.server.impl;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.member.Member;
+import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.qna.QQnaComment;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaComment;
@@ -10,6 +14,8 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 @RequiredArgsConstructor
 public class QnaCommentRepositoryImpl implements QnaCommentRepository {
@@ -18,17 +24,20 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     private final QnaCommentJpaRepository qnaCommentJpaRepository;
 
     QQnaComment qnaComment = QQnaComment.qnaComment;
+    QMember member = QMember.member;
 
     @Override
-    public QnaComment getByIdAndQna(Long id, Qna qna) {
-        return jpaQueryFactory
+    public QnaComment getByIdAndQna(Long commentId, Qna qna) {
+        QnaComment activeComment = jpaQueryFactory
             .selectFrom(qnaComment)
             .where(
-                eqId(id),
-                eqQna(qna),
-                isNotDeleted()
+                eqId(commentId),
+                eqQna(qna)
             )
             .fetchOne();
+
+        return Optional.ofNullable(activeComment)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
     }
 
     @Override
@@ -36,8 +45,17 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
         return qnaCommentJpaRepository.save(qnaComment);
     }
 
-    private BooleanExpression isNotDeleted() {
-        return qnaComment.deletedAt.isNull();
+    @Override
+    public boolean isWriter(QnaComment activeComment, Member loginmember) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(qnaComment)
+            .innerJoin(qnaComment.member, member)
+            .where(
+                qnaComment.eq(activeComment),
+                member.eq(loginmember)
+            )
+            .fetchFirst() != null;
     }
 
     private BooleanExpression eqQna(Qna qna) {

@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.qna;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.BaseTimeEntity;
 import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
@@ -57,4 +59,11 @@ public class QnaComment extends BaseTimeEntity {
             .build();
     }
 
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST_COMMENT);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }

@@ -97,7 +97,19 @@ public class QnaController {
     }
 
     // 민원 댓글 수정
-    // 민원 댓글 삭제
+
+    @Operation(summary = "민원 게시판 댓글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{qnaId}/{qnaCommentId}/comments")
+    public ResponseEntity<CommonResponse<DeleteQnaCommentResponse>> deleteComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @NotNull @PathVariable Long qnaCommentId,
+        @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, qnaFacade.deleteComment(currentMember.id(), qnaId, qnaCommentId, apartCode));
+    }
+
     // 민원 댓글 목록 조회
 
     @Operation(summary = "민원 게시판 이모지 등록 API")
