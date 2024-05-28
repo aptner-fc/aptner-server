@@ -45,6 +45,19 @@ public class PostController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.writePost(currentMember.id(), apartCode, command, image));
     }
 
+    @Operation(summary = "소통 게시판 글 수정 API", description = "소통 게시판 글 수정 API 입니다.")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WritePostResponse>> modifyPost(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestPart(value = "request") WritePostRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        var command = postMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.modifyPost(currentMember.id(), postId, apartCode, command, image));
+    }
+
     @Operation(summary = "소통 게시판 목록 조회", description = "소통 게시판의 목록을 조회합니다.")
     @CheckApartType
     @GetMapping(value = "/{apartCode}")
@@ -87,6 +100,20 @@ public class PostController {
             @RequestPart(value = "image", required = false) MultipartFile image) {
         var command = postMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.writeComment(currentMember.id(), postId, apartCode, command, image));
+    }
+
+    @Operation(summary = "소통 게시판 댓글 작성", description = "소통 게시판의 댓글을 작성합니다.")
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/{postId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WritePostCommentResponse>> modifyComment(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @NotNull @PathVariable Long commentId,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestPart(value = "request") WritePostCommentRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        var command = postMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.modifyComment(currentMember.id(), postId, commentId, apartCode, command, image));
     }
 
     @Operation(summary = "소통 게시판 이모지 등록", description = "소통 게시판 이모지를 등록합니다.")

@@ -14,11 +14,15 @@ public interface PostService {
 
     Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image);
 
+    Long modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image);
+
     Page<PostInfo> loadPostList(Long memberId, String apartCode, SearchPageCommand command);
 
     Long writeComment(Long memberId, Long postId, String apartCode, WritePostCommentCommand command, MultipartFile image);
 
     Long writeReply(Long memberId, Long postId, String apartCode, WritePostCommentCommand command, MultipartFile image);
+
+    Long modifyComment(Long memberId, Long postId, Long commentId, String apartCode, WritePostCommentCommand command, MultipartFile image);
 
     PostDetailInfo loadPostDetail(Long memberId, Long postId, String apartCode);
 

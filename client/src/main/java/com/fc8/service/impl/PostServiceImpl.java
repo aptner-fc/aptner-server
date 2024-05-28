@@ -4,7 +4,9 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.s3.S3Uploader;
+import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.post.PostEmoji;
+import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
@@ -45,6 +47,7 @@ public class PostServiceImpl implements PostService {
         // 1. 회원 및 카테고리 조회 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var member = memberRepository.getActiveMemberById(memberId);
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
+        ValidateUtils.validateChildCategoryType(CategoryType.POST, category);
 
         // 2. 아파트 정보 조회
         var apart = apartRepository.getByCode(apartCode);
@@ -64,6 +67,25 @@ public class PostServiceImpl implements PostService {
         // 5. 파일 저장 TODO
 
         return newPost.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image) {
+        // 1. 게시글 조회
+        var post = postRepository.getByIdAndMemberId(postId, memberId);
+
+        // 2. 요청 값 조회
+        var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
+        ValidateUtils.validateChildCategoryType(CategoryType.POST, category);
+
+        // 3. 게시글 수정
+        post.changeCategory(category);
+        post.modify(command.getTitle(), command.getContent());
+
+        // 4. 썸네일 변경 TODO
+
+        return post.getId();
     }
 
     @Override
@@ -94,7 +116,6 @@ public class PostServiceImpl implements PostService {
         var postComment = command.toEntity(post, member);
         var newPostComment = postCommentRepository.store(postComment);
 
-
         // 4. 댓글 이미지 저장 TODO
 
         return newPostComment.getId();
@@ -107,15 +128,30 @@ public class PostServiceImpl implements PostService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 및 답글 조회
+        Long commentId = Optional.ofNullable(command.getParentId())
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+
         var post = postRepository.getByIdAndApartCode(postId, apartCode);
-        var postComment = postCommentRepository.getByIdAndPost(Optional.ofNullable(command.getParentId())
-                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT)), post);
+        var postComment = postCommentRepository.getByIdAndPost(commentId, post);
 
         // 3. 답글 저장
         var postReply = command.toEntity(post, postComment, member);
         var newPostReply = postCommentRepository.store(postReply);
 
         return newPostReply.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long modifyComment(Long memberId, Long postId, Long commentId, String apartCode, WritePostCommentCommand command, MultipartFile image) {
+        // 1. 댓글 조회
+        var postComment = postCommentRepository.getByIdAndPostIdAndMemberId(commentId, postId, memberId);
+
+        // 2. 댓글 수정
+        postComment.modify(command.getContent());
+
+        // 3. 이미지 변경 TODO
+        return postComment.getId();
     }
 
     @Override

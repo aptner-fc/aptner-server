@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -60,6 +61,14 @@ public class PostComment extends BaseTimeEntity {
                 .member(member)
                 .content(content)
                 .build();
+    }
+
+    public void modify(String content) {
+        if (Objects.equals(this.content, content)) {
+            return;
+        }
+
+        this.content = content;
     }
 
 }

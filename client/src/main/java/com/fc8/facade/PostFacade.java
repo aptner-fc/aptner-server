@@ -28,6 +28,10 @@ public class PostFacade {
         return new WritePostResponse(postService.writePost(memberId, apartCode, command, image));
     }
 
+    public WritePostResponse modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image) {
+        return new WritePostResponse(postService.modifyPost(memberId, postId, apartCode, command, image));
+    }
+
     @Transactional(readOnly = true)
     public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
         // 1. 소통 게시판 게시물 조회
@@ -44,6 +48,10 @@ public class PostFacade {
                         .map(parentId -> postService.writeReply(memberId, postId, apartCode, command, image))
                         .orElseGet(() -> postService.writeComment(memberId, postId, apartCode, command, image))
         );
+    }
+
+    public WritePostCommentResponse modifyComment(Long memberId, Long postId, Long commentId, String apartCode, WritePostCommentCommand command, MultipartFile image) {
+        return new WritePostCommentResponse(postService.modifyComment(memberId, postId, commentId, apartCode, command, image));
     }
 
     public LoadPostDetailResponse loadPostDetail(Long memberId, Long postId, String apartCode) {

@@ -76,12 +76,33 @@ public class PostRepositoryImpl implements PostRepository {
                 .selectFrom(post)
                 .where(
                         eqId(post, postId),
-                        eqApartCode(post, apartCode)
+                        eqApartCode(post, apartCode),
+                        isNotDeleted(post)
                 )
                 .fetchOne();
 
         return Optional.ofNullable(activePost)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public Post getByIdAndMemberId(Long postId, Long memberId) {
+        Post activePost = jpaQueryFactory
+                .selectFrom(post)
+                .innerJoin(member).on(post.member.id.eq(member.id))
+                .where(
+                        eqId(post, postId),
+                        eqPostWriter(post.member, memberId),
+                        isNotDeleted(post)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activePost)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    private BooleanExpression eqPostWriter(QMember member, Long memberId) {
+        return member.id.eq(memberId);
     }
 
     @Override
