@@ -1,6 +1,7 @@
 package com.fc8.platform.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -22,7 +23,7 @@ public class WriteQnaRequest {
     @NotBlank(message = "내용이 누락되었습니다.")
     private String content;
 
-    @NotBlank(message = "비밀글 여부가 누락되었습니다.")
+    @NotNull(message = "비밀글 여부가 누락되었습니다.")
     private Boolean isPrivate;
 
 }
