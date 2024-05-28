@@ -90,12 +90,42 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
         return PageableExecutionUtils.getPage(commentList, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public QnaComment getByIdAndQnaIdAndMemberId(Long id, Long qnaId, Long memberId) {
+        QnaComment writtenComment = jpaQueryFactory
+            .selectFrom(qnaComment)
+            .innerJoin(qqna).on(qnaComment.qna.id.eq(qqna.id))
+            .innerJoin(member).on(qnaComment.member.id.eq(member.id))
+            .where(
+                eqId(id),
+                eqQnaCommentQna(qnaComment.qna, qnaId),
+                eqQnaCommentWriter(qnaComment.member, memberId),
+                isNotDeleted()
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(writtenComment)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+    }
+
+    private BooleanExpression eqQnaCommentWriter(QMember member, Long memberId) {
+        return member.id.eq(memberId);
+    }
+
+    private BooleanExpression eqQnaCommentQna(QQna qna, Long qnaId) {
+        return qna.id.eq(qnaId);
+    }
+
     private BooleanExpression eqQna(Qna qna) {
         return qnaComment.qna.eq(qna);
     }
 
     private BooleanExpression eqId(Long id) {
         return qnaComment.id.eq(id);
+    }
+
+    private BooleanExpression isNotDeleted() {
+        return qnaComment.deletedAt.isNull();
     }
 
 }

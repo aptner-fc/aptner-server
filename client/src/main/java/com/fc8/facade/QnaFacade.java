@@ -24,15 +24,12 @@ public class QnaFacade {
 
     private final QnaService qnaService;
 
-    public WriteQnaResponse write(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
-        return new WriteQnaResponse(qnaService.create(memberId, apartCode, command, image));
+    public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+        return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, image));
     }
 
-    @Transactional(readOnly = true)
-    public PageResponse<LoadQnaListResponse> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
-        final Page<QnaInfo> qnaList = qnaService.loadQnaList(memberId, apartCode, command);
-        // 상단 고정 게시물
-        return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), null));
+    public WriteQnaResponse modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+        return new WriteQnaResponse(qnaService.modifyQna(memberId, qnaId, apartCode, command, image));
     }
 
     public DeleteQnaResponse deleteQna(Long memberId, Long qnaId, String apartCode) {
@@ -43,12 +40,11 @@ public class QnaFacade {
         return new LoadQnaDetailResponse(qnaService.loadQnaDetail(memberId, qnaId, apartCode));
     }
 
-    public RegisterEmojiResponse registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
-        return new RegisterEmojiResponse(qnaService.registerEmoji(memberId, qnaId, apartCode, emoji));
-    }
-
-    public void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
-        qnaService.deleteEmoji(memberId, qnaId, apartCode, emoji);
+    @Transactional(readOnly = true)
+    public PageResponse<LoadQnaListResponse> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
+        final Page<QnaInfo> qnaList = qnaService.loadQnaList(memberId, apartCode, command);
+        // 상단 고정 게시물
+        return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), null));
     }
 
     public WriteQnaCommentResponse writeComment(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {
@@ -59,6 +55,10 @@ public class QnaFacade {
         );
     }
 
+    public WriteQnaCommentResponse modifyComment(Long memberId, Long qnaId, Long commentId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {
+        return new WriteQnaCommentResponse(qnaService.modifyComment(memberId, qnaId, commentId, apartCode, command, image));
+    }
+
     public DeleteQnaCommentResponse deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
         return new DeleteQnaCommentResponse(qnaService.deleteComment(memberId, qnaId, qnaCommentId, apartCode));
     }
@@ -67,4 +67,13 @@ public class QnaFacade {
         final Page<QnaCommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
         return new PageResponse<>(commentList, new LoadQnaCommentListResponse(commentList.getContent()));
     }
+
+    public RegisterEmojiResponse registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
+        return new RegisterEmojiResponse(qnaService.registerEmoji(memberId, qnaId, apartCode, emoji));
+    }
+
+    public void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
+        qnaService.deleteEmoji(memberId, qnaId, apartCode, emoji);
+    }
+
 }

@@ -7,9 +7,9 @@ import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.CurrentMember;
-import com.fc8.platform.dto.request.WriteQnaRequest;
 import com.fc8.platform.dto.request.SearchPageRequest;
 import com.fc8.platform.dto.request.WriteQnaCommentRequest;
+import com.fc8.platform.dto.request.WriteQnaRequest;
 import com.fc8.platform.dto.response.*;
 import com.fc8.platform.mapper.PageMapper;
 import com.fc8.platform.mapper.QnaMapper;
@@ -43,10 +43,21 @@ public class QnaController {
         @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.write(currentMember.id(), apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command, image));
     }
 
-    // 민원 수정
+    @Operation(summary = "민원 수정 API")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{qnaId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WriteQnaResponse>> modifyQna(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @Valid @RequestPart(value = "request") WriteQnaRequest request,
+        @RequestPart(value = "image", required = false) MultipartFile image) {
+        var command = qnaMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, qnaFacade.modifyQna(currentMember.id(), qnaId, apartCode, command, image));
+    }
 
     @Operation(summary = "민원 삭제 API")
     @CheckApartType
@@ -82,7 +93,7 @@ public class QnaController {
         return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadQnaList(currentMember.id(), apartCode, command));
     }
 
-    @Operation(summary = "민원 게시판 댓글 작성 API")
+    @Operation(summary = "민원 게시판 댓글 등록 API")
     @CheckApartType
     @PostMapping(value = "/{apartCode}/{qnaId}/comments", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<WriteQnaCommentResponse>> writeComment(
@@ -96,18 +107,31 @@ public class QnaController {
         return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.writeComment(currentMember.id(), qnaId, apartCode, command, image));
     }
 
-    // 민원 댓글 수정
+    @Operation(summary = "민원 게시판 댓글 수정 API")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{qnaId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WriteQnaCommentResponse>> modifyComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @Valid @RequestPart(value = "request") WriteQnaCommentRequest request,
+        @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        var command = qnaMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, qnaFacade.modifyComment(currentMember.id(), qnaId, commentId, apartCode, command, image));
+    }
 
     @Operation(summary = "민원 게시판 댓글 삭제 API")
     @CheckApartType
-    @DeleteMapping(value = "/{apartCode}/{qnaId}/{qnaCommentId}/comments")
+    @DeleteMapping(value = "/{apartCode}/{qnaId}/comments/{commentId}")
     public ResponseEntity<CommonResponse<DeleteQnaCommentResponse>> deleteComment(
         @NotNull @PathVariable String apartCode,
         @NotNull @PathVariable Long qnaId,
-        @NotNull @PathVariable Long qnaCommentId,
+        @NotNull @PathVariable Long commentId,
         @CheckCurrentMember CurrentMember currentMember
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, qnaFacade.deleteComment(currentMember.id(), qnaId, qnaCommentId, apartCode));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, qnaFacade.deleteComment(currentMember.id(), qnaId, commentId, apartCode));
     }
 
     @Operation(summary = "민원 게시판 댓글 목록 조회 API")

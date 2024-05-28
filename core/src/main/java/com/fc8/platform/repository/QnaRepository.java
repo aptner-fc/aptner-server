@@ -16,4 +16,6 @@ public interface QnaRepository {
     boolean isWriter(Qna qna, Member member);
 
     Qna getByIdAndApartCode(Long qnaId, String apartCode);
+
+    Qna getByIdAndMemberId(Long postId, Long memberId);
 }

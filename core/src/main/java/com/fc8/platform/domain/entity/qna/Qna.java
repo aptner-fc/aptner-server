@@ -10,6 +10,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Getter
 @Builder()
@@ -69,6 +70,23 @@ public class Qna extends BaseApartEntity {
         }
 
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void changeCategory(Category category) {
+        if (this.category == category) {
+            return;
+        }
+
+        this.category = category;
+    }
+
+    public void modify(String title, String content) {
+        if (Objects.equals(this.title, title) && Objects.equals(this.content, content)) {
+            return;
+        }
+
+        this.title = title;
+        this.content = content;
     }
 
 }

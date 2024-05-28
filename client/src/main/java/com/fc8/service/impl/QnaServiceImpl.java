@@ -4,14 +4,14 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.s3.S3Uploader;
-import com.fc8.platform.domain.entity.qna.Qna;
+import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
-import com.fc8.platform.repository.QnaRepository;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -42,10 +42,11 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional
-    public Long create(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
         // 1. 카테고리 및 회원 검사 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
         var member = memberRepository.getActiveMemberById(memberId);
+        ValidateUtils.validateChildCategoryType(CategoryType.QNA, category);
 
         // 2. 아파트 정보 조회
         var apart = apartRepository.getByCode(apartCode);
@@ -67,18 +68,20 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
-    @Transactional(readOnly = true)
-    public Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
-        // 1. 페이지 생성
-        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+    @Transactional
+    public Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+        // 1. 게시글 조회
+        var qna = qnaRepository.getByIdAndMemberId(qnaId, memberId);
 
-        // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search());
-        List<QnaInfo> qnaInfoList = qnaList.stream()
-            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
-            .toList();
+        // 2. 요청 값 조회
+        var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
+        ValidateUtils.validateChildCategoryType(CategoryType.QNA, category);
 
-        return new PageImpl<>(qnaInfoList, pageable, qnaList.getTotalElements());
+        // 3. 게시글 수정
+        qna.changeCategory(category);
+        qna.modify(command.getTitle(), command.getContent());
+
+        return qna.getId();
     }
 
     @Override
@@ -118,58 +121,18 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
-    @Transactional
-    public EmojiInfo registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
-        // 1. 회원 조회
-        var member = memberRepository.getActiveMemberById(memberId);
+    @Transactional(readOnly = true)
+    public Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
-        // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        // 2. 게시글 조회 (아파트 코드, 차단 사용자)
+        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search());
+        List<QnaInfo> qnaInfoList = qnaList.stream()
+            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
+            .toList();
 
-        // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member, emoji);
-        if (affected) {
-            throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
-        }
-
-        var qnaEmoji = QnaEmoji.create(qna, member, emoji);
-        var newQnaEmoji = qnaEmojiRepository.store(qnaEmoji);
-
-        return EmojiInfo.fromQnaEmojiEntity(newQnaEmoji);
-    }
-
-    @Override
-    @Transactional
-    public void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
-        // 1. 회원 조회
-        var member = memberRepository.getActiveMemberById(memberId);
-
-        // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
-
-        // 3. 레코드 검사 (등록된 감정 표현이 없을 경우 등록이 필요하다.)
-        QnaEmoji qnaEmoji = qnaEmojiRepository.getByQnaAndMemberAndEmoji(qna, member, emoji);
-
-        // 4. 삭제
-        qnaEmojiRepository.delete(qnaEmoji);
-    }
-
-    @Override
-    @Transactional
-    public Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {
-        // 1. 회원 조회
-        var member = memberRepository.getActiveMemberById(memberId);
-
-        // 2. 게시글 및 답글 조회
-        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
-        var qnaComment = qnaCommentRepository.getByIdAndQna(Optional.ofNullable(command.getParentId())
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT)), qna);
-
-        // 3. 답글 저장
-        var qnaReply = command.toEntity(qna, qnaComment, member);
-        var newQnaReply = qnaCommentRepository.store(qnaReply);
-
-        return newQnaReply.getId();
+        return new PageImpl<>(qnaInfoList, pageable, qnaList.getTotalElements());
     }
 
     @Override
@@ -189,6 +152,19 @@ public class QnaServiceImpl implements QnaService {
         // 4. 댓글 이미지 저장 TODO
 
         return newQnaComment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long modifyComment(Long memberId, Long qnaId, Long commentId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {
+        // 1. 댓글 조회
+        var qnaComment = qnaCommentRepository.getByIdAndQnaIdAndMemberId(commentId, qnaId, memberId);
+
+        // 2. 댓글 수정
+        qnaComment.modify(command.getContent());
+
+        // 3. 이미지 변경 TODO
+        return qnaComment.getId();
     }
 
     @Override
@@ -231,4 +207,62 @@ public class QnaServiceImpl implements QnaService {
 
         return new PageImpl<>(qnaCommentInfoList, pageable, commentList.getTotalElements());
     }
+
+    @Override
+    @Transactional
+    public Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 및 답글 조회
+        Long commentId = Optional.ofNullable(command.getParentId())
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+
+        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
+        var qnaComment = qnaCommentRepository.getByIdAndQna(commentId, qna);
+
+        // 3. 답글 저장
+        var qnaReply = command.toEntity(qna, qnaComment, member);
+        var newQnaReply = qnaCommentRepository.store(qnaReply);
+
+        return newQnaReply.getId();
+    }
+
+    @Override
+    @Transactional
+    public EmojiInfo registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+
+        // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
+        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member, emoji);
+        if (affected) {
+            throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
+        }
+
+        var qnaEmoji = QnaEmoji.create(qna, member, emoji);
+        var newQnaEmoji = qnaEmojiRepository.store(qnaEmoji);
+
+        return EmojiInfo.fromQnaEmojiEntity(newQnaEmoji);
+    }
+
+    @Override
+    @Transactional
+    public void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+
+        // 3. 레코드 검사 (등록된 감정 표현이 없을 경우 등록이 필요하다.)
+        QnaEmoji qnaEmoji = qnaEmojiRepository.getByQnaAndMemberAndEmoji(qna, member, emoji);
+
+        // 4. 삭제
+        qnaEmojiRepository.delete(qnaEmoji);
+    }
+
 }

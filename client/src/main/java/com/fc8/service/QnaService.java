@@ -9,23 +9,28 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface QnaService {
 
-    Long create(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image);
+    Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image);
 
-    Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command);
+    Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image);
 
     Long deleteQna(Long memberId, Long qnaId, String apartCode);
 
     QnaDetailInfo loadQnaDetail(Long memberId, Long qnaId, String apartCode);
 
-    EmojiInfo registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
-
-    void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
-
-    Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
+    Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command);
 
     Long writeComment(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
+
+    Long modifyComment(Long memberId, Long qnaId, Long commentId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
 
     Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode);
 
     Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command);
+
+    Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
+
+    EmojiInfo registerEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
+
+    void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
+
 }

@@ -44,7 +44,7 @@ public class QnaRepositoryImpl implements QnaRepository {
             .innerJoin(category).on(qna.category.id.eq(category.id))
             .where(
                 // 1. 삭제된 게시글
-                isNotDeleted(),
+                isNotDeleted(qna),
                 // 2. 아파트 코드
                 eqApartCode(qna, apartCode)
                 // 3. 회원 차단 TODO
@@ -61,7 +61,7 @@ public class QnaRepositoryImpl implements QnaRepository {
             .innerJoin(category).on(qna.category.id.eq(category.id))
             .where(
                 // 1. 삭제된 게시글
-                isNotDeleted(),
+                isNotDeleted(qna),
                 // 2. 아파트 코드
                 eqApartCode(qna, apartCode)
                 // 3. 회원 차단 TODO
@@ -76,7 +76,24 @@ public class QnaRepositoryImpl implements QnaRepository {
             .selectFrom(qna)
             .where(
                 eqId(qna, qnaId),
-                eqApartCode(qna, apartCode)
+                eqApartCode(qna, apartCode),
+                isNotDeleted(qna)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeQna)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public Qna getByIdAndMemberId(Long postId, Long memberId) {
+        Qna activeQna = jpaQueryFactory
+            .selectFrom(qna)
+            .innerJoin(member).on(qna.member.id.eq(member.id))
+            .where(
+                eqId(qna, postId),
+                eqQnaWriter(qna.member, memberId),
+                isNotDeleted(qna)
             )
             .fetchOne();
 
@@ -116,11 +133,15 @@ public class QnaRepositoryImpl implements QnaRepository {
         return qna.id.eq(qnaId);
     }
 
+    private BooleanExpression eqQnaWriter(QMember member, Long memberId) {
+        return member.id.eq(memberId);
+    }
+
     private BooleanExpression eqApartCode(QQna qna, String apartCode) {
         return qna.apart.code.eq(apartCode);
     }
 
-    private BooleanExpression isNotDeleted() {
+    private BooleanExpression isNotDeleted(QQna qna) {
         return qna.deletedAt.isNull();
     }
 
