@@ -1,0 +1,18 @@
+package com.fc8.platform.dto.record;
+
+import com.fc8.platform.domain.entity.post.PostEmoji;
+import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.enums.EmojiType;
+
+public record EmojiInfo(
+    Long emojiId,
+    EmojiType emoji
+) {
+    public static EmojiInfo fromPostEmojiEntity(PostEmoji postEmoji) {
+        return new EmojiInfo(postEmoji.getId(), postEmoji.getEmoji());
+    }
+
+    public static EmojiInfo fromQnaEmojiEntity(QnaEmoji qnaEmoji) {
+        return new EmojiInfo(qnaEmoji.getId(), qnaEmoji.getEmoji());
+    }
+}
