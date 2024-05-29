@@ -1,6 +1,1 @@
-rootProject.name = 'aptner-multi'
-include 'core'
-include 'datasource'
-include 'admin'
-include 'client'
-
+rootProject.name = 'aptner'
