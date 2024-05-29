@@ -54,7 +54,7 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public Long signUp(SignUpMemberCommand command) {
         // 1. 휴대전화 인증 검사
-        if (redisUtils.isValidateAndVerified(command.getPhone(), command.getVerificationCode())) {
+        if (!redisUtils.isValidateAndVerified(command.getPhone(), command.getVerificationCode())) {
             throw new CustomRedisException(ErrorCode.INVALID_OR_EXPIRED_SMS);
         }
 
