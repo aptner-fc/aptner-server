@@ -22,9 +22,6 @@ public class PostReplyImage {
     @JoinColumn(name = "post_reply_id", columnDefinition = "bigint unsigned comment '소통 게시판 댓글 ID'")
     private PostComment postComment;
 
-    @Column(name = "seq", columnDefinition = "int comment '이미지 순서'")
-    private Integer seq;
-
     @Column(name = "image_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
     private String imagePath;
 
