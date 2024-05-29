@@ -23,7 +23,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-@Tag(name = "소통 게시판 관련 API", description = "소통 게시판 관련 API 모음 입니다.")
+@Tag(name = "소통 게시판 관련 API")
 @RestController
 @RequestMapping(value = {"/v1/api/posts"})
 @RequiredArgsConstructor
@@ -33,40 +33,68 @@ public class PostController {
     private final PageMapper pageMapper;
     private final PostFacade postFacade;
 
-    @Operation(summary = "소통 게시판 글 작성 API", description = "소통 게시판 글 작성 API 입니다.")
+    @Operation(summary = "소통 게시판 글 작성 API")
     @CheckApartType
     @PostMapping(value = "/{apartCode}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ResponseEntity<CommonResponse<WritePostResponse>> write(
+    public ResponseEntity<CommonResponse<WritePostResponse>> writePost(
             @NotNull @PathVariable String apartCode,
             @CheckCurrentMember CurrentMember currentMember,
             @Valid @RequestPart(value = "request") WritePostRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
         var command = postMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.write(currentMember.id(), apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.writePost(currentMember.id(), apartCode, command, image));
     }
 
-    @Operation(summary = "소통 게시판 목록 조회", description = "소통 게시판의 목록을 조회합니다.")
+    @Operation(summary = "소통 게시판 글 수정 API")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{postId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WritePostResponse>> modifyPost(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestPart(value = "request") WritePostRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        var command = postMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.modifyPost(currentMember.id(), postId, apartCode, command, image));
+    }
+
+    @Operation(summary = "소통 게시판 목록 조회 API")
     @CheckApartType
     @GetMapping(value = "/{apartCode}")
     public ResponseEntity<CommonResponse<PageResponse<LoadPostListResponse>>> loadPostList(
             @NotNull @PathVariable String apartCode,
             @CheckCurrentMember CurrentMember currentMember,
-            SearchPageRequest request) {
+            SearchPageRequest request
+    ) {
         var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostList(currentMember.id(), apartCode, command));
     }
 
-    @Operation(summary = "소통 게시판 상세 조회", description = "소통 게시판의 상세 정보를 조회합니다.")
+    @Operation(summary = "소통 게시판 상세 조회 API")
     @CheckApartType
     @GetMapping(value = "/{apartCode}/{postId}")
     public ResponseEntity<CommonResponse<LoadPostDetailResponse>> loadPostDetail(
             @NotNull @PathVariable String apartCode,
             @NotNull @PathVariable Long postId,
-            @CheckCurrentMember CurrentMember currentMember) {
+            @CheckCurrentMember CurrentMember currentMember
+    ) {
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostDetail(currentMember.id(), postId, apartCode));
     }
 
-    @Operation(summary = "소통 게시판 댓글 작성", description = "소통 게시판의 댓글을 작성합니다.")
+    @Operation(summary = "소통 게시판 글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{postId}")
+    public ResponseEntity<CommonResponse<DeletePostResponse>> deletePost(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deletePost(currentMember.id(), postId, apartCode));
+    }
+
+    @Operation(summary = "소통 게시판 댓글 작성 API")
     @CheckApartType
     @PostMapping(value = "/{apartCode}/{postId}/comments", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<WritePostCommentResponse>> writeComment(
@@ -74,30 +102,48 @@ public class PostController {
             @NotNull @PathVariable Long postId,
             @CheckCurrentMember CurrentMember currentMember,
             @Valid @RequestPart(value = "request") WritePostCommentRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image) {
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
         var command = postMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.writeComment(currentMember.id(), postId, apartCode, command, image));
     }
 
-    @Operation(summary = "소통 게시판 이모지 등록", description = "소통 게시판 이모지를 등록합니다.")
+    @Operation(summary = "소통 게시판 댓글 수정 API")
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/{postId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WritePostCommentResponse>> modifyComment(
+            @NotNull @PathVariable String apartCode,
+            @NotNull @PathVariable Long postId,
+            @NotNull @PathVariable Long commentId,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestPart(value = "request") WritePostCommentRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        var command = postMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.modifyComment(currentMember.id(), postId, commentId, apartCode, command, image));
+    }
+
+    @Operation(summary = "소통 게시판 이모지 등록 API")
     @CheckApartType
     @PostMapping("/{apartCode}/{postId}/emoji")
     public ResponseEntity<CommonResponse<RegisterEmojiResponse>> registerEmoji(
             @NotNull @PathVariable String apartCode,
             @NotNull @PathVariable Long postId,
             @CheckCurrentMember CurrentMember currentMember,
-            @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type) {
+            @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
+    ) {
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.registerEmoji(currentMember.id(), postId, apartCode, type));
     }
 
-    @Operation(summary = "소통 게시판 이모지 삭제", description = "소통 게시판 이모지를 삭제합니다.")
+    @Operation(summary = "소통 게시판 이모지 삭제 API")
     @CheckApartType
     @DeleteMapping("/{apartCode}/{postId}/emoji")
     public ResponseEntity<CommonResponse<Void>> deleteEmoji(
             @NotNull @PathVariable String apartCode,
             @NotNull @PathVariable Long postId,
             @CheckCurrentMember CurrentMember currentMember,
-            @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type) {
+            @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
+    ) {
         postFacade.deleteEmoji(currentMember.id(), postId, apartCode, type);
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }

@@ -8,4 +8,6 @@ public interface PostCommentRepository {
     PostComment getByIdAndPost(Long id, Post post);
 
     PostComment store(PostComment postComment);
+
+    PostComment getByIdAndPostIdAndMemberId(Long id, Long postId, Long memberId);
 }

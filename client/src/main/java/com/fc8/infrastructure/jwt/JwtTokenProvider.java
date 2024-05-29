@@ -2,6 +2,7 @@ package com.fc8.infrastructure.jwt;
 
 import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
+import com.fc8.platform.common.exception.CustomJwtException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import io.jsonwebtoken.*;
@@ -98,15 +99,15 @@ public class JwtTokenProvider {
                     .parseSignedClaims(token)
                     .getPayload();
         } catch (SignatureException ex) {
-            throw new JwtException(ErrorCode.SIGNATURE_EXCEPTION.getMessage());
+            throw new CustomJwtException(ErrorCode.SIGNATURE_EXCEPTION);
         } catch (MalformedJwtException ex) {
-            throw new JwtException(ErrorCode.MALFORMED_JWT_EXCEPTION.getMessage());
+            throw new CustomJwtException(ErrorCode.MALFORMED_JWT_EXCEPTION);
         } catch (ExpiredJwtException ex) {
-            throw new JwtException(ErrorCode.EXPIRED_JWT_EXCEPTION.getMessage());
+            throw new CustomJwtException(ErrorCode.EXPIRED_JWT_EXCEPTION);
         } catch (UnsupportedJwtException ex) {
-            throw new JwtException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION.getMessage());
+            throw new CustomJwtException(ErrorCode.UNSUPPORTED_JWT_EXCEPTION);
         } catch (IllegalArgumentException ex) {
-            throw new JwtException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION.getMessage());
+            throw new CustomJwtException(ErrorCode.ILLEGAL_ARGUMENT_EXCEPTION);
         }
     }
 

@@ -2,8 +2,9 @@ package com.fc8.platform.common.handler;
 
 
 import com.fc8.platform.common.exception.BaseException;
-import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.exception.CustomJwtException;
 import com.fc8.platform.common.exception.CustomRedisException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.response.CommonResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -32,6 +33,13 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(CustomRedisException.class)
     public ResponseEntity<CommonResponse<String>> handle(CustomRedisException e) {
         log.error("CustomRedisException : {} ", e.getMessage());
+        return CommonResponse.fail(e.getErrorCode());
+    }
+
+    // JwtException
+    @ExceptionHandler(CustomJwtException.class)
+    public ResponseEntity<CommonResponse<String>> handle(CustomJwtException e) {
+        log.error("JwtException : {} ", e.getMessage());
         return CommonResponse.fail(e.getErrorCode());
     }
 

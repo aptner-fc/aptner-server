@@ -17,7 +17,7 @@ subprojects {
     apply plugin: 'io.spring.dependency-management'
 
     group = 'com.fc8'
-    version = '0.0.1-SNAPSHOT'
+    version = 'api'
 
     sourceCompatibility = '17'
     targetCompatibility = '17'
@@ -209,6 +209,20 @@ project(':client') {
         // jwt
         implementation 'io.jsonwebtoken:jjwt:0.12.5'
     }
+}
+
+def generatedQueryDsl = 'src/main/generated'
+
+sourceSets {
+    main.java.srcDirs += [generatedQueryDsl]
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
+}
+
+clean.doLast {
+    file(generatedQueryDsl).deleteDir()
 }
 
 tasks.named('test') {
