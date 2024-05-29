@@ -16,7 +16,7 @@ public class DefaultController {
     }
 
     @GetMapping("/health")
-    public String health() {
+    public String healthCheck() {
         return "<h1>aptner<h1>";
     }
 
