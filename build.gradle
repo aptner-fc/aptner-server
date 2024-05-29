@@ -123,21 +123,6 @@ project(':core') {
 
         // validate
         implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-        def generatedQueryDsl = 'src/main/generated'
-
-        sourceSets {
-            main.java.srcDirs += [generatedQueryDsl]
-        }
-
-        tasks.withType(JavaCompile).configureEach {
-            options.getGeneratedSourceOutputDirectory().set(file(generatedQueryDsl))
-        }
-
-        clean.doLast {
-            file(generatedQueryDsl).deleteDir()
-        }
-
     }
 
     def generatedQueryDsl = 'src/main/generated'
@@ -240,5 +225,3 @@ jar {
 configurations.all {
     exclude group: 'commons-logging', module: 'commons-logging'
 }
-
-
