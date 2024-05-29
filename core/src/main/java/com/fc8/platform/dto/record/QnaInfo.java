@@ -14,7 +14,7 @@ public record QnaInfo(
     LocalDateTime updatedAt,
     WriterInfo writer,
     CategoryInfo category,
-    Boolean isPrivate
+    boolean isPrivate
 ) {
     public static QnaInfo fromEntity(Qna qna, Member member, Category category) {
         return new QnaInfo(
@@ -25,7 +25,7 @@ public record QnaInfo(
             qna.getUpdatedAt(),
             WriterInfo.fromMemberEntity(member),
             CategoryInfo.fromEntity(category),
-            qna.getIsPrivate()
+            qna.isPrivate()
         );
     }
 }

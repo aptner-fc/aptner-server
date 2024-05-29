@@ -24,6 +24,6 @@ public class WriteQnaRequest {
     private String content;
 
     @NotNull(message = "비밀글 여부가 누락되었습니다.")
-    private Boolean isPrivate;
+    private boolean isPrivate;
 
 }
