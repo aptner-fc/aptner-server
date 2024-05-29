@@ -71,4 +71,7 @@ public class PostFacade {
     }
 
 
+    public DeletePostCommentResponse deleteComment(Long memberId, Long postId, Long commentId, String apartCode) {
+        return new DeletePostCommentResponse(postService.deleteComment(memberId, postId, commentId, apartCode));
+    }
 }

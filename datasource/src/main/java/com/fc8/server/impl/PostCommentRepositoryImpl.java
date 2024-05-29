@@ -2,6 +2,7 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostComment;
@@ -63,6 +64,19 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
 
         return Optional.ofNullable(writtenComment)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+    }
+
+    @Override
+    public boolean isWriter(PostComment activeComment, Member loginmember) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(postComment)
+            .innerJoin(postComment.member, member)
+            .where(
+                postComment.eq(activeComment),
+                member.eq(loginmember)
+            )
+            .fetchFirst() != null;
     }
 
     private BooleanExpression eqPostCommentWriter(QMember member, Long memberId) {

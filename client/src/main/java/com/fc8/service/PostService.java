@@ -31,4 +31,6 @@ public interface PostService {
     Long deletePost(Long memberId, Long postId, String apartCode);
 
     void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji);
+
+    Long deleteComment(Long memberId, Long postId, Long commentId, String apartCode);
 }

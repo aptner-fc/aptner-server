@@ -226,4 +226,28 @@ public class PostServiceImpl implements PostService {
         // 4. 삭제
         postEmojiRepository.delete(postEmoji);
     }
+
+    @Override
+    @Transactional
+    public Long deleteComment(Long memberId, Long postId, Long commentId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var post = postRepository.getByIdAndApartCode(postId, apartCode);
+
+        // 3. 댓글 조회
+        var comment = postCommentRepository.getByIdAndPost(commentId, post);
+
+        // 3. 본인 작성 댓글 여부
+        boolean affected = postCommentRepository.isWriter(comment, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
+        }
+
+        // 4. 삭제
+        comment.delete();
+
+        return commentId;
+    }
 }

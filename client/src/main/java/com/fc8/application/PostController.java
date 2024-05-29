@@ -60,16 +60,15 @@ public class PostController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.modifyPost(currentMember.id(), postId, apartCode, command, image));
     }
 
-    @Operation(summary = "소통 게시판 목록 조회 API")
+    @Operation(summary = "소통 게시판 글 삭제 API")
     @CheckApartType
-    @GetMapping(value = "/{apartCode}")
-    public ResponseEntity<CommonResponse<PageResponse<LoadPostListResponse>>> loadPostList(
-            @NotNull @PathVariable String apartCode,
-            @CheckCurrentMember CurrentMember currentMember,
-            SearchPageRequest request
+    @DeleteMapping(value = "/{apartCode}/{postId}")
+    public ResponseEntity<CommonResponse<DeletePostResponse>> deletePost(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long postId,
+        @CheckCurrentMember CurrentMember currentMember
     ) {
-        var command = pageMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostList(currentMember.id(), apartCode, command));
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deletePost(currentMember.id(), postId, apartCode));
     }
 
     @Operation(summary = "소통 게시판 상세 조회 API")
@@ -83,18 +82,19 @@ public class PostController {
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostDetail(currentMember.id(), postId, apartCode));
     }
 
-    @Operation(summary = "소통 게시판 글 삭제 API")
+    @Operation(summary = "소통 게시판 목록 조회 API")
     @CheckApartType
-    @DeleteMapping(value = "/{apartCode}/{postId}")
-    public ResponseEntity<CommonResponse<DeletePostResponse>> deletePost(
-            @NotNull @PathVariable String apartCode,
-            @NotNull @PathVariable Long postId,
-            @CheckCurrentMember CurrentMember currentMember
+    @GetMapping(value = "/{apartCode}")
+    public ResponseEntity<CommonResponse<PageResponse<LoadPostListResponse>>> loadPostList(
+        @NotNull @PathVariable String apartCode,
+        @CheckCurrentMember CurrentMember currentMember,
+        SearchPageRequest request
     ) {
-        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deletePost(currentMember.id(), postId, apartCode));
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostList(currentMember.id(), apartCode, command));
     }
 
-    @Operation(summary = "소통 게시판 댓글 작성 API")
+    @Operation(summary = "소통 게시판 댓글 등록 API")
     @CheckApartType
     @PostMapping(value = "/{apartCode}/{postId}/comments", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<WritePostCommentResponse>> writeComment(
@@ -110,7 +110,7 @@ public class PostController {
 
     @Operation(summary = "소통 게시판 댓글 수정 API")
     @CheckApartType
-    @PostMapping(value = "/{apartCode}/{postId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    @PatchMapping(value = "/{apartCode}/{postId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
     public ResponseEntity<CommonResponse<WritePostCommentResponse>> modifyComment(
             @NotNull @PathVariable String apartCode,
             @NotNull @PathVariable Long postId,
@@ -121,6 +121,18 @@ public class PostController {
     ) {
         var command = postMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.modifyComment(currentMember.id(), postId, commentId, apartCode, command, image));
+    }
+
+    @Operation(summary = "소통 게시판 댓글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{postId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<DeletePostCommentResponse>> deleteComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long postId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deleteComment(currentMember.id(), postId, commentId, apartCode));
     }
 
     @Operation(summary = "소통 게시판 이모지 등록 API")
