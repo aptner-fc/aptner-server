@@ -135,6 +135,19 @@ public class PostController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE, postFacade.deleteComment(currentMember.id(), postId, commentId, apartCode));
     }
 
+    @Operation(summary = "소통 게시판 댓글 목록 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/{postId}/comments")
+    public ResponseEntity<CommonResponse<PageResponse<LoadPostCommentListResponse>>> loadCommentList(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long postId,
+        @CheckCurrentMember CurrentMember currentMember,
+        SearchPageRequest request
+    ) {
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadCommentList(currentMember.id(), apartCode, postId, command));
+    }
+
     @Operation(summary = "소통 게시판 이모지 등록 API")
     @CheckApartType
     @PostMapping("/{apartCode}/{postId}/emoji")

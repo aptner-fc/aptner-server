@@ -11,10 +11,15 @@ import com.fc8.platform.domain.entity.post.QPostComment;
 import com.fc8.platform.repository.PostCommentRepository;
 import com.fc8.server.PostCommentJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -77,6 +82,31 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
                 member.eq(loginmember)
             )
             .fetchFirst() != null;
+    }
+
+    @Override
+    public Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable, String search) {
+        List<PostComment> commentList = jpaQueryFactory
+            .selectFrom(postComment)
+            .innerJoin(postComment.post, this.post)
+            .where(
+                postComment.post.eq(post),
+                postComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .fetch();
+
+        JPAQuery<Long> countQuery = jpaQueryFactory
+            .select(postComment.count())
+            .from(postComment)
+            .innerJoin(postComment.post, this.post)
+            .where(
+                postComment.post.eq(post),
+                postComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
+            );
+
+        return PageableExecutionUtils.getPage(commentList, pageable, countQuery::fetchOne);
     }
 
     private BooleanExpression eqPostCommentWriter(QMember member, Long memberId) {

@@ -3,10 +3,7 @@ package com.fc8.service;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
-import com.fc8.platform.dto.record.EmojiInfo;
-import com.fc8.platform.dto.record.PostDetailInfo;
-import com.fc8.platform.dto.record.PostInfo;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,4 +30,6 @@ public interface PostService {
     void deleteEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji);
 
     Long deleteComment(Long memberId, Long postId, Long commentId, String apartCode);
+
+    Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command);
 }
