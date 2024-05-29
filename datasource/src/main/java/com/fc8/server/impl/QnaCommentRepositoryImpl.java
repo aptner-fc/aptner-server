@@ -30,7 +30,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     private final QnaCommentJpaRepository qnaCommentJpaRepository;
 
     QQnaComment qnaComment = QQnaComment.qnaComment;
-    QQna qqna = QQna.qna;
+    QQna qna = QQna.qna;
     QMember member = QMember.member;
 
     @Override
@@ -69,7 +69,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     public Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable, String search) {
         List<QnaComment> commentList = jpaQueryFactory
             .selectFrom(qnaComment)
-            .innerJoin(qnaComment.qna, qqna)
+            .innerJoin(qnaComment.qna, this.qna)
             .where(
                 qnaComment.qna.eq(qna),
                 qnaComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
@@ -81,7 +81,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
         JPAQuery<Long> countQuery = jpaQueryFactory
             .select(qnaComment.count())
             .from(qnaComment)
-            .innerJoin(qnaComment.qna, qqna)
+            .innerJoin(qnaComment.qna, this.qna)
             .where(
                 qnaComment.qna.eq(qna),
                 qnaComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
@@ -94,7 +94,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     public QnaComment getByIdAndQnaIdAndMemberId(Long id, Long qnaId, Long memberId) {
         QnaComment writtenComment = jpaQueryFactory
             .selectFrom(qnaComment)
-            .innerJoin(qqna).on(qnaComment.qna.id.eq(qqna.id))
+            .innerJoin(qna).on(qnaComment.qna.id.eq(qna.id))
             .innerJoin(member).on(qnaComment.member.id.eq(member.id))
             .where(
                 eqId(id),
