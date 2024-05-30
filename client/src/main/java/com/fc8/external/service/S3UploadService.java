@@ -24,4 +24,8 @@ public class S3UploadService {
         return s3Uploader.uploadFileToBucket(AptnerProperties.CATEGORY_POST, file);
     }
 
+    public UploadFileInfo uploadQnaFile(MultipartFile file) {
+        return s3Uploader.uploadFileToBucket(AptnerProperties.CATEGORY_QNA, file);
+    }
+
 }
