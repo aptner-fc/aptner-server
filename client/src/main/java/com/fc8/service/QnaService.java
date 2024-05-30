@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface QnaService {
 
-    Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files);
+    Long writeQna(Long memberId, String apartCode, WriteQnaCommand command);
 
     Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image);
 
