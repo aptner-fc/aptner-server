@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -24,8 +25,8 @@ public class QnaFacade {
 
     private final QnaService qnaService;
 
-    public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
-        return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, image));
+    public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
+        return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, files));
     }
 
     public WriteQnaResponse modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
