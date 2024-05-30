@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -56,12 +55,12 @@ public class QnaServiceImpl implements QnaService {
         var srotedQna = qnaRepository.store(qna);
 
         // 4. 썸네일 이미지 저장, s3Upload 수정 필요 TODO
-        try {
-            String url = s3Uploader.uploadFiles(image, "");
-//            storedPost.updateThumbnail(url);
-        } catch (IOException e) {
-            log.error("썸네일 업로드 실패");
-        }
+//        try {
+//            String url = s3Uploader.uploadFiles(image, "");
+////            storedPost.updateThumbnail(url);
+//        } catch (IOException e) {
+//            log.error("썸네일 업로드 실패");
+//        }
 
         // 5. 파일 저장 TODO
         return srotedQna.getId();

@@ -1,9 +1,9 @@
 package com.fc8.service.impl;
 
+import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
-import com.fc8.platform.common.s3.S3Uploader;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.post.PostEmoji;
 import com.fc8.platform.domain.enums.CategoryType;
@@ -23,7 +23,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,7 +38,7 @@ public class PostServiceImpl implements PostService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
 
-    private final S3Uploader s3Uploader;
+    private final S3UploadService s3UploadService;
 
     @Override
     @Transactional
@@ -54,19 +53,19 @@ public class PostServiceImpl implements PostService {
 
         // 3. 글 저장
         var post = command.toEntity(category, member, apart);
-        var newPost = postRepository.store(post);
+        postRepository.store(post);
 
-        // 4. 썸네일 이미지 저장, s3Upload 수정 필요 TODO
-        try {
-            String url = s3Uploader.uploadFiles(image, "");
-            newPost.updateThumbnail(url);
-        } catch (IOException e) {
-            log.error("썸네일 업로드 실패");
-        }
+        // 4. 썸네일 이미지 저장
+        Optional.ofNullable(image)
+                .filter(img -> !img.isEmpty())
+                .ifPresent(img -> {
+                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+                    post.updateThumbnail(uploadImageInfo.originalImageUrl());
+                });
 
         // 5. 파일 저장 TODO
 
-        return newPost.getId();
+        return post.getId();
     }
 
     @Override
@@ -137,6 +136,14 @@ public class PostServiceImpl implements PostService {
         // 3. 답글 저장
         var postReply = command.toEntity(post, postComment, member);
         var newPostReply = postCommentRepository.store(postReply);
+
+        // 4. 댓글 이미지 저장
+        Optional.ofNullable(image)
+                .filter(img -> !img.isEmpty())
+                .ifPresent(img -> {
+                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+                    post.updateThumbnail(uploadImageInfo.originalImageUrl());
+                });
 
         return newPostReply.getId();
     }
