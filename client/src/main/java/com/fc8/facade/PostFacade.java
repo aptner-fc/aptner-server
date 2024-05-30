@@ -3,6 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
+import com.fc8.platform.dto.record.PostCommentInfo;
 import com.fc8.platform.dto.record.PostInfo;
 import com.fc8.platform.dto.record.SearchPageCommand;
 import com.fc8.platform.dto.response.*;
@@ -71,4 +72,12 @@ public class PostFacade {
     }
 
 
+    public DeletePostCommentResponse deleteComment(Long memberId, Long postId, Long commentId, String apartCode) {
+        return new DeletePostCommentResponse(postService.deleteComment(memberId, postId, commentId, apartCode));
+    }
+
+    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command) {
+        final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
+        return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
+    }
 }

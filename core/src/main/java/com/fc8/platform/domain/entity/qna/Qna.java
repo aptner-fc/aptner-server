@@ -47,10 +47,10 @@ public class Qna extends BaseApartEntity {
     private LocalDateTime deletedAt;
 
     @Column(name = "is_private", nullable = false, columnDefinition = "tinyint(1) comment '비밀글 여부'")
-    private Boolean isPrivate;
+    private boolean isPrivate;
 
     public static Qna create(
-        Category category, Member member, Apart apart, String title, String content, Boolean isPrivate
+        Category category, Member member, Apart apart, String title, String content, boolean isPrivate
     ) {
         Qna qna = Qna.builder()
             .category(category)

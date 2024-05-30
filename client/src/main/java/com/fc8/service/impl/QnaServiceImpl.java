@@ -167,6 +167,7 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
+    @Transactional
     public Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
         // 1. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);

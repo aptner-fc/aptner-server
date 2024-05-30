@@ -52,7 +52,7 @@ public class QnaEmojiRepositoryImpl implements QnaEmojiRepository {
 
     @Override
     public QnaEmoji getByQnaAndMemberAndEmoji(Qna activeQna, Member loginMember, EmojiType emoji) {
-        QnaEmoji qnaEmoji1 = jpaQueryFactory
+        QnaEmoji addedEmoji = jpaQueryFactory
             .selectFrom(qnaEmoji)
             .innerJoin(qna).on(eqQna(qnaEmoji, activeQna))
             .innerJoin(member).on(eqMember(qnaEmoji, loginMember))
@@ -62,7 +62,7 @@ public class QnaEmojiRepositoryImpl implements QnaEmojiRepository {
             )
             .fetchOne();
 
-        return Optional.ofNullable(qnaEmoji1)
+        return Optional.ofNullable(addedEmoji)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_EMOJI));
     }
 
