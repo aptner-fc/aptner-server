@@ -3,15 +3,17 @@ package com.fc8.platform.domain.entity.post;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-        name = "post_reply_image"
+        name = "post_comment_image"
 )
-public class PostReplyImage {
+public class PostCommentImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,13 +21,23 @@ public class PostReplyImage {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "post_reply_id", columnDefinition = "bigint unsigned comment '소통 게시판 댓글 ID'")
+    @JoinColumn(name = "post_comment_id", columnDefinition = "bigint unsigned comment '소통 게시판 댓글 ID'")
     private PostComment postComment;
 
     @Column(name = "seq", columnDefinition = "int comment '이미지 순서'")
-    private Integer seq;
+    private int seq;
 
     @Column(name = "image_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
     private String imagePath;
+
+    @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
+    private LocalDateTime deletedAt;
+
+//    public static PostCommentImage createImage(PostComment postComment, int seq) {
+//        return PostCommentImage.builder()
+//                .postComment(postComment)
+//                .seq(seq)
+//                .build();
+//    }
 
 }
