@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -25,8 +26,8 @@ public class PostFacade {
     private final PostService postService;
 //    private final PinnedPostService pinnedPostService;
 
-    public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
-        return new WritePostResponse(postService.writePost(memberId, apartCode, command, image));
+    public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image, List<MultipartFile> files) {
+        return new WritePostResponse(postService.writePost(memberId, apartCode, command, image, files));
     }
 
     public WritePostResponse modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image) {

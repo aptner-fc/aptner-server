@@ -7,9 +7,11 @@ import com.fc8.platform.dto.record.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface PostService {
 
-    Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image);
+    Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image, List<MultipartFile> files);
 
     Long modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image);
 

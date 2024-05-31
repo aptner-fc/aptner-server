@@ -7,6 +7,7 @@ import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.QPost;
+import com.fc8.platform.domain.enums.SearchType;
 import com.fc8.platform.repository.PostRepository;
 import com.fc8.server.PostJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,18 +40,20 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search) {
+    public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type) {
         List<Post> postList = jpaQueryFactory
                 .selectFrom(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
+                .innerJoin(member).on(post.member.id.eq(member.id))
                 .where(
                         // 1. 삭제된 포스트
                         isNotDeleted(post),
                         // 2. 아파트 코드
-                        eqApartCode(post, apartCode)
+                        eqApartCode(post, apartCode),
                         // 3. 회원 차단 TODO
 
                         // 4. 검색어
+                        containsSearch(post, member, search, type)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -63,8 +67,11 @@ public class PostRepositoryImpl implements PostRepository {
                         // 1. 삭제된 포스트
                         isNotDeleted(post),
                         // 2. 아파트 코드
-                        eqApartCode(post, apartCode)
+                        eqApartCode(post, apartCode),
                         // 3. 회원 차단 TODO
+
+                        // 4. 검색어
+                        containsSearch(post, member, search, type)
                 );
 
         return PageableExecutionUtils.getPage(postList, pageable, count::fetchOne);
@@ -143,6 +150,19 @@ public class PostRepositoryImpl implements PostRepository {
 
     private BooleanExpression isNotDeleted(QPost post) {
         return post.deletedAt.isNull();
+    }
+
+    private BooleanExpression containsSearch(QPost post, QMember member, String search, SearchType type) {
+        if (!StringUtils.hasText(search)) {
+            return null;
+        }
+
+        return switch (type) {
+            case TITLE -> post.title.contains(search);
+            case CONTENT -> post.content.contains(search);
+            case TITLE_AND_CONTENT -> post.title.contains(search).or(post.content.contains(search));
+            case WRITER -> member.name.contains(search).or(member.nickname.contains(search));
+        };
     }
 
 }

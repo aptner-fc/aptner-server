@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Tag(name = "소통 게시판 관련 API")
 @RestController
 @RequestMapping(value = {"/v1/api/posts"})
@@ -40,10 +42,11 @@ public class PostController {
             @NotNull @PathVariable String apartCode,
             @CheckCurrentMember CurrentMember currentMember,
             @Valid @RequestPart(value = "request") WritePostRequest request,
-            @RequestPart(value = "image", required = false) MultipartFile image
-    ) {
+            @RequestPart(value = "image", required = false) MultipartFile image,
+            @RequestPart(value = "files", required = false)List<MultipartFile> files
+            ) {
         var command = postMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.writePost(currentMember.id(), apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, postFacade.writePost(currentMember.id(), apartCode, command, image, files));
     }
 
     @Operation(summary = "소통 게시판 글 수정 API")
