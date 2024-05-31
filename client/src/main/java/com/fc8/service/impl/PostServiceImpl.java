@@ -4,6 +4,8 @@ import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.properties.AptnerProperties;
+import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.post.PostEmoji;
 import com.fc8.platform.domain.enums.CategoryType;
@@ -42,7 +44,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional
-    public Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
+    public Long writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image, List<MultipartFile> files) {
         // 1. 회원 및 카테고리 조회 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var member = memberRepository.getActiveMemberById(memberId);
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
@@ -59,11 +61,25 @@ public class PostServiceImpl implements PostService {
         Optional.ofNullable(image)
                 .filter(img -> !img.isEmpty())
                 .ifPresent(img -> {
+                    // 이미지 용량 제한 TODO
                     UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
                     post.updateThumbnail(uploadImageInfo.originalImageUrl());
                 });
 
-        // 5. 파일 저장 TODO
+        // 5. 파일 저장
+        Optional.ofNullable(files)
+                .filter(f -> !f.isEmpty())
+                .ifPresent(nonEmptyFiles -> {
+                    FileUtils.validateFiles(nonEmptyFiles);
+                    if (nonEmptyFiles.size() > AptnerProperties.FILE_MAX_SIZE_COUNT) {
+                        throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+                    }
+
+                    nonEmptyFiles.forEach(file -> {
+                        UploadFileInfo uploadFileInfo = s3UploadService.uploadPostFile(file);
+//                        post.addFile(uploadFileInfo); Post File 저장 TODO
+                    });
+                });
 
         return post.getId();
     }
@@ -82,8 +98,6 @@ public class PostServiceImpl implements PostService {
         post.changeCategory(category);
         post.modify(command.getTitle(), command.getContent());
 
-        // 4. 썸네일 변경 TODO
-
         return post.getId();
     }
 
@@ -94,7 +108,7 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var postList = postRepository.getPostListByApartCode(memberId, apartCode, pageable, command.search());
+        var postList = postRepository.getPostListByApartCode(memberId, apartCode, pageable, command.search(), command.type());
         final List<PostInfo> postInfoList = postList.stream()
                 .map(post -> PostInfo.fromEntity(post, post.getMember(), post.getCategory()))
                 .toList();

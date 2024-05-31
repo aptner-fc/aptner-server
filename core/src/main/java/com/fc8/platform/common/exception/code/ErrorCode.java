@@ -93,6 +93,16 @@ public enum ErrorCode {
     ALREADY_REGISTER_EMOJI(HttpStatus.BAD_REQUEST, "이미 해당 감정 표현이 등록되어있습니다."),
     NOT_FOUND_EMOJI(HttpStatus.BAD_REQUEST, "회원이 등록한 감정 표현을 찾을 수 없습니다."),
 
+    /**
+     * FILE
+     */
+    EXCEEDED_FILE_SIZE(HttpStatus.BAD_REQUEST, "파일의 허용 용량을 초과했습니다."),
+    EXCEEDED_FILE_COUNT(HttpStatus.BAD_REQUEST, "파일 첨부 허용 개수를 초과했습니다."),
+
+    /**
+     * SEARCH
+     */
+    NOT_FOUND_SEARCH_TYPE(HttpStatus.BAD_REQUEST, "검색 타입을 찾을 수 없습니다"),
     ;
 
     private final HttpStatus httpStatus;
