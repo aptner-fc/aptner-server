@@ -41,7 +41,7 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional
-    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command) {
         // 1. 카테고리 및 회원 검사 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
         var member = memberRepository.getActiveMemberById(memberId);
@@ -54,15 +54,7 @@ public class QnaServiceImpl implements QnaService {
         var qna = command.toEntity(category, member, apart);
         var srotedQna = qnaRepository.store(qna);
 
-        // 4. 썸네일 이미지 저장, s3Upload 수정 필요 TODO
-//        try {
-//            String url = s3Uploader.uploadFiles(image, "");
-////            storedPost.updateThumbnail(url);
-//        } catch (IOException e) {
-//            log.error("썸네일 업로드 실패");
-//        }
-
-        // 5. 파일 저장 TODO
+        // 4. 파일 저장 TODO
         return srotedQna.getId();
     }
 
@@ -167,6 +159,7 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
+    @Transactional
     public Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode) {
         // 1. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);

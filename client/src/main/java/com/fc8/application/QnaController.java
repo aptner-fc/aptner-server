@@ -23,6 +23,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 @Tag(name = "민원 게시판 관련 API")
 @RestController
 @RequestMapping(value = {"/v1/api/qna"})
@@ -39,11 +41,10 @@ public class QnaController {
     public ResponseEntity<CommonResponse<WriteQnaResponse>> writeQna(
         @NotNull @PathVariable String apartCode,
         @CheckCurrentMember CurrentMember currentMember,
-        @Valid @RequestPart(value = "request") WriteQnaRequest request,
-        @RequestPart(value = "image", required = false) MultipartFile image
+        @Valid @RequestPart(value = "request") WriteQnaRequest request
     ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command));
     }
 
     @Operation(summary = "민원 수정 API")

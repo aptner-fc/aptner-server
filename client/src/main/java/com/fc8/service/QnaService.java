@@ -7,9 +7,11 @@ import com.fc8.platform.dto.record.*;
 import org.springframework.data.domain.Page;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 public interface QnaService {
 
-    Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image);
+    Long writeQna(Long memberId, String apartCode, WriteQnaCommand command);
 
     Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image);
 

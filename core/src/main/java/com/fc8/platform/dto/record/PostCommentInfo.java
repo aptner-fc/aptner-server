@@ -1,11 +1,11 @@
 package com.fc8.platform.dto.record;
 
 import com.fc8.platform.domain.entity.member.Member;
-import com.fc8.platform.domain.entity.qna.QnaComment;
+import com.fc8.platform.domain.entity.post.PostComment;
 
 import java.time.LocalDateTime;
 
-public record QnaCommentInfo(
+public record PostCommentInfo(
     Long id,
     Long parentId,
     String content,
@@ -14,8 +14,8 @@ public record QnaCommentInfo(
 //    String imageUrl,
     WriterInfo writer
 ) {
-    public static QnaCommentInfo fromEntity(QnaComment comment, Member member) {
-        return new QnaCommentInfo(
+    public static PostCommentInfo fromEntity(PostComment comment, Member member) {
+        return new PostCommentInfo(
             comment.getId(),
             comment.getParent().getId(),
             comment.getContent(),
