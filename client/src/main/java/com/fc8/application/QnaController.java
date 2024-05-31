@@ -41,10 +41,11 @@ public class QnaController {
     public ResponseEntity<CommonResponse<WriteQnaResponse>> writeQna(
         @NotNull @PathVariable String apartCode,
         @CheckCurrentMember CurrentMember currentMember,
-        @Valid @RequestPart(value = "request") WriteQnaRequest request
+        @Valid @RequestPart(value = "request") WriteQnaRequest request,
+        @RequestPart(value = "files", required = false)List<MultipartFile> files
     ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command, files));
     }
 
     @Operation(summary = "민원 수정 API")

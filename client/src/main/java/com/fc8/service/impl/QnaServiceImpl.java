@@ -1,9 +1,12 @@
 package com.fc8.service.impl;
 
+import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.s3.S3Uploader;
+import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.enums.CategoryType;
@@ -37,11 +40,11 @@ public class QnaServiceImpl implements QnaService {
     private final QnaEmojiRepository qnaEmojiRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
-    private final S3Uploader s3Uploader;
+    private final S3UploadService s3UploadService;
 
     @Override
     @Transactional
-    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command) {
+    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
         // 1. 카테고리 및 회원 검사 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
         var member = memberRepository.getActiveMemberById(memberId);
@@ -54,7 +57,21 @@ public class QnaServiceImpl implements QnaService {
         var qna = command.toEntity(category, member, apart);
         var srotedQna = qnaRepository.store(qna);
 
-        // 4. 파일 저장 TODO
+        // 4. 파일 저장
+        Optional.ofNullable(files)
+            .filter(f -> !f.isEmpty())
+            .ifPresent(nonEmptyFiles -> {
+                FileUtils.validateFiles(nonEmptyFiles);
+                if (nonEmptyFiles.size() > AptnerProperties.FILE_MAX_SIZE_COUNT) {
+                    throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+                }
+
+                nonEmptyFiles.forEach(file -> {
+                    UploadFileInfo uploadFileInfo = s3UploadService.uploadQnaFile(file);
+//                        qna.addFile(uploadFileInfo); TODO : Qna File 저장
+                });
+            });
+
         return srotedQna.getId();
     }
 
