@@ -5,10 +5,10 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
-import com.fc8.platform.common.s3.S3Uploader;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
@@ -41,6 +41,7 @@ public class QnaServiceImpl implements QnaService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final S3UploadService s3UploadService;
+    private final QnaReplyImageRepository qnaReplyImageRepository;
 
     @Override
     @Transactional
@@ -156,8 +157,15 @@ public class QnaServiceImpl implements QnaService {
         var qnaComment = command.toEntity(qna, member);
         var newQnaComment = qnaCommentRepository.store(qnaComment);
 
+        // 4. 댓글 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
 
-        // 4. 댓글 이미지 저장 TODO
+                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaReplyImageRepository.store(qnaReplyImage);
+            });
 
         return newQnaComment.getId();
     }

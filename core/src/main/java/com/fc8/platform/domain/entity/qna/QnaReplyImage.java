@@ -25,4 +25,11 @@ public class QnaReplyImage {
     @Column(name = "image_path", columnDefinition = "varchar(255) comment '썸네일 경로'")
     private String imagePath;
 
+    public static QnaReplyImage create(QnaComment qnaComment, String imagePath) {
+        return QnaReplyImage.builder()
+            .qnaComment(qnaComment)
+            .imagePath(imagePath)
+            .build();
+    }
+
 }
