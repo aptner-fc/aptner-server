@@ -6,6 +6,7 @@ import com.fc8.platform.dto.request.WriteQnaRequest;
 import com.fc8.platform.dto.request.WriteQnaCommentRequest;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
 @Mapper(
@@ -15,6 +16,7 @@ import org.mapstruct.ReportingPolicy;
 )
 public interface QnaMapper {
 
+    @Mapping(target = "isPrivate", source = "private")
     WriteQnaCommand of(WriteQnaRequest request);
 
     WriteQnaCommentCommand of(WriteQnaCommentRequest request);
