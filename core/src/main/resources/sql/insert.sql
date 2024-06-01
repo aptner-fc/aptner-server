@@ -195,10 +195,10 @@ INSERT INTO category (type, code, name, is_used, parent_id)
 VALUES ('QNA', 'QA000', '민원게시판', 1, NULL);
 
 INSERT INTO category (type, code, name, is_used)
-VALUES ('QNA', 'QA001', '하자 보수', 1);
+VALUES ('QNA', 'QA001', '하자/보수', 1);
 
 INSERT INTO category (type, code, name, is_used)
-VALUES ('QNA', 'QA002', '관리  업체 및 사업자 선정', 1);
+VALUES ('QNA', 'QA002', '관리업체 및 사업자선정', 1);
 
 INSERT INTO category (type, code, name, is_used)
 VALUES ('QNA', 'QA003', '시설관리', 1);
