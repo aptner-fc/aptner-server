@@ -69,7 +69,7 @@ public class QnaServiceImpl implements QnaService {
 
                 nonEmptyFiles.forEach(file -> {
                     UploadFileInfo uploadFileInfo = s3UploadService.uploadQnaFile(file);
-//                        qna.addFile(uploadFileInfo); TODO : Qna File 저장
+//                        TODO: qnaFileRepository.store(파일)
                 });
             });
 
@@ -209,7 +209,7 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
@@ -217,7 +217,8 @@ public class QnaServiceImpl implements QnaService {
         var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
 
         // 3. 댓글 조회
-        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable, command.search());
+        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable);
+//        var qnaReplyImage = qnaReplyImageRepository.get
         List<QnaCommentInfo> qnaCommentInfoList = commentList.stream()
             .map(comment -> QnaCommentInfo.fromEntity(comment, comment.getMember()))
             .toList();
@@ -241,6 +242,8 @@ public class QnaServiceImpl implements QnaService {
         // 3. 답글 저장
         var qnaReply = command.toEntity(qna, qnaComment, member);
         var newQnaReply = qnaCommentRepository.store(qnaReply);
+
+        // 4. 이미지 저장
 
         return newQnaReply.getId();
     }

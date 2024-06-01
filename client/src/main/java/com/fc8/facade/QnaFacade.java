@@ -3,9 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
-import com.fc8.platform.dto.record.QnaCommentInfo;
-import com.fc8.platform.dto.record.QnaInfo;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +35,10 @@ public class QnaFacade {
         return new DeleteQnaResponse(qnaService.deleteQna(memberId, qnaId, apartCode));
     }
 
+    @Transactional(readOnly = true)
     public LoadQnaDetailResponse loadQnaDetail(Long memberId, Long qnaId, String apartCode) {
+        // TODO : 파일 조회 후 LoadQnaDetailResponse에 파일 값 추가
+        final QnaDetailInfo qnaDetailInfo = qnaService.loadQnaDetail(memberId, qnaId, apartCode);
         return new LoadQnaDetailResponse(qnaService.loadQnaDetail(memberId, qnaId, apartCode));
     }
 
@@ -64,7 +65,7 @@ public class QnaFacade {
         return new DeleteQnaCommentResponse(qnaService.deleteComment(memberId, qnaId, qnaCommentId, apartCode));
     }
 
-    public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+    public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         final Page<QnaCommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
         return new PageResponse<>(commentList, new LoadQnaCommentListResponse(commentList.getContent()));
     }

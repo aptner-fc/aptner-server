@@ -27,7 +27,7 @@ public interface QnaService {
 
     Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode);
 
-    Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command);
+    Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command);
 
     Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
 
