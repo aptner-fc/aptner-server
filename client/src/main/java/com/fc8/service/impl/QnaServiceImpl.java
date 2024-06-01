@@ -312,4 +312,15 @@ public class QnaServiceImpl implements QnaService {
         qnaEmojiRepository.delete(qnaEmoji);
     }
 
+    @Override
+    public List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode) {
+        // 게시글 조회
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+
+        // 파일 조회
+        final List<QnaFile> qnaFileList = qnaFileRepository.getQnaFileListByQna(qna);
+
+        return qnaFileList.stream().map(QnaFileInfo::fromEntity).toList();
+    }
+
 }

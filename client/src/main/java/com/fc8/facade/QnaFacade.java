@@ -37,9 +37,9 @@ public class QnaFacade {
 
     @Transactional(readOnly = true)
     public LoadQnaDetailResponse loadQnaDetail(Long memberId, Long qnaId, String apartCode) {
-        // TODO : 파일 조회 후 LoadQnaDetailResponse에 파일 값 추가
         final QnaDetailInfo qnaDetailInfo = qnaService.loadQnaDetail(memberId, qnaId, apartCode);
-        return new LoadQnaDetailResponse(qnaService.loadQnaDetail(memberId, qnaId, apartCode));
+        final List<QnaFileInfo> qnaFileList = qnaService.loadQnaFileList(qnaId, apartCode);
+        return new LoadQnaDetailResponse(qnaDetailInfo, qnaFileList);
     }
 
     @Transactional(readOnly = true)

@@ -41,7 +41,7 @@ public class QnaComment extends BaseTimeEntity {
     @Column(name = "content", columnDefinition = "varchar(255) comment '댓글 내용'")
     private String content;
 
-    @OneToMany(mappedBy = "qna_comment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    @OneToMany(mappedBy = "qnaComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
     private List<QnaReplyImage> qnaReplyImage;
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")

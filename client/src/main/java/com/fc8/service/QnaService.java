@@ -35,4 +35,5 @@ public interface QnaService {
 
     void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
 
+    List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode);
 }
