@@ -16,13 +16,15 @@ public record PostCommentInfo(
 ) {
     public static PostCommentInfo fromEntity(PostComment comment, Member member) {
         return new PostCommentInfo(
-            comment.getId(),
-            comment.getParent().getId(),
-            comment.getContent(),
-            comment.getCreatedAt(),
-            comment.getUpdatedAt(),
+                comment.getId(),
+//            comment.getParent().getId(),
+                comment.getParent() == null ? null : comment.getParent().getId(),
+                comment.getContent(),
+                comment.getCreatedAt(),
+                comment.getUpdatedAt(),
 //            comment.
-            WriterInfo.fromMemberEntity(member)
+                WriterInfo.fromMemberEntity(member)
         );
     }
+
 }

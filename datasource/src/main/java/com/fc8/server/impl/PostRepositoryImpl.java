@@ -128,14 +128,14 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public boolean isWriter(Post activePost, Member loginMember) {
+    public boolean isWriter(Post activePost, Member activeMember) {
         return jpaQueryFactory
                 .selectOne()
                 .from(post)
                 .innerJoin(member).on(post.member.eq(member))
                 .where(
                         post.eq(activePost),
-                        member.eq(loginMember)
+                        member.eq(activeMember)
                 )
                 .fetchFirst() != null;
     }

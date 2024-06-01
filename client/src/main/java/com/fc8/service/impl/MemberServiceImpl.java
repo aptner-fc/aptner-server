@@ -6,7 +6,9 @@ import com.fc8.infrastructure.security.CustomUserDetailsService;
 import com.fc8.platform.common.exception.CustomRedisException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
-import com.fc8.platform.common.utils.*;
+import com.fc8.platform.common.utils.ListUtils;
+import com.fc8.platform.common.utils.RedisUtils;
+import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
@@ -18,6 +20,9 @@ import com.fc8.platform.repository.*;
 import com.fc8.service.MemberService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,7 +48,6 @@ public class MemberServiceImpl implements MemberService {
 
     private final CustomUserDetailsService customUserDetailsService;
 
-    private final SMSUtils smsUtils;
     private final RedisUtils redisUtils;
 
     /**
@@ -91,6 +95,32 @@ public class MemberServiceImpl implements MemberService {
         final TokenInfo tokenInfo = getTokenInfoByEmail(email);
 
         return new SignInMemberInfo(memberInfo, tokenInfo);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<LoadMyArticleInfo> loadMyArticleList(Long memberId, String apartCode, CustomPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 3. 작성 게시글 조회
+        return memberRepository.getAllArticleByMemberAndApartCode(member, apartCode, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<LoadMyCommentInfo> loadMyCommentList(Long memberId, String apartCode, CustomPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 3. 작성 댓글 조회
+        return memberRepository.getAllCommentByMemberAndApartCode(member, apartCode, pageable);
     }
 
     private void createMemberApartInfo(Member newMember, SignUpMemberCommand command) {

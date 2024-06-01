@@ -27,6 +27,10 @@ public class ValidateUtils {
         Optional.ofNullable(type)
             .filter(t -> t.equals(category.getType()))
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY));
+
+//        if (type == null || !type.equals(category.getType())) {
+//            throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
+//        }
     }
 
     private static void isChildCategory(Category category) {
