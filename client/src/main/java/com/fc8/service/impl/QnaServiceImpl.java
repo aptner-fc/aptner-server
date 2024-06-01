@@ -8,6 +8,7 @@ import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.entity.qna.QnaFile;
 import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
@@ -42,6 +43,7 @@ public class QnaServiceImpl implements QnaService {
     private final CategoryRepository categoryRepository;
     private final S3UploadService s3UploadService;
     private final QnaReplyImageRepository qnaReplyImageRepository;
+    private final QnaFileRepository qnaFileRepository;
 
     @Override
     @Transactional
@@ -56,7 +58,7 @@ public class QnaServiceImpl implements QnaService {
 
         // 3. 글 저장
         var qna = command.toEntity(category, member, apart);
-        var srotedQna = qnaRepository.store(qna);
+        var storedQna = qnaRepository.store(qna);
 
         // 4. 파일 저장
         Optional.ofNullable(files)
@@ -69,11 +71,17 @@ public class QnaServiceImpl implements QnaService {
 
                 nonEmptyFiles.forEach(file -> {
                     UploadFileInfo uploadFileInfo = s3UploadService.uploadQnaFile(file);
-//                        TODO: qnaFileRepository.store(파일)
+                    var qnaFile = QnaFile.create(
+                        qna,
+                        uploadFileInfo.originalFileName(),
+                        uploadFileInfo.originalFilUrl(),
+                        uploadFileInfo.fileSize()
+                    );
+                    qnaFileRepository.store(qnaFile);
                 });
             });
 
-        return srotedQna.getId();
+        return storedQna.getId();
     }
 
     @Override
@@ -176,10 +184,21 @@ public class QnaServiceImpl implements QnaService {
         // 1. 댓글 조회
         var qnaComment = qnaCommentRepository.getByIdAndQnaIdAndMemberId(commentId, qnaId, memberId);
 
+//        var qnaReplyImage = qnaReplyImageRepository.getByIdAndCommentId(commentId);
+
         // 2. 댓글 수정
         qnaComment.modify(command.getContent());
 
-        // 3. 이미지 변경 TODO
+        // 3. 이미지 변경
+        // TODO : 이미지 deletedAt 상태 변경 후
+//        Optional.ofNullable(image)
+//            .filter(img -> !img.isEmpty())
+//            .ifPresent(img -> {
+//                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+//
+//                QnaReplyImage.modify(uploadImageInfo.originalImageUrl());
+//            });
+
         return qnaComment.getId();
     }
 
@@ -195,7 +214,7 @@ public class QnaServiceImpl implements QnaService {
         // 3. 댓글 조회
         var comment = qnaCommentRepository.getByIdAndQna(qnaCommentId, qna);
 
-        // 3. 본인 작성 댓글 여부
+        // 4. 본인 작성 댓글 여부
         boolean affected = qnaCommentRepository.isWriter(comment, member);
         if (!affected) {
             throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
@@ -244,6 +263,14 @@ public class QnaServiceImpl implements QnaService {
         var newQnaReply = qnaCommentRepository.store(qnaReply);
 
         // 4. 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaReplyImageRepository.store(qnaReplyImage);
+            });
 
         return newQnaReply.getId();
     }
