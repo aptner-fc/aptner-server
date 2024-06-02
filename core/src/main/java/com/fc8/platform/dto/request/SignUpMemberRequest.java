@@ -16,8 +16,8 @@ import java.util.List;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SignUpMemberRequest {
 
-    @NotBlank(message = "이메일이 누락되었습니다.")
-    @Email(message = "이메일 주소 형식이 잘못되었습니다.")
+//    @NotBlank(message = "이메일이 누락되었습니다.")
+//    @Email(message = "이메일 주소 형식이 잘못되었습니다.")
     private String email;
 
     @NotBlank(message = "이름이 누락되었습니다.")
