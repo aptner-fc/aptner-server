@@ -3,9 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
-import com.fc8.platform.dto.record.QnaCommentInfo;
-import com.fc8.platform.dto.record.QnaInfo;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -24,8 +23,8 @@ public class QnaFacade {
 
     private final QnaService qnaService;
 
-    public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, MultipartFile image) {
-        return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, image));
+    public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
+        return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, files));
     }
 
     public WriteQnaResponse modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
@@ -36,8 +35,11 @@ public class QnaFacade {
         return new DeleteQnaResponse(qnaService.deleteQna(memberId, qnaId, apartCode));
     }
 
+    @Transactional(readOnly = true)
     public LoadQnaDetailResponse loadQnaDetail(Long memberId, Long qnaId, String apartCode) {
-        return new LoadQnaDetailResponse(qnaService.loadQnaDetail(memberId, qnaId, apartCode));
+        final QnaDetailInfo qnaDetailInfo = qnaService.loadQnaDetail(memberId, qnaId, apartCode);
+        final List<QnaFileInfo> qnaFileList = qnaService.loadQnaFileList(qnaId, apartCode);
+        return new LoadQnaDetailResponse(qnaDetailInfo, qnaFileList);
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +65,7 @@ public class QnaFacade {
         return new DeleteQnaCommentResponse(qnaService.deleteComment(memberId, qnaId, qnaCommentId, apartCode));
     }
 
-    public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+    public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         final Page<QnaCommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
         return new PageResponse<>(commentList, new LoadQnaCommentListResponse(commentList.getContent()));
     }

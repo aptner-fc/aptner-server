@@ -52,7 +52,7 @@ public class PostEmojiRepositoryImpl implements PostEmojiRepository {
 
     @Override
     public PostEmoji getByPostAndMemberAndEmoji(Post activePost, Member loginMember, EmojiType emoji) {
-        PostEmoji postEmoji1 = jpaQueryFactory
+        PostEmoji addedEmoji = jpaQueryFactory
                 .selectFrom(postEmoji)
                 .innerJoin(post).on(eqPost(postEmoji, activePost))
                 .innerJoin(member).on(eqMember(postEmoji, loginMember))
@@ -62,7 +62,7 @@ public class PostEmojiRepositoryImpl implements PostEmojiRepository {
                 )
                 .fetchOne();
 
-        return Optional.ofNullable(postEmoji1)
+        return Optional.ofNullable(addedEmoji)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_EMOJI));
     }
 

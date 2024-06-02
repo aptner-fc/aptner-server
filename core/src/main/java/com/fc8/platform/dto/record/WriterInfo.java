@@ -14,4 +14,5 @@ public record WriterInfo(Long id,
     public static WriterInfo fromAdminEntity(Admin admin) {
         return new WriterInfo(admin.getId(), admin.getName(), admin.getNickname());
     }
+
 }

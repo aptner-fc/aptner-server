@@ -8,6 +8,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -39,6 +40,9 @@ public class QnaComment extends BaseTimeEntity {
 
     @Column(name = "content", columnDefinition = "varchar(255) comment '댓글 내용'")
     private String content;
+
+    @OneToMany(mappedBy = "qnaComment", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<QnaReplyImage> qnaReplyImage;
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;

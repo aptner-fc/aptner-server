@@ -14,4 +14,9 @@ public class DefaultController {
     public String home() {
         return "<h1>aptner<h1>";
     }
+
+    @GetMapping("/health")
+    public String healthCheck() {
+        return "<h1>aptner<h1>";
+    }
 }

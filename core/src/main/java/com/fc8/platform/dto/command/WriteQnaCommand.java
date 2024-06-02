@@ -17,7 +17,7 @@ public class WriteQnaCommand {
 
     private final String content;
 
-    private final Boolean isPrivate;
+    private final boolean isPrivate;
 
     public Qna toEntity(Category category, Member member, Apart apart) {
         return Qna.create(category, member, apart, title, content, isPrivate);

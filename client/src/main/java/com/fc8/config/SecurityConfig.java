@@ -5,6 +5,7 @@ import com.fc8.infrastructure.jwt.JwtExceptionFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -17,8 +18,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -34,11 +33,12 @@ public class SecurityConfig {
     };
 
     private static final String[] ALLOW_ORIGINS = {
-        "http://localhost:8086",
-        "http://localhost:8080",
-        "http://localhost:3000",
-        "https://api.aptner.site",
-        "https://aptner.site"
+            "http://localhost:8086",
+            "http://localhost:8080",
+            "http://localhost:3000",
+            "https://apartner.vercel.app",
+            "https://api.aptner.site",
+            "https://aptner.site"
     };
 
     @Bean
@@ -78,18 +78,28 @@ public class SecurityConfig {
                 .build();
     }
 
-    @Bean
-    CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(ALLOW_ORIGINS));
-        configuration.setAllowedMethods(List.of("*"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.addExposedHeader("Authorization");
-        configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L);
-
+    // cors bean 해제, origins 제외 TODO
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        config.addAllowedOriginPattern("*"); // TODO ALLOWED ORIGIN
+        config.setAllowCredentials(true);
+        config.addExposedHeader(HttpHeaders.AUTHORIZATION);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
+        source.registerCorsConfiguration("/**", config);
         return source;
+
+//        CorsConfiguration configuration = new CorsConfiguration();
+//        configuration.setAllowedOrigins(List.of(ALLOW_ORIGINS));
+//        configuration.setAllowedMethods(List.of("*"));
+//        configuration.setAllowedHeaders(List.of("*"));
+//        configuration.addExposedHeader(HttpHeaders.AUTHORIZATION);
+//        configuration.setAllowCredentials(true);
+//        configuration.setMaxAge(3600L);
+//
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", configuration);
+//        return source;
     }
 }

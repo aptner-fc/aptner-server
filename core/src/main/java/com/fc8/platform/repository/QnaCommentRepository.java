@@ -14,7 +14,7 @@ public interface QnaCommentRepository {
 
     boolean isWriter(QnaComment comment, Member member);
 
-    Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable, String search);
+    Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable);
 
     QnaComment getByIdAndQnaIdAndMemberId(Long id, Long qnaId, Long memberId);
 }

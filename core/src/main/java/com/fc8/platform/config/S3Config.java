@@ -1,4 +1,4 @@
-package com.fc8.platform.common.s3;
+package com.fc8.platform.config;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class S3Config {
+
     @Value("${cloud.aws.credentials.access-key}")
     private String accessKey;
 

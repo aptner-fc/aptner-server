@@ -3,7 +3,8 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
-import com.fc8.platform.dto.record.PostInfo;
+import com.fc8.platform.dto.record.PostCommentInfo;
+import com.fc8.platform.dto.record.PostSummary;
 import com.fc8.platform.dto.record.SearchPageCommand;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.PostService;
@@ -14,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -24,8 +26,8 @@ public class PostFacade {
     private final PostService postService;
 //    private final PinnedPostService pinnedPostService;
 
-    public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image) {
-        return new WritePostResponse(postService.writePost(memberId, apartCode, command, image));
+    public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image, List<MultipartFile> files) {
+        return new WritePostResponse(postService.writePost(memberId, apartCode, command, image, files));
     }
 
     public WritePostResponse modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image) {
@@ -35,7 +37,7 @@ public class PostFacade {
     @Transactional(readOnly = true)
     public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
         // 1. 소통 게시판 게시물 조회
-        final Page<PostInfo> posts = postService.loadPostList(memberId, apartCode, command);
+        final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, command);
 
         // 2. 상단 고정 게시물 조회
 
@@ -71,4 +73,12 @@ public class PostFacade {
     }
 
 
+    public DeletePostCommentResponse deleteComment(Long memberId, Long postId, Long commentId, String apartCode) {
+        return new DeletePostCommentResponse(postService.deleteComment(memberId, postId, commentId, apartCode));
+    }
+
+    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command) {
+        final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
+        return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
+    }
 }

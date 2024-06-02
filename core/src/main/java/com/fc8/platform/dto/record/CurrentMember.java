@@ -9,6 +9,7 @@ import java.util.List;
 public record CurrentMember(Long id,
                             String email,
                             String phone,
+                            String nickname,
                             ApartInfo mainApartInfo,
                             List<ApartInfo> apartInfoList) {
     public static CurrentMember fromEntityWithApartInfo(Member member, ApartInfo apartInfo, List<ApartInfo> apartInfoList) {
@@ -16,8 +17,10 @@ public record CurrentMember(Long id,
                 .id(member.getId())
                 .email(member.getEmail())
                 .phone(member.getPhone())
+                .nickname(member.getNickname())
                 .mainApartInfo(apartInfo)
                 .apartInfoList(apartInfoList)
                 .build();
     }
+
 }

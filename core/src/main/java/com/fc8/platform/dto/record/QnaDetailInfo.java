@@ -15,6 +15,7 @@ public record QnaDetailInfo(
     LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     LocalDateTime updatedAt,
+    boolean isPrivate,
     WriterInfo writer,
     CategoryInfo category,
     QnaEmojiInfo emoji
@@ -32,6 +33,7 @@ public record QnaDetailInfo(
             qna.getContent(),
             qna.getCreatedAt(),
             qna.getUpdatedAt(),
+            qna.isPrivate(),
             WriterInfo.fromMemberEntity(member),
             CategoryInfo.fromEntity(category),
             new QnaEmojiInfo(emojiCount, emojiReaction)

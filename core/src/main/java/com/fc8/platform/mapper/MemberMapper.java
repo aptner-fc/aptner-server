@@ -1,9 +1,7 @@
 package com.fc8.platform.mapper;
 
-import com.fc8.platform.dto.command.SignInMemberCommand;
-import com.fc8.platform.dto.command.SignUpMemberCommand;
-import com.fc8.platform.dto.request.SignInMemberRequest;
-import com.fc8.platform.dto.request.SignUpMemberRequest;
+import com.fc8.platform.dto.command.*;
+import com.fc8.platform.dto.request.*;
 import org.mapstruct.InjectionStrategy;
 import org.mapstruct.Mapper;
 import org.mapstruct.ReportingPolicy;
@@ -18,5 +16,11 @@ public interface MemberMapper {
     SignUpMemberCommand of(SignUpMemberRequest request);
 
     SignInMemberCommand of(SignInMemberRequest request);
+
+    ModifyProfileCommand of(ModifyProfileRequest request);
+
+    ChangePasswordCommand of(ChangePasswordRequest request);
+
+    ChangePhoneCommand of(ChangePhoneRequest request);
 
 }

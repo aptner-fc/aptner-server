@@ -7,17 +7,21 @@ import java.time.LocalDateTime;
 
 public record QnaCommentInfo(
     Long id,
+    Long parentId,
     String content,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
+//    String imageUrl,
     WriterInfo writer
 ) {
     public static QnaCommentInfo fromEntity(QnaComment comment, Member member) {
         return new QnaCommentInfo(
             comment.getId(),
+            comment.getParent().getId(),
             comment.getContent(),
             comment.getCreatedAt(),
             comment.getUpdatedAt(),
+//            comment.
             WriterInfo.fromMemberEntity(member)
         );
     }

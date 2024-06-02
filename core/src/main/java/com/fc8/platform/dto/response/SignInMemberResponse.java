@@ -1,6 +1,5 @@
 package com.fc8.platform.dto.response;
 
-import com.fc8.platform.domain.enums.MemberStatus;
 import com.fc8.platform.dto.record.MemberInfo;
 import com.fc8.platform.dto.record.TokenInfo;
 import lombok.Getter;
@@ -8,12 +7,12 @@ import lombok.Getter;
 @Getter
 public class SignInMemberResponse {
 
-    private final SignInMember member;
+    private final SignInMember loginMember;
     private final TokenInfo token;
 
 
-    public SignInMemberResponse(SignInMember member, TokenInfo token) {
-        this.member = member;
+    public SignInMemberResponse(SignInMember loginMember, TokenInfo token) {
+        this.loginMember = loginMember;
         this.token = token;
     }
 
@@ -22,12 +21,12 @@ public class SignInMemberResponse {
 
         private final Long id;
         private final String email;
-        private final MemberStatus status;
+        private final String nickname;
 
         public SignInMember(MemberInfo memberInfo) {
             this.id = memberInfo.id();
             this.email = memberInfo.email();
-            this.status = memberInfo.status();
+            this.nickname = memberInfo.nickname();
         }
     }
 }

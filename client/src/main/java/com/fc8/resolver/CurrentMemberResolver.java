@@ -40,7 +40,7 @@ public class CurrentMemberResolver implements HandlerMethodArgumentResolver {
         /**
          * TODO refactor : 조회 로직 변경
          */
-        var member = memberRepository.getByEmail(email);
+        var member = memberRepository.getActiveMemberByEmail(email);
         var mainApart = apartRepository.getMainApartByMember(member);
         var apartList = apartRepository.getNotMainApartListByMember(member);
         validateCurrentMember(member);
