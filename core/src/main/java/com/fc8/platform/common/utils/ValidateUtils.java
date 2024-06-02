@@ -8,7 +8,7 @@ import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.Optional;
+import java.util.Objects;
 
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class ValidateUtils {
@@ -17,24 +17,40 @@ public class ValidateUtils {
         BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
         if (!passwordEncoder.matches(password, encPassword)) {
-            throw new InvalidParamException(ErrorCode.FAIL_LOGIN);
+            throw new InvalidParamException(ErrorCode.COMMON_INVALID_PARAM);
+        }
+    }
+
+    public static void validateChangePassword(String currentPassword, String newPassword, String confirmNewPassword) {
+        validateMatchNewPassword(currentPassword, newPassword);
+        validateConfirmPassword(newPassword, confirmNewPassword);
+    }
+
+    private static void validateMatchNewPassword(String currentPassword, String newPassword) {
+        if (Objects.equals(currentPassword, newPassword)) {
+            throw new InvalidParamException(ErrorCode.MATCH_PASSWORD_AND_NEW_PASSWORD);
+        }
+    }
+
+    private static void validateConfirmPassword(String password, String confirmPassword) {
+        if (!Objects.equals(password, confirmPassword)) {
+            throw new InvalidParamException(ErrorCode.NOT_MATCH_CONFIRM);
         }
     }
 
     public static void validateChildCategoryType(CategoryType type, Category category) {
         isChildCategory(category);
-
-        Optional.ofNullable(type)
-            .filter(t -> t.equals(category.getType()))
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY));
-
-//        if (type == null || !type.equals(category.getType())) {
-//            throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
-//        }
+        validateCategoryType(type, category);
     }
 
     private static void isChildCategory(Category category) {
         if (category.getParent() == null) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
+        }
+    }
+
+    private static void validateCategoryType(CategoryType type, Category category) {
+        if (type == null || !type.equals(category.getType())) {
             throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
         }
     }

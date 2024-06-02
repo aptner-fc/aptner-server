@@ -34,11 +34,12 @@ public class SecurityConfig {
     };
 
     private static final String[] ALLOW_ORIGINS = {
-        "http://localhost:8086",
-        "http://localhost:8080",
-        "http://localhost:3000",
-        "https://api.aptner.site",
-        "https://aptner.site"
+            "http://localhost:8086",
+            "http://localhost:8080",
+            "http://localhost:3000",
+            "https://apartner.vercel.app",
+            "https://api.aptner.site",
+            "https://aptner.site"
     };
 
     @Bean

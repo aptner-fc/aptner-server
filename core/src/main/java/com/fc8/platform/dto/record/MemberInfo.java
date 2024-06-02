@@ -22,7 +22,8 @@ public record MemberInfo(Long id,
                          MemberStatus status,
                          MemberRole role,
                          Provider provider,
-                         @JsonInclude(JsonInclude.Include.NON_NULL) LocalDateTime deletedAt) {
+                         @JsonInclude(JsonInclude.Include.NON_NULL)
+                         LocalDateTime deletedAt) {
 
     public static MemberInfo fromEntity(Member member) {
         return MemberInfo.builder()
@@ -37,6 +38,7 @@ public record MemberInfo(Long id,
                 .status(member.getStatus())
                 .role(member.getRole())
                 .provider(member.getProvider())
+                .deletedAt(member.getDeletedAt())
                 .build();
     }
 

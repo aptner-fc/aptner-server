@@ -37,6 +37,7 @@ public class SecurityConfig {
         "http://localhost:8086",
         "http://localhost:8080",
         "http://localhost:3000",
+        "https://apartner.vercel.app",
         "https://api.aptner.site",
         "https://aptner.site"
     };

@@ -22,11 +22,13 @@ public class SignInMemberResponse {
 
         private final Long id;
         private final String email;
+        private final String nickname;
         private final MemberStatus status;
 
         public SignInMember(MemberInfo memberInfo) {
             this.id = memberInfo.id();
             this.email = memberInfo.email();
+            this.nickname = memberInfo.nickname();
             this.status = memberInfo.status();
         }
     }

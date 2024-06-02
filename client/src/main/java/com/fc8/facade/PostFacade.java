@@ -4,7 +4,7 @@ import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
 import com.fc8.platform.dto.record.PostCommentInfo;
-import com.fc8.platform.dto.record.PostInfo;
+import com.fc8.platform.dto.record.PostSummary;
 import com.fc8.platform.dto.record.SearchPageCommand;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.PostService;
@@ -37,7 +37,7 @@ public class PostFacade {
     @Transactional(readOnly = true)
     public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
         // 1. 소통 게시판 게시물 조회
-        final Page<PostInfo> posts = postService.loadPostList(memberId, apartCode, command);
+        final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, command);
 
         // 2. 상단 고정 게시물 조회
 

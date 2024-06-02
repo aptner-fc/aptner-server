@@ -28,7 +28,20 @@ public class PostFile {
     @Column(name = "file_path", nullable = false, columnDefinition = "varchar(255) comment '파일 경로'")
     private String path;
 
+    @Column(name = "file_extension", nullable = false, columnDefinition = "varchar(20) comment '파일 확장자'")
+    private String fileExtension;
+
     @Column(name = "file_size", nullable = false, columnDefinition = "bigint unsigned comment '파일 크기'")
     private Long size;
+
+    public static PostFile create(Post post, String originalFileName, String fileUrl, String fileExtension, Long fileSize) {
+        return PostFile.builder()
+                .post(post)
+                .name(originalFileName)
+                .path(fileUrl)
+                .fileExtension(fileExtension)
+                .size(fileSize)
+                .build();
+    }
 
 }

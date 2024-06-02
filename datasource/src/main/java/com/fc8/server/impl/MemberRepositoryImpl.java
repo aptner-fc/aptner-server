@@ -68,6 +68,18 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
+    public boolean existPhone(String phone) {
+        return jpaQueryFactory
+                .selectOne()
+                .from(member)
+                .where(
+                        eqPhone(member, phone),
+                        isActive()
+                )
+                .fetchFirst() != null;
+    }
+
+    @Override
     public Page<LoadMyArticleInfo> getAllArticleByMemberAndApartCode(Member activeMember, String apartCode, Pageable pageable) {
         List<Post> myPostList = jpaQueryFactory
                 .selectFrom(post)
@@ -220,6 +232,20 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
     }
 
+    @Override
+    public Member getActiveMemberByEmail(String email) {
+        Member activeMember = jpaQueryFactory
+                .selectFrom(member)
+                .where(
+                        eqEmail(email),
+                        isActive()
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activeMember)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
     private BooleanExpression eqMember(QMember member, Member activeMember) {
         return member.id.eq(activeMember.getId());
     }
@@ -255,6 +281,10 @@ public class MemberRepositoryImpl implements MemberRepository {
 
     private BooleanExpression eqEmail(String email) {
         return member.email.eq(email);
+    }
+
+    private BooleanExpression eqPhone(QMember member, String phone) {
+        return member.phone.eq(phone);
     }
 
     private BooleanExpression eqId(Long id) {

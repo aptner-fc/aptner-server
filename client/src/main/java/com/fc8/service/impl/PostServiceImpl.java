@@ -7,7 +7,9 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostEmoji;
+import com.fc8.platform.domain.entity.post.PostFile;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
@@ -25,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -36,6 +39,7 @@ public class PostServiceImpl implements PostService {
     private final PostRepository postRepository;
     private final PostCommentRepository postCommentRepository;
     private final PostEmojiRepository postEmojiRepository;
+    private final PostFileRepository postFileRepository;
     private final ApartRepository apartRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
@@ -58,15 +62,17 @@ public class PostServiceImpl implements PostService {
         postRepository.store(post);
 
         // 4. 썸네일 이미지 저장
-        Optional.ofNullable(image)
-                .filter(img -> !img.isEmpty())
-                .ifPresent(img -> {
-                    // 이미지 용량 제한 TODO
-                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
-                    post.updateThumbnail(uploadImageInfo.originalImageUrl());
-                });
+        uploadPostThumbnailImage(post, image);
 
         // 5. 파일 저장
+        List<PostFile> newPostFileList = uploadPostFileList(post, files);
+        postFileRepository.storeAll(newPostFileList);
+
+        return post.getId();
+    }
+
+    private List<PostFile> uploadPostFileList(Post post, List<MultipartFile> files) {
+        List<PostFile> newPostFileList = new ArrayList<>();
         Optional.ofNullable(files)
                 .filter(f -> !f.isEmpty())
                 .ifPresent(nonEmptyFiles -> {
@@ -77,11 +83,12 @@ public class PostServiceImpl implements PostService {
 
                     nonEmptyFiles.forEach(file -> {
                         UploadFileInfo uploadFileInfo = s3UploadService.uploadPostFile(file);
-//                        post.addFile(uploadFileInfo); Post File 저장 TODO
+                        var newPostFile = PostFile.create(post, uploadFileInfo.originalFileName(), uploadFileInfo.originalFilUrl(), uploadFileInfo.fileExtension(), uploadFileInfo.fileSize());
+                        newPostFileList.add(newPostFile);
                     });
                 });
 
-        return post.getId();
+        return newPostFileList;
     }
 
     @Override
@@ -103,14 +110,14 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostInfo> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
+    public Page<PostSummary> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var postList = postRepository.getPostListByApartCode(memberId, apartCode, pageable, command.search(), command.type());
-        final List<PostInfo> postInfoList = postList.stream()
-                .map(post -> PostInfo.fromEntity(post, post.getMember(), post.getCategory()))
+        var postList = postRepository.getPostListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
+        final List<PostSummary> postInfoList = postList.stream()
+                .map(post -> PostSummary.fromEntity(post, post.getMember(), post.getCategory()))
                 .toList();
 
         return new PageImpl<>(postInfoList, pageable, postList.getTotalElements());
@@ -288,5 +295,22 @@ public class PostServiceImpl implements PostService {
             .toList();
 
         return new PageImpl<>(postCommentInfoList, pageable, commentList.getTotalElements());
+    }
+
+    private void uploadPostThumbnailImage(Post post, MultipartFile image) {
+        if (null == image || image.isEmpty()) {
+            return;
+        }
+
+        UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+        post.updateThumbnail(uploadImageInfo.originalImageUrl());
+
+//        Optional.ofNullable(image)
+//                .filter(img -> !img.isEmpty())
+//                .ifPresent(img -> {
+//                    // 이미지 용량 제한 TODO
+//                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+//                    post.updateThumbnail(uploadImageInfo.originalImageUrl());
+//                });
     }
 }

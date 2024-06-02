@@ -13,11 +13,15 @@ public interface MemberRepository {
 
     Member getActiveMemberById(Long id);
 
+    Member getActiveMemberByEmail(String email);
+
     Member getByEmail(String email);
 
     boolean existActiveEmail(String email);
 
     boolean existNickname(String nickname);
+
+    boolean existPhone(String phone);
 
     Page<LoadMyArticleInfo> getAllArticleByMemberAndApartCode(Member member, String apartCode, Pageable pageable);
 

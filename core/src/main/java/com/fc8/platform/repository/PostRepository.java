@@ -10,7 +10,7 @@ public interface PostRepository {
 
     Post store(Post post);
 
-    Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type);
+    Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
 
     Post getByIdAndApartCode(Long postId, String apartCode);
 

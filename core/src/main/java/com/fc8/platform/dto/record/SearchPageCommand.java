@@ -7,6 +7,7 @@ import lombok.Builder;
 public record SearchPageCommand(int page,
                                 int size,
                                 String search,
-                                SearchType type) {
+                                SearchType type,
+                                String categoryCode) {
 
 }

@@ -40,7 +40,7 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type) {
+    public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
         List<Post> postList = jpaQueryFactory
                 .selectFrom(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
@@ -52,11 +52,15 @@ public class PostRepositoryImpl implements PostRepository {
                         eqApartCode(post, apartCode),
                         // 3. 회원 차단 TODO
 
-                        // 4. 검색어
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+
+                        // 5. 검색어
                         containsSearch(post, member, search, type)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .orderBy(post.createdAt.desc())
                 .fetch();
 
         JPAQuery<Long> count = jpaQueryFactory
@@ -70,7 +74,10 @@ public class PostRepositoryImpl implements PostRepository {
                         eqApartCode(post, apartCode),
                         // 3. 회원 차단 TODO
 
-                        // 4. 검색어
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+
+                        // 5. 검색어
                         containsSearch(post, member, search, type)
                 );
 
@@ -163,6 +170,14 @@ public class PostRepositoryImpl implements PostRepository {
             case TITLE_AND_CONTENT -> post.title.contains(search).or(post.content.contains(search));
             case WRITER -> member.name.contains(search).or(member.nickname.contains(search));
         };
+    }
+
+    private BooleanExpression eqCategoryCode(QCategory category, String categoryCode) {
+        if (!StringUtils.hasText(categoryCode)) {
+            return null;
+        }
+
+        return category.code.eq(categoryCode);
     }
 
 }

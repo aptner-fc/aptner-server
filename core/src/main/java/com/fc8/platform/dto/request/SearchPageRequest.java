@@ -13,6 +13,6 @@ public class SearchPageRequest extends CustomPageRequest {
 
     private String search;
     private SearchType type;
-
+    private String categoryCode;
 }
 

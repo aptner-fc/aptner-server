@@ -1,5 +1,6 @@
 package com.fc8.service.impl;
 
+import com.fc8.external.service.S3UploadService;
 import com.fc8.infrastructure.jwt.JwtTokenProvider;
 import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
@@ -13,8 +14,7 @@ import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.terms.Terms;
-import com.fc8.platform.dto.command.SignInMemberCommand;
-import com.fc8.platform.dto.command.SignUpMemberCommand;
+import com.fc8.platform.dto.command.*;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.MemberService;
@@ -26,11 +26,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -42,6 +41,8 @@ public class MemberServiceImpl implements MemberService {
     private final MemberRepository memberRepository;
     private final TermsMemberMappingRepository termsMemberMappingRepository;
     private final ApartMemberMappingRepository apartMemberMappingRepository;
+
+    private final S3UploadService s3UploadService;
 
     private final JwtTokenProvider jwtTokenProvider;
     private final PasswordEncoder passwordEncoder;
@@ -58,9 +59,9 @@ public class MemberServiceImpl implements MemberService {
     @Transactional
     public Long signUp(SignUpMemberCommand command) {
         // 1. 휴대전화 인증 검사
-        if (!redisUtils.isValidateAndVerified(command.getPhone(), command.getVerificationCode())) {
-            throw new CustomRedisException(ErrorCode.INVALID_OR_EXPIRED_SMS);
-        }
+        String phone = command.getPhone();
+        String verificationCode = command.getVerificationCode();
+        validatePhoneAndCode(phone, verificationCode);
 
         // 2. 유효성 검사 및 회원 정보 생성
         validateDuplication(command);
@@ -121,6 +122,75 @@ public class MemberServiceImpl implements MemberService {
 
         // 3. 작성 댓글 조회
         return memberRepository.getAllCommentByMemberAndApartCode(member, apartCode, pageable);
+    }
+
+    @Override
+    @Transactional
+    public MemberSummary modifyProfile(Long memberId, ModifyProfileCommand command, MultipartFile image) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 닉네임 변경
+        member.changeNickname(command.getNickname());
+
+        // 3. 프로필 이미지 변경
+        changeProfileImage(member, image);
+
+        return MemberSummary.fromEntity(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberSummary changePassword(Long memberId, ChangePasswordCommand command) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 비밀번호 검증
+        String currentPassword = command.getCurrentPassword();
+        String newPassword = command.getNewPassword();
+
+        ValidateUtils.validatePassword(currentPassword, member.getPassword());
+        ValidateUtils.validateChangePassword(currentPassword, newPassword, command.getConfirmNewPassword());
+
+        // 4. 비밀번호 변경
+        member.changePassword(passwordEncoder.encode(newPassword));
+
+        return MemberSummary.fromEntity(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberSummary changePhone(Long memberId, ChangePhoneCommand command) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 휴대전화 인증 검사
+        String phone = command.getPhone();
+        String verificationCode = command.getVerificationCode();
+        validatePhoneAndCode(phone, verificationCode);
+
+        member.changePhone(command.getNewPhone());
+
+        return MemberSummary.fromEntity(member);
+    }
+
+    private void validatePhoneAndCode(String phone, String verificationCode) {
+        if (memberRepository.existPhone(phone)) {
+            throw new InvalidParamException(ErrorCode.EXIST_PHONE);
+        }
+
+        if (!redisUtils.isValidateAndVerified(phone, verificationCode)) {
+            throw new CustomRedisException(ErrorCode.INVALID_OR_EXPIRED_SMS);
+        }
+    }
+
+    private void changeProfileImage(Member member, MultipartFile image) {
+        Optional.ofNullable(image)
+                .filter(img -> !img.isEmpty())
+                .ifPresent(img -> {
+                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+                    member.changeProfileImage(uploadImageInfo.originalImageUrl());
+                });
     }
 
     private void createMemberApartInfo(Member newMember, SignUpMemberCommand command) {

@@ -15,7 +15,7 @@ public interface PostService {
 
     Long modifyPost(Long memberId, Long postId, String apartCode, WritePostCommand command, MultipartFile image);
 
-    Page<PostInfo> loadPostList(Long memberId, String apartCode, SearchPageCommand command);
+    Page<PostSummary> loadPostList(Long memberId, String apartCode, SearchPageCommand command);
 
     Long writeComment(Long memberId, Long postId, String apartCode, WritePostCommentCommand command, MultipartFile image);
 

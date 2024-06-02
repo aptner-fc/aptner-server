@@ -1,13 +1,10 @@
 package com.fc8.service;
 
 
-import com.fc8.platform.dto.command.SignInMemberCommand;
-import com.fc8.platform.dto.command.SignUpMemberCommand;
-import com.fc8.platform.dto.record.CustomPageCommand;
-import com.fc8.platform.dto.record.LoadMyArticleInfo;
-import com.fc8.platform.dto.record.LoadMyCommentInfo;
-import com.fc8.platform.dto.record.SignInMemberInfo;
+import com.fc8.platform.dto.command.*;
+import com.fc8.platform.dto.record.*;
 import org.springframework.data.domain.Page;
+import org.springframework.web.multipart.MultipartFile;
 
 public interface MemberService {
 
@@ -18,5 +15,11 @@ public interface MemberService {
     Page<LoadMyArticleInfo> loadMyArticleList(Long memberId, String apartCode, CustomPageCommand command);
 
     Page<LoadMyCommentInfo> loadMyCommentList(Long memberId, String apartCode, CustomPageCommand command);
+
+    MemberSummary modifyProfile(Long memberId, ModifyProfileCommand command, MultipartFile image);
+
+    MemberSummary changePassword(Long memberId, ChangePasswordCommand command);
+
+    MemberSummary changePhone(Long memberId, ChangePhoneCommand command);
 
 }

@@ -6,9 +6,7 @@ import com.fc8.facade.MemberFacade;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.record.CurrentMember;
-import com.fc8.platform.dto.request.CustomPageRequest;
-import com.fc8.platform.dto.request.SignInMemberRequest;
-import com.fc8.platform.dto.request.SignUpMemberRequest;
+import com.fc8.platform.dto.request.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.platform.mapper.MemberMapper;
 import com.fc8.platform.mapper.PageMapper;
@@ -19,6 +17,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Tag(name = "회원 관련 API", description = "회원 관련 API 모음 입니다.")
 @RestController
@@ -79,6 +78,34 @@ public class MemberController {
     ) {
         var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadMyCommentList(currentMember.id(), apartCode, command));
+    }
+
+    @Operation(summary = "기본 정보 변경 API")
+    @PatchMapping(value = "/my-pages/profile")
+    public ResponseEntity<CommonResponse<ModifyProfileResponse>> modifyProfile(
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestPart(value = "request") ModifyProfileRequest request,
+            @RequestPart(value = "image", required = false) MultipartFile image) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.modifyProfile(currentMember.id(), command, image));
+    }
+
+    @Operation(summary = "비밀 번호 변경 API")
+    @PatchMapping(value = "/my-pages/password")
+    public ResponseEntity<CommonResponse<ChangePasswordResponse>> changePassword(
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody ChangePasswordRequest request) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.changePassword(currentMember.id(), command));
+    }
+
+    @Operation(summary = "인증 정보 변경 API")
+    @PatchMapping(value = "/my-pages/phone")
+    public ResponseEntity<CommonResponse<ChangePhoneResponse>> changePhone(
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody ChangePhoneRequest request) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.changePhone(currentMember.id(), command));
     }
 
 }

@@ -1,7 +1,6 @@
 package com.fc8.facade;
 
-import com.fc8.platform.dto.command.SignInMemberCommand;
-import com.fc8.platform.dto.command.SignUpMemberCommand;
+import com.fc8.platform.dto.command.*;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.ApartService;
@@ -12,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 @Slf4j
 @Service
@@ -55,5 +55,17 @@ public class MemberFacade {
     public PageResponse<LoadMyCommentListResponse> loadMyCommentList(Long memberId, String apartCode, CustomPageCommand command) {
         final Page<LoadMyCommentInfo> myList = memberService.loadMyCommentList(memberId, apartCode, command);
         return new PageResponse<>(myList, new LoadMyCommentListResponse(myList.getContent()));
+    }
+
+    public ModifyProfileResponse modifyProfile(Long memberId, ModifyProfileCommand command, MultipartFile image) {
+        return new ModifyProfileResponse(memberService.modifyProfile(memberId, command, image));
+    }
+
+    public ChangePasswordResponse changePassword(Long memberId, ChangePasswordCommand command) {
+        return new ChangePasswordResponse(memberService.changePassword(memberId, command));
+    }
+
+    public ChangePhoneResponse changePhone(Long memberId, ChangePhoneCommand command) {
+        return new ChangePhoneResponse(memberService.changePhone(memberId, command));
     }
 }

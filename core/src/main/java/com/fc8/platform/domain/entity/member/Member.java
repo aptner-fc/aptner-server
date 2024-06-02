@@ -12,6 +12,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Builder
@@ -99,4 +100,33 @@ public class Member extends BaseTimeEntity {
     public void updateActive() {
         this.status = MemberStatus.ACTIVE;
     }
+
+    public void changeNickname(String nickname) {
+        if (this.nickname.equals(nickname)) {
+            return;
+        }
+
+        this.nickname = nickname;
+    }
+
+    public void changeProfileImage(String profileImage) {
+        if (Objects.equals(this.profileImage, profileImage)) {
+            return;
+        }
+
+        this.profileImage = profileImage;
+    }
+
+    public void changePassword(String encPassword) {
+        this.password = encPassword;
+    }
+
+    public void changePhone(String phone) {
+        if (Objects.equals(this.phone, phone)) {
+            return;
+        }
+
+        this.phone = phone;
+    }
+
 }
