@@ -32,6 +32,7 @@ public class SecurityConfig {
         "/api/auth/**", "/swagger-ui/**", "/api-docs/**", "/*", "/**", "/error", "/favicon.ico", "/"
     };
 
+    // TODO PROPERTY
     private static final String[] ALLOW_ORIGINS = {
             "http://localhost:8086",
             "http://localhost:8080",
