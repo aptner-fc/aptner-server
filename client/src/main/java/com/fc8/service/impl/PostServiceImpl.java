@@ -291,8 +291,8 @@ public class PostServiceImpl implements PostService {
         // 3. 댓글 조회
         var commentList = postCommentRepository.getCommentListByPost(memberId, post, pageable, command.search());
         List<PostCommentInfo> postCommentInfoList = commentList.stream()
-            .map(comment -> PostCommentInfo.fromEntity(comment, comment.getMember()))
-            .toList();
+                .map(comment -> PostCommentInfo.fromEntity(comment, comment.getMember()))
+                .toList();
 
         return new PageImpl<>(postCommentInfoList, pageable, commentList.getTotalElements());
     }

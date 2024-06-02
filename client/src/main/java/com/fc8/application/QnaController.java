@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.CurrentMember;
+import com.fc8.platform.dto.request.CustomPageRequest;
 import com.fc8.platform.dto.request.SearchPageRequest;
 import com.fc8.platform.dto.request.WriteQnaCommentRequest;
 import com.fc8.platform.dto.request.WriteQnaRequest;
@@ -41,10 +42,11 @@ public class QnaController {
     public ResponseEntity<CommonResponse<WriteQnaResponse>> writeQna(
         @NotNull @PathVariable String apartCode,
         @CheckCurrentMember CurrentMember currentMember,
-        @Valid @RequestPart(value = "request") WriteQnaRequest request
+        @Valid @RequestPart(value = "request") WriteQnaRequest request,
+        @RequestPart(value = "files", required = false)List<MultipartFile> files
     ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command, files));
     }
 
     @Operation(summary = "민원 수정 API")
@@ -142,7 +144,7 @@ public class QnaController {
         @NotNull @PathVariable String apartCode,
         @NotNull @PathVariable Long qnaId,
         @CheckCurrentMember CurrentMember currentMember,
-        SearchPageRequest request
+        CustomPageRequest request
     ) {
         var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadCommentList(currentMember.id(), apartCode, qnaId, command));

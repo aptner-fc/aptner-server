@@ -66,10 +66,11 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     }
 
     @Override
-    public Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable, String search) {
+    public Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable) {
         List<QnaComment> commentList = jpaQueryFactory
             .selectFrom(qnaComment)
             .innerJoin(qnaComment.qna, this.qna)
+//            .leftJoin(qnaCommentImage)
             .where(
                 qnaComment.qna.eq(qna),
                 qnaComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회

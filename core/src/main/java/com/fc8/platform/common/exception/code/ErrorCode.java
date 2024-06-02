@@ -89,6 +89,7 @@ public enum ErrorCode {
     NOT_POST_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자가 아닙니다."),
     ALREADY_DELETED_POST(HttpStatus.BAD_REQUEST, "이미 삭제된 게시글입니다."),
     ALREADY_DELETED_POST_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
+    ALREADY_DELETED_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글 이미지입니다."),
 
     /**
      * EMOJI

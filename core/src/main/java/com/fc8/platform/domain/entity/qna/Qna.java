@@ -62,7 +62,7 @@ public class Qna extends BaseApartEntity {
             .title(title)
             .content(content)
             .isPrivate(isPrivate)
-            .processingStatus(ProcessingStatus.접수)
+            .processingStatus(ProcessingStatus.REGISTER)
             .build();
         qna.updateApart(apart);
 

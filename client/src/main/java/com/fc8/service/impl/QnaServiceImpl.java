@@ -1,11 +1,15 @@
 package com.fc8.service.impl;
 
+import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
-import com.fc8.platform.common.s3.S3Uploader;
+import com.fc8.platform.common.properties.AptnerProperties;
+import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.entity.qna.QnaFile;
+import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
@@ -37,11 +41,13 @@ public class QnaServiceImpl implements QnaService {
     private final QnaEmojiRepository qnaEmojiRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
-    private final S3Uploader s3Uploader;
+    private final S3UploadService s3UploadService;
+    private final QnaReplyImageRepository qnaReplyImageRepository;
+    private final QnaFileRepository qnaFileRepository;
 
     @Override
     @Transactional
-    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command) {
+    public Long writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
         // 1. 카테고리 및 회원 검사 (상위 카테고리 : 중요 글, 하위 카테고리 : 본문)
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
         var member = memberRepository.getActiveMemberById(memberId);
@@ -52,10 +58,30 @@ public class QnaServiceImpl implements QnaService {
 
         // 3. 글 저장
         var qna = command.toEntity(category, member, apart);
-        var srotedQna = qnaRepository.store(qna);
+        var storedQna = qnaRepository.store(qna);
 
-        // 4. 파일 저장 TODO
-        return srotedQna.getId();
+        // 4. 파일 저장
+        Optional.ofNullable(files)
+            .filter(f -> !f.isEmpty())
+            .ifPresent(nonEmptyFiles -> {
+                FileUtils.validateFiles(nonEmptyFiles);
+                if (nonEmptyFiles.size() > AptnerProperties.FILE_MAX_SIZE_COUNT) {
+                    throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+                }
+
+                nonEmptyFiles.forEach(file -> {
+                    UploadFileInfo uploadFileInfo = s3UploadService.uploadQnaFile(file);
+                    var qnaFile = QnaFile.create(
+                        qna,
+                        uploadFileInfo.originalFileName(),
+                        uploadFileInfo.originalFilUrl(),
+                        uploadFileInfo.fileSize()
+                    );
+                    qnaFileRepository.store(qnaFile);
+                });
+            });
+
+        return storedQna.getId();
     }
 
     @Override
@@ -139,8 +165,15 @@ public class QnaServiceImpl implements QnaService {
         var qnaComment = command.toEntity(qna, member);
         var newQnaComment = qnaCommentRepository.store(qnaComment);
 
+        // 4. 댓글 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
 
-        // 4. 댓글 이미지 저장 TODO
+                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaReplyImageRepository.store(qnaReplyImage);
+            });
 
         return newQnaComment.getId();
     }
@@ -151,10 +184,21 @@ public class QnaServiceImpl implements QnaService {
         // 1. 댓글 조회
         var qnaComment = qnaCommentRepository.getByIdAndQnaIdAndMemberId(commentId, qnaId, memberId);
 
+//        var qnaReplyImage = qnaReplyImageRepository.getByIdAndCommentId(commentId);
+
         // 2. 댓글 수정
         qnaComment.modify(command.getContent());
 
-        // 3. 이미지 변경 TODO
+        // 3. 이미지 변경
+        // TODO : 이미지 deletedAt 상태 변경 후
+//        Optional.ofNullable(image)
+//            .filter(img -> !img.isEmpty())
+//            .ifPresent(img -> {
+//                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+//
+//                QnaReplyImage.modify(uploadImageInfo.originalImageUrl());
+//            });
+
         return qnaComment.getId();
     }
 
@@ -170,7 +214,7 @@ public class QnaServiceImpl implements QnaService {
         // 3. 댓글 조회
         var comment = qnaCommentRepository.getByIdAndQna(qnaCommentId, qna);
 
-        // 3. 본인 작성 댓글 여부
+        // 4. 본인 작성 댓글 여부
         boolean affected = qnaCommentRepository.isWriter(comment, member);
         if (!affected) {
             throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
@@ -184,7 +228,7 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, SearchPageCommand command) {
+    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
@@ -192,7 +236,8 @@ public class QnaServiceImpl implements QnaService {
         var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
 
         // 3. 댓글 조회
-        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable, command.search());
+        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable);
+//        var qnaReplyImage = qnaReplyImageRepository.get
         List<QnaCommentInfo> qnaCommentInfoList = commentList.stream()
             .map(comment -> QnaCommentInfo.fromEntity(comment, comment.getMember()))
             .toList();
@@ -216,6 +261,16 @@ public class QnaServiceImpl implements QnaService {
         // 3. 답글 저장
         var qnaReply = command.toEntity(qna, qnaComment, member);
         var newQnaReply = qnaCommentRepository.store(qnaReply);
+
+        // 4. 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaReplyImageRepository.store(qnaReplyImage);
+            });
 
         return newQnaReply.getId();
     }
@@ -255,6 +310,17 @@ public class QnaServiceImpl implements QnaService {
 
         // 4. 삭제
         qnaEmojiRepository.delete(qnaEmoji);
+    }
+
+    @Override
+    public List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode) {
+        // 게시글 조회
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+
+        // 파일 조회
+        final List<QnaFile> qnaFileList = qnaFileRepository.getQnaFileListByQna(qna);
+
+        return qnaFileList.stream().map(QnaFileInfo::fromEntity).toList();
     }
 
 }

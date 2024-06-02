@@ -31,4 +31,13 @@ public class QnaFile {
     @Column(name = "file_size", nullable = false, columnDefinition = "bigint unsigned comment '파일 크기'")
     private Long size;
 
+    public static QnaFile create(Qna qna,String name, String path, Long size) {
+        return QnaFile.builder()
+            .qna(qna)
+            .name(name)
+            .path(path)
+            .size(size)
+            .build();
+    }
+
 }
