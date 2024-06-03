@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.CurrentMember;
+import com.fc8.platform.dto.request.CustomPageRequest;
 import com.fc8.platform.dto.request.SearchPageRequest;
 import com.fc8.platform.dto.request.WritePostCommentRequest;
 import com.fc8.platform.dto.request.WritePostRequest;
@@ -145,7 +146,7 @@ public class PostController {
         @NotNull @PathVariable String apartCode,
         @NotNull @PathVariable Long postId,
         @CheckCurrentMember CurrentMember currentMember,
-        SearchPageRequest request
+        CustomPageRequest request
     ) {
         var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadCommentList(currentMember.id(), apartCode, postId, command));

@@ -3,9 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
-import com.fc8.platform.dto.record.PostCommentInfo;
-import com.fc8.platform.dto.record.PostSummary;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +54,11 @@ public class PostFacade {
         return new WritePostCommentResponse(postService.modifyComment(memberId, postId, commentId, apartCode, command, image));
     }
 
+    @Transactional(readOnly = true)
     public LoadPostDetailResponse loadPostDetail(Long memberId, Long postId, String apartCode) {
-        return new LoadPostDetailResponse(postService.loadPostDetail(memberId, postId, apartCode));
+        PostDetailInfo postDetailInfo = postService.loadPostDetail(memberId, postId, apartCode);
+        final List<PostFileInfo> postFileList = postService.loadPostFileList(postId, apartCode);
+        return new LoadPostDetailResponse(postDetailInfo, postFileList);
     }
 
     public RegisterEmojiResponse registerEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {
@@ -77,7 +78,7 @@ public class PostFacade {
         return new DeletePostCommentResponse(postService.deleteComment(memberId, postId, commentId, apartCode));
     }
 
-    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command) {
+    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
         final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
         return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
     }

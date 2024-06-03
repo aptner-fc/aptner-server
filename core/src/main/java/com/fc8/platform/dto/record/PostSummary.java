@@ -9,6 +9,7 @@ import java.time.LocalDateTime;
 
 public record PostSummary(Long id,
                           String title,
+                          String thumbnailPath,
                           @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
                           @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
                           WriterInfo writer,
@@ -16,12 +17,13 @@ public record PostSummary(Long id,
 
     public static PostSummary fromEntity(Post post, Member member, Category category) {
         return new PostSummary(
-                post.getId(),
-                post.getTitle(),
-                post.getCreatedAt(),
-                post.getUpdatedAt(),
-                WriterInfo.fromMemberEntity(member),
-                CategoryInfo.fromEntity(category)
+            post.getId(),
+            post.getTitle(),
+            post.getThumbnailPath(),
+            post.getCreatedAt(),
+            post.getUpdatedAt(),
+            WriterInfo.fromMemberEntity(member),
+            CategoryInfo.fromEntity(category)
         );
     }
 

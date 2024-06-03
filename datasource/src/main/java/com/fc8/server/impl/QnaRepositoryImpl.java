@@ -7,6 +7,7 @@ import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.Qna;
+import com.fc8.platform.domain.enums.SearchType;
 import com.fc8.platform.repository.QnaRepository;
 import com.fc8.server.QnaJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,21 +40,27 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search) {
+    public Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
         List<Qna> qnaList = jpaQueryFactory
             .selectFrom(qna)
             .innerJoin(category).on(qna.category.id.eq(category.id))
+            .innerJoin(member).on(qna.member.id.eq(member.id))
             .where(
                 // 1. 삭제된 게시글
                 isNotDeleted(qna),
                 // 2. 아파트 코드
-                eqApartCode(qna, apartCode)
+                eqApartCode(qna, apartCode),
                 // 3. 회원 차단 TODO
 
-                // 4. 검색어
+                // 4. 카테고리
+                eqCategoryCode(category, categoryCode),
+
+                // 5. 검색어
+                containsSearch(qna, member, search, type)
             )
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
+            .orderBy(qna.createdAt.desc())
             .fetch();
 
         JPAQuery<Long> count = jpaQueryFactory
@@ -63,8 +71,14 @@ public class QnaRepositoryImpl implements QnaRepository {
                 // 1. 삭제된 게시글
                 isNotDeleted(qna),
                 // 2. 아파트 코드
-                eqApartCode(qna, apartCode)
+                eqApartCode(qna, apartCode),
                 // 3. 회원 차단 TODO
+
+                // 4. 카테고리
+                eqCategoryCode(category, categoryCode),
+
+                // 5. 검색어
+                containsSearch(qna, member, search, type)
             );
 
         return PageableExecutionUtils.getPage(qnaList, pageable, count::fetchOne);
@@ -155,6 +169,27 @@ public class QnaRepositoryImpl implements QnaRepository {
 
     private BooleanExpression isNotDeleted(QQna qna) {
         return qna.deletedAt.isNull();
+    }
+
+    private BooleanExpression containsSearch(QQna qna, QMember member, String search, SearchType type) {
+        if (!StringUtils.hasText(search)) {
+            return null;
+        }
+
+        return switch (type) {
+            case TITLE -> qna.title.contains(search);
+            case CONTENT -> qna.content.contains(search);
+            case TITLE_AND_CONTENT -> qna.title.contains(search).or(qna.content.contains(search));
+            case WRITER -> member.name.contains(search).or(member.nickname.contains(search));
+        };
+    }
+
+    private BooleanExpression eqCategoryCode(QCategory category, String categoryCode) {
+        if (!StringUtils.hasText(categoryCode)) {
+            return null;
+        }
+
+        return category.code.eq(categoryCode);
     }
 
 }

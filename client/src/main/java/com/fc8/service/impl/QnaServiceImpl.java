@@ -134,7 +134,7 @@ public class QnaServiceImpl implements QnaService {
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
 
-        return QnaDetailInfo.fromEntity(qna, member, qna.getCategory(), emojiCount, emojiReaction);
+        return QnaDetailInfo.fromEntity(qna, qna.getMember(), qna.getCategory(), emojiCount, emojiReaction);
     }
 
     @Override
@@ -144,8 +144,8 @@ public class QnaServiceImpl implements QnaService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search());
-        List<QnaInfo> qnaInfoList = qnaList.stream()
+        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
+        final List<QnaInfo> qnaInfoList = qnaList.stream()
             .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
             .toList();
 
@@ -232,17 +232,8 @@ public class QnaServiceImpl implements QnaService {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
-        // 2. 게시글 조회
-        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
-
-        // 3. 댓글 조회
-        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable);
-//        var qnaReplyImage = qnaReplyImageRepository.get
-        List<QnaCommentInfo> qnaCommentInfoList = commentList.stream()
-            .map(comment -> QnaCommentInfo.fromEntity(comment, comment.getMember()))
-            .toList();
-
-        return new PageImpl<>(qnaCommentInfoList, pageable, commentList.getTotalElements());
+        // 2. 댓글 조회
+        return qnaCommentRepository.getCommentListByQna(qnaId, pageable);
     }
 
     @Override

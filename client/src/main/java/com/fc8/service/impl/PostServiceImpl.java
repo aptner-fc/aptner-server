@@ -194,7 +194,7 @@ public class PostServiceImpl implements PostService {
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
 
-        return PostDetailInfo.fromEntity(post, member, post.getCategory(), emojiCount, emojiReaction);
+        return PostDetailInfo.fromEntity(post, post.getMember(), post.getCategory(), emojiCount, emojiReaction);
     }
 
     @Override
@@ -281,7 +281,7 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command) {
+    public Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
@@ -289,12 +289,23 @@ public class PostServiceImpl implements PostService {
         var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 3. 댓글 조회
-        var commentList = postCommentRepository.getCommentListByPost(memberId, post, pageable, command.search());
+        var commentList = postCommentRepository.getCommentListByPost(memberId, post, pageable);
         List<PostCommentInfo> postCommentInfoList = commentList.stream()
                 .map(comment -> PostCommentInfo.fromEntity(comment, comment.getMember()))
                 .toList();
 
         return new PageImpl<>(postCommentInfoList, pageable, commentList.getTotalElements());
+    }
+
+    @Override
+    public List<PostFileInfo> loadPostFileList(Long postId, String apartCode) {
+        // 게시글 조회
+        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+
+        // 파일 조회
+        final List<PostFile> postFileList = postFileRepository.getPostFileListByPost(post);
+
+        return postFileList.stream().map(PostFileInfo::fromEntity).toList();
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {

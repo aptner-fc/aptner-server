@@ -4,12 +4,12 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
-import com.fc8.platform.domain.entity.qna.QQna;
-import com.fc8.platform.domain.entity.qna.QQnaComment;
-import com.fc8.platform.domain.entity.qna.Qna;
-import com.fc8.platform.domain.entity.qna.QnaComment;
+import com.fc8.platform.domain.entity.qna.*;
+import com.fc8.platform.dto.record.QnaCommentInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.QnaCommentRepository;
 import com.fc8.server.QnaCommentJpaRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,6 +32,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     QQnaComment qnaComment = QQnaComment.qnaComment;
     QQna qna = QQna.qna;
     QMember member = QMember.member;
+    QQnaReplyImage qnaReplyImage = QQnaReplyImage.qnaReplyImage;
 
     @Override
     public QnaComment getByIdAndQna(Long commentId, Qna qna) {
@@ -66,13 +67,28 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     }
 
     @Override
-    public Page<QnaComment> getCommentListByQna(Long memberId, Qna qna, Pageable pageable) {
-        List<QnaComment> commentList = jpaQueryFactory
-            .selectFrom(qnaComment)
-            .innerJoin(qnaComment.qna, this.qna)
-//            .leftJoin(qnaCommentImage)
+    public Page<QnaCommentInfo> getCommentListByQna(Long qnaId, Pageable pageable) {
+        List<QnaCommentInfo> commentList = jpaQueryFactory
+            .select(Projections.constructor(
+                QnaCommentInfo.class,
+                qnaComment.id,
+                qnaComment.parent.id,
+                qnaComment.content,
+                qnaComment.createdAt,
+                qnaComment.updatedAt,
+                qnaReplyImage.imagePath.as("imageUrl"),
+                Projections.constructor(
+                    WriterInfo.class,
+                    qnaComment.member.id,
+                    qnaComment.member.name,
+                    qnaComment.member.nickname
+                )
+            ))
+            .from(qnaComment)
+            .innerJoin(qna).on(qnaComment.qna.id.eq(qna.id))
+            .leftJoin(qnaReplyImage).on(qnaReplyImage.qnaComment.id.eq(qnaComment.id))
             .where(
-                qnaComment.qna.eq(qna),
+                qnaComment.qna.id.eq(qnaId),
                 qnaComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
             )
             .offset(pageable.getOffset())
