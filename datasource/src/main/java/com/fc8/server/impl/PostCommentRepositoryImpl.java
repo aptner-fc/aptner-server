@@ -85,7 +85,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     }
 
     @Override
-    public Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable, String search) {
+    public Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable) {
         List<PostComment> commentList = jpaQueryFactory
             .selectFrom(postComment)
             .innerJoin(postComment.post, this.post)
