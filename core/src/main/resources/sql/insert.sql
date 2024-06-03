@@ -214,3 +214,31 @@ UPDATE category c
     JOIN (SELECT id FROM category WHERE code = 'QA000') parent
 SET c.parent_id = parent.id
 WHERE c.code IN ('QA001', 'QA002', 'QA003', 'QA004');
+
+
+
+INSERT INTO category (type, code, name, is_used, parent_id)
+VALUES ('NOTICE', 'NT000', '공지사항', 1, NULL);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT001', '공동생활', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT002', '공사안내', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT003', '관리사무소', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT004', '입대위', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT005', '선관위', 1);
+
+INSERT INTO category (type, code, name, is_used)
+VALUES ('NOTICE', 'NT006', '회의 결과', 1);
+
+UPDATE category c
+    JOIN (SELECT id FROM category WHERE code = 'NT000') parent
+SET c.parent_id = parent.id
+WHERE c.code IN ('NT001', 'NT002', 'NT003', 'NT004', 'NT005', 'NT006');
