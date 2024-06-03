@@ -297,6 +297,17 @@ public class PostServiceImpl implements PostService {
         return new PageImpl<>(postCommentInfoList, pageable, commentList.getTotalElements());
     }
 
+    @Override
+    public List<PostFileInfo> loadPostFileList(Long postId, String apartCode) {
+        // 게시글 조회
+        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+
+        // 파일 조회
+        final List<PostFile> postFileList = postFileRepository.getPostFileListByPost(post);
+
+        return postFileList.stream().map(PostFileInfo::fromEntity).toList();
+    }
+
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {
         if (null == image || image.isEmpty()) {
             return;

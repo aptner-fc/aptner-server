@@ -3,9 +3,7 @@ package com.fc8.facade;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
-import com.fc8.platform.dto.record.PostCommentInfo;
-import com.fc8.platform.dto.record.PostSummary;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.PostService;
 import lombok.RequiredArgsConstructor;
@@ -56,8 +54,11 @@ public class PostFacade {
         return new WritePostCommentResponse(postService.modifyComment(memberId, postId, commentId, apartCode, command, image));
     }
 
+    @Transactional(readOnly = true)
     public LoadPostDetailResponse loadPostDetail(Long memberId, Long postId, String apartCode) {
-        return new LoadPostDetailResponse(postService.loadPostDetail(memberId, postId, apartCode));
+        PostDetailInfo postDetailInfo = postService.loadPostDetail(memberId, postId, apartCode);
+        final List<PostFileInfo> postFileList = postService.loadPostFileList(postId, apartCode);
+        return new LoadPostDetailResponse(postDetailInfo, postFileList);
     }
 
     public RegisterEmojiResponse registerEmoji(Long memberId, Long postId, String apartCode, EmojiType emoji) {

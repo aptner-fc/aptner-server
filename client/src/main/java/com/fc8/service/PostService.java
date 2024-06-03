@@ -35,4 +35,5 @@ public interface PostService {
 
     Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command);
 
+    List<PostFileInfo> loadPostFileList(Long postId, String apartCode);
 }
