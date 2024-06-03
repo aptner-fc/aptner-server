@@ -16,5 +16,5 @@ public interface PostCommentRepository {
 
     boolean isWriter(PostComment comment, Member member);
 
-    Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable, String search);
+    Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable);
 }
