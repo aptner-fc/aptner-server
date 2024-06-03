@@ -134,7 +134,7 @@ public class QnaServiceImpl implements QnaService {
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
 
-        return QnaDetailInfo.fromEntity(qna, member, qna.getCategory(), emojiCount, emojiReaction);
+        return QnaDetailInfo.fromEntity(qna, qna.getMember(), qna.getCategory(), emojiCount, emojiReaction);
     }
 
     @Override
