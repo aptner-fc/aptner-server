@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 public record QnaInfo(
     Long id,
     String title,
+    String content,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
     WriterInfo writer,
@@ -20,6 +21,7 @@ public record QnaInfo(
         return new QnaInfo(
             qna.getId(),
             qna.getTitle(),
+            qna.getContent(),
             qna.getCreatedAt(),
             qna.getUpdatedAt(),
             WriterInfo.fromMemberEntity(member),
