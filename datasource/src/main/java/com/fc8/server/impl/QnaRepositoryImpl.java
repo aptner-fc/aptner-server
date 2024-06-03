@@ -102,6 +102,18 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
+    public List<Qna> getAllByIdsAndMember(List<Long> postIds, Member activeMember) {
+        return jpaQueryFactory
+                .selectFrom(qna)
+                .innerJoin(member).on(qna.member.id.eq(member.id))
+                .where(
+                        eqQnaWriter(qna.member, activeMember.getId()),
+                        qna.id.in(postIds)
+                )
+                .fetch();
+    }
+
+    @Override
     public Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode) {
         Qna activeQna = jpaQueryFactory
             .selectFrom(qna)

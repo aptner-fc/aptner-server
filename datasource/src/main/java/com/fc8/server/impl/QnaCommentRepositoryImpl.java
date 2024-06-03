@@ -109,6 +109,21 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
     }
 
+    @Override
+    public List<QnaComment> getAllByIdsAndMember(List<Long> qnaCommentIds, Member activeMember) {
+        return jpaQueryFactory
+                .selectFrom(qnaComment)
+                .innerJoin(qna).on(qnaComment.qna.id.eq(qna.id))
+                .innerJoin(member).on(qnaComment.member.id.eq(member.id))
+                .where(
+                        isNotDeleted(qna),
+                        isNotDeleted(),
+                        eqQnaCommentWriter(qnaComment.member, activeMember.getId()),
+                        qnaComment.id.in(qnaCommentIds)
+                )
+                .fetch();
+    }
+
     private BooleanExpression eqQnaCommentWriter(QMember member, Long memberId) {
         return member.id.eq(memberId);
     }
@@ -127,6 +142,10 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
 
     private BooleanExpression isNotDeleted() {
         return qnaComment.deletedAt.isNull();
+    }
+
+    private BooleanExpression isNotDeleted(QQna qna) {
+        return qna.deletedAt.isNull();
     }
 
 }

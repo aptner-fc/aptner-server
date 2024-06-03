@@ -6,6 +6,8 @@ import com.fc8.platform.domain.entity.post.PostComment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface PostCommentRepository {
 
     PostComment getByIdAndPost(Long id, Post post);
@@ -17,4 +19,7 @@ public interface PostCommentRepository {
     boolean isWriter(PostComment comment, Member member);
 
     Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable, String search);
+
+    List<PostComment> getAllByIdsAndMember(List<Long> postCommentIds, Member member);
+
 }

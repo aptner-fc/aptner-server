@@ -4,6 +4,7 @@ import com.fc8.external.service.S3UploadService;
 import com.fc8.infrastructure.jwt.JwtTokenProvider;
 import com.fc8.infrastructure.security.AptnerMember;
 import com.fc8.infrastructure.security.CustomUserDetailsService;
+import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.CustomRedisException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
@@ -13,6 +14,10 @@ import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
+import com.fc8.platform.domain.entity.post.Post;
+import com.fc8.platform.domain.entity.post.PostComment;
+import com.fc8.platform.domain.entity.qna.Qna;
+import com.fc8.platform.domain.entity.qna.QnaComment;
 import com.fc8.platform.domain.entity.terms.Terms;
 import com.fc8.platform.dto.command.*;
 import com.fc8.platform.dto.record.*;
@@ -29,7 +34,10 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -39,6 +47,10 @@ public class MemberServiceImpl implements MemberService {
     private final ApartRepository apartRepository;
     private final TermsRepository termsRepository;
     private final MemberRepository memberRepository;
+    private final PostRepository postRepository;
+    private final QnaRepository qnaRepository;
+    private final PostCommentRepository postCommentRepository;
+    private final QnaCommentRepository qnaCommentRepository;
     private final TermsMemberMappingRepository termsMemberMappingRepository;
     private final ApartMemberMappingRepository apartMemberMappingRepository;
 
@@ -172,6 +184,80 @@ public class MemberServiceImpl implements MemberService {
         member.changePhone(command.getNewPhone());
 
         return MemberSummary.fromEntity(member);
+    }
+
+    @Override
+    @Transactional
+    public DeletedCountInfo deleteMyArticleList(Long memberId, String apartCode, DeleteMyArticleListCommand command) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 소통 게시판 글 조회
+        List<Post> postList = postRepository.getAllByIdsAndMember(command.getPostIds(), member);
+        List<Qna> qnaList = qnaRepository.getAllByIdsAndMember(command.getQnaIds(), member);
+
+        // 3. 게시글 삭제(소통 게시판, QnA 게시판)
+        int toBeDeletedCount = getArticleDeletedCount(postList, qnaList);
+        if (toBeDeletedCount == 0) {
+            return DeletedCountInfo.notDeleted();
+        }
+
+        return new DeletedCountInfo(toBeDeletedCount, LocalDateTime.now());
+    }
+
+    @Override
+    @Transactional
+    public DeletedCountInfo deleteMyCommentList(Long memberId, String apartCode, DeleteMyCommentListCommand command) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 소통 게시판 글 조회
+        List<PostComment> postCommentList = postCommentRepository.getAllByIdsAndMember(command.getPostCommentIds(), member);
+        List<QnaComment> qnaCommentList = qnaCommentRepository.getAllByIdsAndMember(command.getQnaCommentIds(), member);
+
+        // 3. 댓글 삭제(소통 게시판, QnA 게시판)
+        int toBeDeletedCount = getCommentDeletedCount(postCommentList, qnaCommentList);
+        if (toBeDeletedCount == 0) {
+            return DeletedCountInfo.notDeleted();
+        }
+
+        return new DeletedCountInfo(toBeDeletedCount, LocalDateTime.now());
+    }
+
+    private int getArticleDeletedCount(List<Post> postList, List<Qna> qnaList) {
+        int toBeDeletedCount = postList.size() + qnaList.size();
+        if (toBeDeletedCount == 0) {
+            return 0;
+        }
+
+        try {
+            postList.forEach(Post::delete);
+            qnaList.forEach(Qna::delete);
+        } catch (InvalidParamException e) {
+            toBeDeletedCount = toBeDeletedCount - 1;
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return toBeDeletedCount;
+    }
+
+    private int getCommentDeletedCount(List<PostComment> postCommentList, List<QnaComment> qnaCommentList) {
+        int toBeDeletedCount = postCommentList.size() + qnaCommentList.size();
+        if (toBeDeletedCount == 0) {
+            return 0;
+        }
+
+        try {
+            postCommentList.forEach(PostComment::delete);
+            qnaCommentList.forEach(QnaComment::delete);
+        } catch (InvalidParamException e) {
+            toBeDeletedCount = toBeDeletedCount - 1;
+        } catch (Exception e) {
+            throw new BaseException(ErrorCode.INTERNAL_SERVER_ERROR);
+        }
+
+        return toBeDeletedCount;
     }
 
     private void validatePhoneAndCode(String phone, String verificationCode) {
