@@ -1,6 +1,7 @@
 package com.fc8.platform.domain.entity.notice;
 
 import com.fc8.platform.domain.BaseApartEntity;
+import com.fc8.platform.domain.entity.admin.Admin;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
@@ -34,8 +35,8 @@ public class Notice extends BaseApartEntity {
     private String content;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
-    private Member member;
+    @JoinColumn(name = "admin_id", columnDefinition = "bigint unsigned comment '어드민 회원 ID'")
+    private Admin admin;
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
