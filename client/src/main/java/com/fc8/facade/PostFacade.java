@@ -78,7 +78,7 @@ public class PostFacade {
         return new DeletePostCommentResponse(postService.deleteComment(memberId, postId, commentId, apartCode));
     }
 
-    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command) {
+    public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
         final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
         return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
     }
