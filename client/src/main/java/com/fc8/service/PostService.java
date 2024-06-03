@@ -33,7 +33,7 @@ public interface PostService {
 
     Long deleteComment(Long memberId, Long postId, Long commentId, String apartCode);
 
-    Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, SearchPageCommand command);
+    Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command);
 
     List<PostFileInfo> loadPostFileList(Long postId, String apartCode);
 }
