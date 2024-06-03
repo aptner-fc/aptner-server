@@ -194,7 +194,7 @@ public class PostServiceImpl implements PostService {
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
 
-        return PostDetailInfo.fromEntity(post, member, post.getCategory(), emojiCount, emojiReaction);
+        return PostDetailInfo.fromEntity(post, post.getMember(), post.getCategory(), emojiCount, emojiReaction);
     }
 
     @Override
