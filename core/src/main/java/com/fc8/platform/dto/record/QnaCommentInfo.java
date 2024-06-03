@@ -17,7 +17,7 @@ public record QnaCommentInfo(
     public static QnaCommentInfo fromEntity(QnaComment comment, Member member) {
         return new QnaCommentInfo(
             comment.getId(),
-            comment.getParent().getId(),
+            comment.getParent() == null ? null : comment.getParent().getId(),
             comment.getContent(),
             comment.getCreatedAt(),
             comment.getUpdatedAt(),
