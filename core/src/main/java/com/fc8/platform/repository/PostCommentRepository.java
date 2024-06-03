@@ -3,6 +3,7 @@ package com.fc8.platform.repository;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostComment;
+import com.fc8.platform.dto.record.PostCommentInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -20,5 +21,5 @@ public interface PostCommentRepository {
 
     List<PostComment> getAllByIdsAndMember(List<Long> postCommentIds, Member member);
 
-    Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable);
+    Page<PostCommentInfo> getCommentListByPost(Long postId, Pageable pageable);
 }

@@ -11,20 +11,7 @@ public record PostCommentInfo(
     String content,
     LocalDateTime createdAt,
     LocalDateTime updatedAt,
-//    String imageUrl,
+    String imageUrl,
     WriterInfo writer
 ) {
-    public static PostCommentInfo fromEntity(PostComment comment, Member member) {
-        return new PostCommentInfo(
-                comment.getId(),
-//            comment.getParent().getId(),
-                comment.getParent() == null ? null : comment.getParent().getId(),
-                comment.getContent(),
-                comment.getCreatedAt(),
-                comment.getUpdatedAt(),
-//            comment.
-                WriterInfo.fromMemberEntity(member)
-        );
-    }
-
 }

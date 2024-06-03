@@ -285,16 +285,8 @@ public class PostServiceImpl implements PostService {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
-        // 2. 게시글 조회
-        var post = postRepository.getByIdAndApartCode(postId, apartCode);
-
-        // 3. 댓글 조회
-        var commentList = postCommentRepository.getCommentListByPost(memberId, post, pageable);
-        List<PostCommentInfo> postCommentInfoList = commentList.stream()
-                .map(comment -> PostCommentInfo.fromEntity(comment, comment.getMember()))
-                .toList();
-
-        return new PageImpl<>(postCommentInfoList, pageable, commentList.getTotalElements());
+        // 2. 댓글 조회
+        return postCommentRepository.getCommentListByPost(postId, pageable);
     }
 
     @Override

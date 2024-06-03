@@ -4,12 +4,12 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
-import com.fc8.platform.domain.entity.post.Post;
-import com.fc8.platform.domain.entity.post.PostComment;
-import com.fc8.platform.domain.entity.post.QPost;
-import com.fc8.platform.domain.entity.post.QPostComment;
+import com.fc8.platform.domain.entity.post.*;
+import com.fc8.platform.dto.record.PostCommentInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.PostCommentRepository;
 import com.fc8.server.PostCommentJpaRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,6 +32,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     QPost post = QPost.post;
     QPostComment postComment = QPostComment.postComment;
     QMember member = QMember.member;
+    QPostCommentImage postCommentImage = QPostCommentImage.postCommentImage;
 
     @Override
     public PostComment getByIdAndPost(Long id, Post post) {
@@ -86,13 +87,29 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     }
 
     @Override
-    public Page<PostComment> getCommentListByPost(Long memberId, Post post, Pageable pageable) {
-        List<PostComment> commentList = jpaQueryFactory
-            .selectFrom(postComment)
-            .innerJoin(postComment.post, this.post)
+    public Page<PostCommentInfo> getCommentListByPost(Long postId, Pageable pageable) {
+        List<PostCommentInfo> commentList = jpaQueryFactory
+            .select(Projections.constructor(
+                PostCommentInfo.class,
+                postComment.id,
+                postComment.parent.id,
+                postComment.content,
+                postComment.createdAt,
+                postComment.updatedAt,
+                postCommentImage.imagePath.as("imageUrl"),
+                Projections.constructor(
+                    WriterInfo.class,
+                    postComment.member.id,
+                    postComment.member.name,
+                    postComment.member.nickname
+                )
+            ))
+            .from(postComment)
+            .innerJoin(post).on(postComment.post.id.eq(post.id))
+            .leftJoin(postCommentImage).on(postCommentImage.postComment.id.eq(postComment.id))
             .where(
-                postComment.post.eq(post),
-                postComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
+                postComment.post.id.eq(postId),
+                postComment.deletedAt.isNull()
             )
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
