@@ -27,4 +27,6 @@ public interface MemberRepository {
 
     Page<LoadMyCommentInfo> getAllCommentByMemberAndApartCode(Member member, String apartCode, Pageable pageable);
 
+
+
 }

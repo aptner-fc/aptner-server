@@ -5,7 +5,6 @@ import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.ApartService;
 import com.fc8.service.MemberService;
-import com.fc8.service.PostService;
 import com.fc8.service.SMSService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +19,6 @@ public class MemberFacade {
 
     private final MemberService memberService;
     private final ApartService apartService;
-    private final PostService postService;
     private final SMSService smsService;
 
     public SignUpMemberResponse signUp(SignUpMemberCommand command) {
@@ -67,5 +65,13 @@ public class MemberFacade {
 
     public ChangePhoneResponse changePhone(Long memberId, ChangePhoneCommand command) {
         return new ChangePhoneResponse(memberService.changePhone(memberId, command));
+    }
+
+    public DeleteMyArticleListResponse deleteMyArticleList(Long memberId, String apartCode, DeleteMyArticleListCommand command) {
+        return new DeleteMyArticleListResponse(memberService.deleteMyArticleList(memberId, apartCode, command));
+    }
+
+    public DeleteMyCommentListResponse deleteMyCommentList(Long memberId, String apartCode, DeleteMyCommentListCommand command) {
+        return new DeleteMyCommentListResponse(memberService.deleteMyCommentList(memberId, apartCode, command));
     }
 }

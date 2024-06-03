@@ -147,6 +147,18 @@ public class PostRepositoryImpl implements PostRepository {
                 .fetchFirst() != null;
     }
 
+    @Override
+    public List<Post> getAllByIdsAndMember(List<Long> postIds, Member activeMember) {
+        return jpaQueryFactory
+                .selectFrom(post)
+                .innerJoin(member).on(post.member.id.eq(member.id))
+                .where(
+                        eqPostWriter(post.member, activeMember.getId()),
+                        post.id.in(postIds)
+                )
+                .fetch();
+    }
+
     private BooleanExpression eqId(QPost post, Long postId) {
         return post.id.eq(postId);
     }

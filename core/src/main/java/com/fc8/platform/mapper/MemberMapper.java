@@ -23,4 +23,8 @@ public interface MemberMapper {
 
     ChangePhoneCommand of(ChangePhoneRequest request);
 
+    DeleteMyArticleListCommand of(DeleteMyArticleListRequest request);
+
+    DeleteMyCommentListCommand of(DeleteMyCommentListRequest request);
+
 }

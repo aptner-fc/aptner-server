@@ -40,7 +40,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
                 .where(
                         eqId(id),
                         eqPost(post),
-                        isNotDeleted()
+                        isNotDeleted(postComment)
                 )
                 .fetchOne();
 
@@ -63,7 +63,8 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
                         eqId(id),
                         eqPostCommentPost(postComment.post, postId),
                         eqPostCommentWriter(postComment.member, memberId),
-                        isNotDeleted()
+                        isNotDeleted(post),
+                        isNotDeleted(postComment)
                 )
                 .fetchOne();
 
@@ -109,6 +110,21 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
         return PageableExecutionUtils.getPage(commentList, pageable, countQuery::fetchOne);
     }
 
+    @Override
+    public List<PostComment> getAllByIdsAndMember(List<Long> postCommentIds, Member activeMember) {
+        return jpaQueryFactory
+                .selectFrom(postComment)
+                .innerJoin(post).on(postComment.post.id.eq(post.id))
+                .innerJoin(member).on(postComment.member.id.eq(member.id))
+                .where(
+                        isNotDeleted(post),
+                        isNotDeleted(postComment),
+                        eqPostCommentWriter(postComment.member, activeMember.getId()),
+                        postComment.id.in(postCommentIds)
+                )
+                .fetch();
+    }
+
     private BooleanExpression eqPostCommentWriter(QMember member, Long memberId) {
         return member.id.eq(memberId);
     }
@@ -117,7 +133,11 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
         return post.id.eq(postId);
     }
 
-    private BooleanExpression isNotDeleted() {
+    private BooleanExpression isNotDeleted(QPost post) {
+        return post.deletedAt.isNull();
+    }
+
+    private BooleanExpression isNotDeleted(QPostComment postComment) {
         return postComment.deletedAt.isNull();
     }
 
@@ -128,4 +148,5 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     private BooleanExpression eqId(Long id) {
         return postComment.id.eq(id);
     }
+
 }

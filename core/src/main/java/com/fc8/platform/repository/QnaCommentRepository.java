@@ -7,6 +7,8 @@ import com.fc8.platform.dto.record.QnaCommentInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface QnaCommentRepository {
 
     QnaComment getByIdAndQna(Long id, Qna qna);
@@ -18,4 +20,6 @@ public interface QnaCommentRepository {
     Page<QnaCommentInfo> getCommentListByQna(Long qnaId, Pageable pageable);
 
     QnaComment getByIdAndQnaIdAndMemberId(Long id, Long qnaId, Long memberId);
+
+    List<QnaComment> getAllByIdsAndMember(List<Long> qnaCommentIds, Member member);
 }

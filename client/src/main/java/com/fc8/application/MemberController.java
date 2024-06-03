@@ -68,6 +68,18 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadMyArticleLis(currentMember.id(), apartCode, command));
     }
 
+    @Operation(summary = "내가 작성한 글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/posts")
+    public ResponseEntity<CommonResponse<DeleteMyArticleListResponse>> deleteMyArticleLis(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody DeleteMyArticleListRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.deleteMyArticleList(currentMember.id(), apartCode, command));
+    }
+
     @Operation(summary = "내가 작성한 댓글 확인 API")
     @CheckApartType
     @GetMapping(value = "/{apartCode}/comments")
@@ -78,6 +90,18 @@ public class MemberController {
     ) {
         var command = pageMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadMyCommentList(currentMember.id(), apartCode, command));
+    }
+
+    @Operation(summary = "내가 작성한 댯글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/comments")
+    public ResponseEntity<CommonResponse<DeleteMyCommentListResponse>> deleteMyArticleLis(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody DeleteMyCommentListRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.deleteMyCommentList(currentMember.id(), apartCode, command));
     }
 
     @Operation(summary = "기본 정보 변경 API")
