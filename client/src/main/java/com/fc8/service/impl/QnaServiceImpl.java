@@ -144,8 +144,8 @@ public class QnaServiceImpl implements QnaService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search());
-        List<QnaInfo> qnaInfoList = qnaList.stream()
+        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
+        final List<QnaInfo> qnaInfoList = qnaList.stream()
             .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
             .toList();
 
