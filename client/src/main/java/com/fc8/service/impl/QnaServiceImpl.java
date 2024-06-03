@@ -232,17 +232,8 @@ public class QnaServiceImpl implements QnaService {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
-        // 2. 게시글 조회
-        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
-
-        // 3. 댓글 조회
-        var commentList = qnaCommentRepository.getCommentListByQna(memberId, qna, pageable);
-//        var qnaReplyImage = qnaReplyImageRepository.get
-        List<QnaCommentInfo> qnaCommentInfoList = commentList.stream()
-            .map(comment -> QnaCommentInfo.fromEntity(comment, comment.getMember()))
-            .toList();
-
-        return new PageImpl<>(qnaCommentInfoList, pageable, commentList.getTotalElements());
+        // 2. 댓글 조회
+        return qnaCommentRepository.getCommentListByQna(qnaId, pageable);
     }
 
     @Override
