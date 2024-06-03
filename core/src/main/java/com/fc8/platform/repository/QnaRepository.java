@@ -6,6 +6,8 @@ import com.fc8.platform.domain.enums.SearchType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
+
 public interface QnaRepository {
 
     Qna store(Qna qna);
@@ -19,4 +21,6 @@ public interface QnaRepository {
     Qna getByIdAndApartCode(Long qnaId, String apartCode);
 
     Qna getByIdAndMemberId(Long postId, Long memberId);
+
+    List<Qna> getAllByIdsAndMember(List<Long> postIds, Member member);
 }

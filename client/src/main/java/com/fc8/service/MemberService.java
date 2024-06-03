@@ -22,4 +22,8 @@ public interface MemberService {
 
     MemberSummary changePhone(Long memberId, ChangePhoneCommand command);
 
+    DeletedCountInfo deleteMyArticleList(Long memberId, String apartCode, DeleteMyArticleListCommand command);
+
+    DeletedCountInfo deleteMyCommentList(Long memberId, String apartCode, DeleteMyCommentListCommand command);
+
 }
