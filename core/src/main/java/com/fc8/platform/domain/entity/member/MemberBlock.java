@@ -25,7 +25,7 @@ public class MemberBlock {
     private Member member;
 
     @ManyToOne
-    @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '차단된 회원 ID'")
+    @JoinColumn(name = "blocked", columnDefinition = "bigint unsigned comment '차단된 회원 ID'")
     private Member blocked;
 
     @Column(name = "blocked_at", columnDefinition = "datetime comment '차단 일시'")
