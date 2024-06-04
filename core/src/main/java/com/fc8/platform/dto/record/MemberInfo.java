@@ -22,6 +22,8 @@ public record MemberInfo(Long id,
                          MemberStatus status,
                          MemberRole role,
                          Provider provider,
+                         LocalDateTime createdAt,
+                         LocalDateTime updatedAt,
                          @JsonInclude(JsonInclude.Include.NON_NULL)
                          LocalDateTime deletedAt) {
 
@@ -38,6 +40,8 @@ public record MemberInfo(Long id,
                 .status(member.getStatus())
                 .role(member.getRole())
                 .provider(member.getProvider())
+                .createdAt(member.getCreatedAt())
+                .updatedAt(member.getUpdatedAt())
                 .deletedAt(member.getDeletedAt())
                 .build();
     }

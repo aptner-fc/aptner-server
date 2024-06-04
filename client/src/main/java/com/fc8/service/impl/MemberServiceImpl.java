@@ -193,8 +193,8 @@ public class MemberServiceImpl implements MemberService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 소통 게시판 글 조회
-        List<Post> postList = postRepository.getAllByIdsAndMember(command.getPostIds(), member);
-        List<Qna> qnaList = qnaRepository.getAllByIdsAndMember(command.getQnaIds(), member);
+        var postList = postRepository.getAllByIdsAndMember(command.getPostIds(), member);
+        var qnaList = qnaRepository.getAllByIdsAndMember(command.getQnaIds(), member);
 
         // 3. 게시글 삭제(소통 게시판, QnA 게시판)
         int toBeDeletedCount = getArticleDeletedCount(postList, qnaList);
@@ -212,8 +212,8 @@ public class MemberServiceImpl implements MemberService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 소통 게시판 글 조회
-        List<PostComment> postCommentList = postCommentRepository.getAllByIdsAndMember(command.getPostCommentIds(), member);
-        List<QnaComment> qnaCommentList = qnaCommentRepository.getAllByIdsAndMember(command.getQnaCommentIds(), member);
+        var postCommentList = postCommentRepository.getAllByIdsAndMember(command.getPostCommentIds(), member);
+        var qnaCommentList = qnaCommentRepository.getAllByIdsAndMember(command.getQnaCommentIds(), member);
 
         // 3. 댓글 삭제(소통 게시판, QnA 게시판)
         int toBeDeletedCount = getCommentDeletedCount(postCommentList, qnaCommentList);
@@ -222,6 +222,30 @@ public class MemberServiceImpl implements MemberService {
         }
 
         return new DeletedCountInfo(toBeDeletedCount, LocalDateTime.now());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public MemberInfo findEmail(String apartCode, FindEmailCommand command) {
+        var member = memberRepository.getByApartCodeAndNameAndPhone(apartCode, command.getName(), command.getPhone());
+        return MemberInfo.fromEntity(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command) {
+        // 1. 휴대전화 인증 검사
+        String phone = command.getPhone();
+        String verificationCode = command.getVerificationCode();
+        validatePhoneAndCode(phone, verificationCode);
+
+        // 2. 비밀번호 확인
+        String password = command.getPassword();
+        ValidateUtils.validateConfirmPassword(password, command.getConfirmPassword());
+
+        var member = memberRepository.getByApartCodeAndEmail(apartCode, command.getEmail());
+        member.changePassword(passwordEncoder.encode(password));
+        return MemberInfo.fromEntity(member);
     }
 
     private int getArticleDeletedCount(List<Post> postList, List<Qna> qnaList) {
