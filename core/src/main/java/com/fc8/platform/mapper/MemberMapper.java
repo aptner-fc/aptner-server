@@ -31,4 +31,6 @@ public interface MemberMapper {
 
     ModifyPasswordCommand of(ModifyPasswordRequest request);
 
+    BlockMemberCommand of(BlockMemberRequest request);
+
 }
