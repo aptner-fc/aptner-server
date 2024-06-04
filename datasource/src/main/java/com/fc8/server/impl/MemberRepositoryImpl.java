@@ -2,7 +2,9 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
+import com.fc8.platform.domain.entity.mapping.QApartMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.post.Post;
@@ -38,6 +40,8 @@ public class MemberRepositoryImpl implements MemberRepository {
     private final MemberJpaRepository memberJpaRepository;
 
     QMember member = QMember.member;
+    QApart apart = QApart.apart;
+    QApartMemberMapping apartMemberMapping = QApartMemberMapping.apartMemberMapping;
     QPost post = QPost.post;
     QQnaComment qnaComment = QQnaComment.qnaComment;
     QPostComment postComment = QPostComment.postComment;
@@ -57,7 +61,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .from(member)
                 .where(
                         eqEmail(email),
-                        isActive()
+                        isNotWithdrawal()
                 )
                 .fetchFirst() != null;
     }
@@ -74,7 +78,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .from(member)
                 .where(
                         eqPhone(member, phone),
-                        isActive()
+                        isNotWithdrawal()
                 )
                 .fetchFirst() != null;
     }
@@ -214,6 +218,41 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
+    public Member getByApartCodeAndNameAndPhone(String apartCode, String name, String phone) {
+        Member activeMember = jpaQueryFactory
+                .selectFrom(member)
+                .innerJoin(apartMemberMapping).on(member.eq(apartMemberMapping.member))
+                .innerJoin(apart).on(apartMemberMapping.apart.eq(apart))
+                .where(
+                        isNotWithdrawal(),
+                        member.name.eq(name),
+                        member.phone.eq(phone),
+                        apart.code.eq(apartCode)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activeMember)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    @Override
+    public Member getByApartCodeAndEmail(String apartCode, String email) {
+        Member activeMember = jpaQueryFactory
+                .selectFrom(member)
+                .innerJoin(apartMemberMapping).on(member.eq(apartMemberMapping.member))
+                .innerJoin(apart).on(apartMemberMapping.apart.eq(apart))
+                .where(
+                        isNotWithdrawal(),
+                        member.email.eq(email),
+                        apart.code.eq(apartCode)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activeMember)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    @Override
     public Member store(Member member) {
         return memberJpaRepository.save(member);
     }
@@ -224,7 +263,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .selectFrom(member)
                 .where(
                         eqId(id),
-                        isActive()
+                        isNotWithdrawal()
                 )
                 .fetchOne();
 
@@ -238,7 +277,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .selectFrom(member)
                 .where(
                         eqEmail(email),
-                        isActive()
+                        isNotWithdrawal()
                 )
                 .fetchOne();
 
@@ -275,7 +314,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
 
-    private BooleanExpression isActive() {
+    private BooleanExpression isNotWithdrawal() {
         return member.deletedAt.isNull();
     }
 

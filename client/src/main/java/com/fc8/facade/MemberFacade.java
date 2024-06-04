@@ -74,4 +74,12 @@ public class MemberFacade {
     public DeleteMyCommentListResponse deleteMyCommentList(Long memberId, String apartCode, DeleteMyCommentListCommand command) {
         return new DeleteMyCommentListResponse(memberService.deleteMyCommentList(memberId, apartCode, command));
     }
+
+    public FindEmailResponse findEmail(String apartCode, FindEmailCommand command) {
+        return new FindEmailResponse(memberService.findEmail(apartCode, command));
+    }
+
+    public ModifyPasswordResponse modifyPassword(String apartCode, ModifyPasswordCommand command) {
+        return new ModifyPasswordResponse(memberService.modifyPassword(apartCode, command));
+    }
 }

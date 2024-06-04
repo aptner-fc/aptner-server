@@ -26,4 +26,7 @@ public interface MemberService {
 
     DeletedCountInfo deleteMyCommentList(Long memberId, String apartCode, DeleteMyCommentListCommand command);
 
+    MemberInfo findEmail(String apartCode, FindEmailCommand command);
+
+    MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command);
 }

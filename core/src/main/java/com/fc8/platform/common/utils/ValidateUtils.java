@@ -32,7 +32,7 @@ public class ValidateUtils {
         }
     }
 
-    private static void validateConfirmPassword(String password, String confirmPassword) {
+    public static void validateConfirmPassword(String password, String confirmPassword) {
         if (!Objects.equals(password, confirmPassword)) {
             throw new InvalidParamException(ErrorCode.NOT_MATCH_CONFIRM);
         }
