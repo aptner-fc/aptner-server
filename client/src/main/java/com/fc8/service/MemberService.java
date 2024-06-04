@@ -29,4 +29,6 @@ public interface MemberService {
     MemberInfo findEmail(String apartCode, FindEmailCommand command);
 
     MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command);
+
+    MemberInfo blockMember(Long memberId, BlockMemberCommand command);
 }

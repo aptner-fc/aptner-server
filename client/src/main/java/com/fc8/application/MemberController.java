@@ -136,7 +136,7 @@ public class MemberController {
     @GetMapping(value = "/{apartCode}/auth/email")
     public ResponseEntity<CommonResponse<FindEmailResponse>> findEmail(
             @NotNull @PathVariable String apartCode,
-            @Valid FindEmailRequest request
+            FindEmailRequest request
     ) {
         var command = memberMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.findEmail(apartCode, command));
@@ -151,4 +151,15 @@ public class MemberController {
         var command = memberMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.modifyPassword(apartCode, command));
     }
+
+    @Operation(summary = "회원 차단 API")
+    @PostMapping(value = "/block")
+    public ResponseEntity<CommonResponse<BlockMemberResponse>> blockMember(
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody BlockMemberRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.blockMember(currentMember.id(), command));
+    }
+
 }

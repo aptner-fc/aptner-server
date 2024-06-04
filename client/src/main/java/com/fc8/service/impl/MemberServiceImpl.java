@@ -14,6 +14,7 @@ import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.mapping.ApartMemberMapping;
 import com.fc8.platform.domain.entity.mapping.TermsMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
+import com.fc8.platform.domain.entity.member.MemberBlock;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostComment;
 import com.fc8.platform.domain.entity.qna.Qna;
@@ -47,6 +48,7 @@ public class MemberServiceImpl implements MemberService {
     private final ApartRepository apartRepository;
     private final TermsRepository termsRepository;
     private final MemberRepository memberRepository;
+    private final MemberBlockRepository memberBlockRepository;
     private final PostRepository postRepository;
     private final QnaRepository qnaRepository;
     private final PostCommentRepository postCommentRepository;
@@ -246,6 +248,22 @@ public class MemberServiceImpl implements MemberService {
         var member = memberRepository.getByApartCodeAndEmail(apartCode, command.getEmail());
         member.changePassword(passwordEncoder.encode(password));
         return MemberInfo.fromEntity(member);
+    }
+
+    @Override
+    @Transactional
+    public MemberInfo blockMember(Long memberId, BlockMemberCommand command) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 차단 회원 조회
+        var blockedMember = memberRepository.getActiveMemberById(command.getBlockedMemberId());
+
+        // 3. 차단 정보 조회
+        var memberBlock = MemberBlock.block(member, blockedMember);
+        memberBlockRepository.store(memberBlock);
+
+        return MemberInfo.fromEntity(blockedMember);
     }
 
     private int getArticleDeletedCount(List<Post> postList, List<Qna> qnaList) {
