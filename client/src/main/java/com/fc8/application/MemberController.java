@@ -162,4 +162,14 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.blockMember(currentMember.id(), command));
     }
 
+//    @Operation(summary = "회원 목록 조회 API")
+//    @PostMapping(value = "/block")
+//    public ResponseEntity<CommonResponse<LoadBlockedMemberResponse>> loadBlockedMember(
+//            @CheckCurrentMember CurrentMember currentMember,
+//            @Valid @RequestBody LoadBlockedMemberRequest request
+//    ) {
+//        var command = memberMapper.of(request);
+//        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadBlockedMember(currentMember.id(), command));
+//    }
+
 }
