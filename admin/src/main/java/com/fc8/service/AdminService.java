@@ -16,7 +16,7 @@ public interface AdminService {
 
     AuthMemberInfo authenticateMember(Long adminId, Long memberId, ApartInfo apartInfo);
 
-    void changeStatus(Long qnaId, ProcessingStatus processingStatus);
+    void changeStatus(Long adminId, Long qnaId, String apartCode, ProcessingStatus processingStatus);
 
     Long writeAnswer(Long adminId, Long qnaId, String apartCode, WriteQnaAnswerCommand command);
 }

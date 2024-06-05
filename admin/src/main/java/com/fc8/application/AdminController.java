@@ -5,6 +5,8 @@ import com.fc8.annotation.CheckCurrentAdmin;
 import com.fc8.facade.AdminFacade;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
+import com.fc8.platform.domain.enums.EmojiType;
+import com.fc8.platform.domain.enums.ProcessingStatus;
 import com.fc8.platform.dto.record.CurrentAdmin;
 import com.fc8.platform.dto.request.SignInAdminRequest;
 import com.fc8.platform.dto.request.SignUpAdminRequest;
@@ -59,6 +61,18 @@ public class AdminController {
     ) {
         var command = adminMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, adminFacade.writeAnswer(currentAdmin.id(), qnaId, apartCode, command));
+    }
+
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/{qnaId}/status")
+    public ResponseEntity<CommonResponse<Void>> changeStatus(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @CheckCurrentAdmin CurrentAdmin currentAdmin,
+        @NotNull(message = "처리 상태가 누락되었습니다.") @RequestParam ProcessingStatus status
+        ) {
+        adminFacade.changeStatus(currentAdmin.id(), qnaId, apartCode, status);
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE);
     }
 
 }
