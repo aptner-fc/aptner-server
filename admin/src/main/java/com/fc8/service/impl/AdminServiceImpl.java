@@ -90,11 +90,14 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public void changeStatus(Long qnaId, ProcessingStatus processingStatus) {
-        // 1. 민원 조회
+    public void changeStatus(Long adminId, Long qnaId, String apartCode, ProcessingStatus processingStatus) {
+        // 1. 관리자 조회
+        var admin = adminRepository.getById(adminId);
+
+        // 2. 민원 조회
         var qna = qnaRepository.getById(qnaId);
 
-        // 2. 처리 상태 변경
+        // 3. 처리 상태 변경
         qna.changeStatus(processingStatus);
     }
 

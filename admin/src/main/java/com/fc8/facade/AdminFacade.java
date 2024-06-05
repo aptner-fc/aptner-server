@@ -1,5 +1,6 @@
 package com.fc8.facade;
 
+import com.fc8.platform.domain.enums.ProcessingStatus;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
 import com.fc8.platform.dto.command.WriteQnaAnswerCommand;
@@ -43,7 +44,11 @@ public class AdminFacade {
 
     @Transactional
     public WriteQnaAnswerResponse writeAnswer(Long adminId, Long qnaId, String apartCode, WriteQnaAnswerCommand command) {
-        adminService.changeStatus(qnaId, command.getProcessingStatus());
+        adminService.changeStatus(adminId, qnaId, apartCode, command.getProcessingStatus());
         return new WriteQnaAnswerResponse(adminService.writeAnswer(adminId, qnaId, apartCode, command));
+    }
+
+    public void changeStatus(Long adminId, Long qnaId, String apartCode, ProcessingStatus status) {
+        adminService.changeStatus(adminId, qnaId, apartCode, status);
     }
 }
