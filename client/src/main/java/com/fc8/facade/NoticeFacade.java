@@ -1,9 +1,7 @@
 package com.fc8.facade;
 
-import com.fc8.platform.dto.record.NoticeDetailInfo;
-import com.fc8.platform.dto.record.NoticeFileInfo;
-import com.fc8.platform.dto.record.NoticeInfo;
-import com.fc8.platform.dto.record.SearchPageCommand;
+import com.fc8.platform.dto.record.*;
+import com.fc8.platform.dto.response.LoadNoticeCommentListResponse;
 import com.fc8.platform.dto.response.LoadNoticeDetailResponse;
 import com.fc8.platform.dto.response.LoadNoticeListResponse;
 import com.fc8.platform.dto.response.PageResponse;
@@ -34,5 +32,10 @@ public class NoticeFacade {
     public PageResponse<LoadNoticeListResponse> loadNoticeList(Long memberId, String apartCode, SearchPageCommand command) {
         final Page<NoticeInfo> noticeList = noticeService.loadNoticeList(memberId, apartCode, command);
         return new PageResponse<>(noticeList, new LoadNoticeListResponse(noticeList.getContent()));
+    }
+
+    public PageResponse<LoadNoticeCommentListResponse> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
+        final Page<NoticeCommentInfo> commentList = noticeService.loadCommentList(memberId, apartCode, noticeId, command);
+        return new PageResponse<>(commentList, new LoadNoticeCommentListResponse(commentList.getContent()));
     }
 }

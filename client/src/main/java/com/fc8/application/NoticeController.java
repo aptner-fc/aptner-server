@@ -6,7 +6,9 @@ import com.fc8.facade.NoticeFacade;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.record.CurrentMember;
+import com.fc8.platform.dto.request.CustomPageRequest;
 import com.fc8.platform.dto.request.SearchPageRequest;
+import com.fc8.platform.dto.response.LoadNoticeCommentListResponse;
 import com.fc8.platform.dto.response.LoadNoticeDetailResponse;
 import com.fc8.platform.dto.response.LoadNoticeListResponse;
 import com.fc8.platform.dto.response.PageResponse;
@@ -53,19 +55,19 @@ public class NoticeController {
         return CommonResponse.success(SuccessCode.SUCCESS, noticeFacade.loadNoticeList(currentMember.id(), apartCode, command));
     }
 
-//    @Operation(summary = "민원 게시판 댓글 목록 조회 API")
-//    @CheckApartType
-//    @GetMapping(value = "/{apartCode}/{qnaId}/comments")
-//    public ResponseEntity<CommonResponse<PageResponse<LoadQnaCommentListResponse>>> loadCommentList(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long qnaId,
-//        @CheckCurrentMember CurrentMember currentMember,
-//        CustomPageRequest request
-//    ) {
-//        var command = pageMapper.of(request);
-//        return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.loadCommentList(currentMember.id(), apartCode, qnaId, command));
-//    }
-//
+    @Operation(summary = "공지사항 댓글 목록 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/{noticeId}/comments")
+    public ResponseEntity<CommonResponse<PageResponse<LoadNoticeCommentListResponse>>> loadCommentList(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long noticeId,
+        @CheckCurrentMember CurrentMember currentMember,
+        CustomPageRequest request
+    ) {
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, noticeFacade.loadCommentList(currentMember.id(), apartCode, noticeId, command));
+    }
+
 //    @Operation(summary = "민원 게시판 이모지 등록 API")
 //    @CheckApartType
 //    @PostMapping("/{apartCode}/{qnaId}/emoji")
