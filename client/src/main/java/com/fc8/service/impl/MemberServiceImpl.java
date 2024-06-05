@@ -35,10 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Slf4j
 @Service
@@ -252,18 +249,73 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional
-    public MemberInfo blockMember(Long memberId, BlockMemberCommand command) {
-        // 1. 회원 조회
+    public MemberInfo blockMember(Long memberId, String apartCode, BlockMemberCommand command) {
+        // 1. 유효성 검사
+        Long blockedMemberId = command.getBlockedMemberId();
+        checkBlockOrUnBlockMySelf(memberId, blockedMemberId);
+
+        // 2. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);
 
-        // 2. 차단 회원 조회
-        var blockedMember = memberRepository.getActiveMemberById(command.getBlockedMemberId());
+        // 3. 차단 회원 조회
+        var blockedMember = memberRepository.getByIdAndApartCode(blockedMemberId, apartCode);
 
-        // 3. 차단 정보 조회
+        // 4. 차단 여부 조회
+        boolean affected = memberBlockRepository.existsByMemberAndBlocked(member, blockedMember);
+        if (affected) {
+            throw new InvalidParamException(ErrorCode.ALREADY_BLOCK);
+        }
+
+        // 5. 차단
         var memberBlock = MemberBlock.block(member, blockedMember);
         memberBlockRepository.store(memberBlock);
 
         return MemberInfo.fromEntity(blockedMember);
+    }
+
+    @Override
+    @Transactional
+    public MemberInfo unBlockMember(Long memberId, String apartCode, UnBlockMemberCommand command) {
+        // 1. 유효성 검사
+        Long blockedMemberId = command.getUnBlockedMemberId();
+        checkBlockOrUnBlockMySelf(memberId, blockedMemberId);
+
+        // 2. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 3. 차단을 해제할 회원 조회
+        var unBlockedMember = memberRepository.getByIdAndApartCode(blockedMemberId, apartCode);
+
+        // 4. 차단 여부 조회
+        boolean affected = memberBlockRepository.existsByMemberAndBlocked(member, unBlockedMember);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.ALREADY_UNBLOCK);
+        }
+
+        // 5. 차단 해제
+        MemberBlock memberBlock = memberBlockRepository.getByMemberAndBlocked(member, unBlockedMember);
+        memberBlockRepository.delete(memberBlock);
+
+        return MemberInfo.fromEntity(unBlockedMember);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<MemberSummary> loadBlockedMember(Long memberId, String apartCode, CustomPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 3. 차단 회원 리스트 조회
+        return memberRepository.getAllBlockedMemberByMemberAndApartCode(member, apartCode, pageable);
+    }
+
+    private void checkBlockOrUnBlockMySelf(Long memberId, Long blockedMemberId) {
+        if (Objects.equals(memberId, blockedMemberId)) {
+            throw new InvalidParamException(ErrorCode.CAN_NOT_BLOCK);
+        }
     }
 
     private int getArticleDeletedCount(List<Post> postList, List<Qna> qnaList) {

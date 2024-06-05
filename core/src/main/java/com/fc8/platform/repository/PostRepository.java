@@ -18,7 +18,7 @@ public interface PostRepository {
 
     Post getByIdAndMemberId(Long postId, Long memberId);
 
-    Post getPostWithCategoryByIdAndApartCode(Long postId, String apartCode);
+    Post getPostWithCategoryByIdAndApartCode(Long memberId, Long postId, String apartCode);
 
     boolean isWriter(Post post, Member member);
 

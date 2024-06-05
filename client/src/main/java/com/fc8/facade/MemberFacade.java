@@ -83,7 +83,16 @@ public class MemberFacade {
         return new ModifyPasswordResponse(memberService.modifyPassword(apartCode, command));
     }
 
-    public BlockMemberResponse blockMember(Long memberId, BlockMemberCommand command) {
-        return new BlockMemberResponse(memberService.blockMember(memberId, command));
+    public BlockMemberResponse blockMember(Long memberId, String apartCode, BlockMemberCommand command) {
+        return new BlockMemberResponse(memberService.blockMember(memberId, apartCode, command));
+    }
+
+    public UnBlockMemberResponse unBlockMember(Long memberId, String apartCode, UnBlockMemberCommand command) {
+        return new UnBlockMemberResponse(memberService.unBlockMember(memberId, apartCode, command));
+    }
+
+    public PageResponse<LoadBlockedMemberResponse> loadBlockedMember(Long memberId, String apartCode, CustomPageCommand command) {
+        final Page<MemberSummary> myList = memberService.loadBlockedMember(memberId, apartCode, command);
+        return new PageResponse<>(myList, new LoadBlockedMemberResponse(myList.getContent()));
     }
 }

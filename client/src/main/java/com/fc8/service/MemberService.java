@@ -30,5 +30,9 @@ public interface MemberService {
 
     MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command);
 
-    MemberInfo blockMember(Long memberId, BlockMemberCommand command);
+    MemberInfo blockMember(Long memberId, String apartCode, BlockMemberCommand command);
+
+    MemberInfo unBlockMember(Long memberId, String apartCode, UnBlockMemberCommand command);
+
+    Page<MemberSummary> loadBlockedMember(Long memberId, String apartCode, CustomPageCommand command);
 }

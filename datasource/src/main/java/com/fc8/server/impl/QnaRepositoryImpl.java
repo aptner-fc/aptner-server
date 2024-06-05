@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.enums.SearchType;
@@ -32,6 +33,7 @@ public class QnaRepositoryImpl implements QnaRepository {
 
     QQna qna = QQna.qna;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
 
     @Override
@@ -41,45 +43,57 @@ public class QnaRepositoryImpl implements QnaRepository {
 
     @Override
     public Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
+
         List<Qna> qnaList = jpaQueryFactory
-            .selectFrom(qna)
-            .innerJoin(category).on(qna.category.id.eq(category.id))
-            .innerJoin(member).on(qna.member.id.eq(member.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(qna),
-                // 2. 아파트 코드
-                eqApartCode(qna, apartCode),
-                // 3. 회원 차단 TODO
-
-                // 4. 카테고리
-                eqCategoryCode(category, categoryCode),
-
-                // 5. 검색어
-                containsSearch(qna, member, search, type)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(qna.createdAt.desc())
-            .fetch();
+                .selectFrom(qna)
+                .innerJoin(category).on(qna.category.id.eq(category.id))
+                .innerJoin(member).on(qna.member.id.eq(member.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(qna),
+                        // 2. 아파트 코드
+                        eqApartCode(qna, apartCode),
+                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                        removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(qna, member, search, type)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(qna.createdAt.desc())
+                .fetch();
 
         JPAQuery<Long> count = jpaQueryFactory
-            .select(qna.count())
-            .from(qna)
-            .innerJoin(category).on(qna.category.id.eq(category.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(qna),
-                // 2. 아파트 코드
-                eqApartCode(qna, apartCode),
-                // 3. 회원 차단 TODO
-
-                // 4. 카테고리
-                eqCategoryCode(category, categoryCode),
-
-                // 5. 검색어
-                containsSearch(qna, member, search, type)
-            );
+                .select(qna.count())
+                .from(qna)
+                .innerJoin(category).on(qna.category.id.eq(category.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(qna),
+                        // 2. 아파트 코드
+                        eqApartCode(qna, apartCode),
+                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                        removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(qna, member, search, type)
+                );
 
         return PageableExecutionUtils.getPage(qnaList, pageable, count::fetchOne);
     }
@@ -128,13 +142,27 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public Qna getQnaWithCategoryByIdAndApartCode(Long qnaId, String apartCode) {
+    public Qna getQnaWithCategoryByIdAndApartCode(Long memberId, Long qnaId, String apartCode) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
+
         Qna activeQna = jpaQueryFactory
             .selectFrom(qna)
-            .innerJoin(category).on(qna.category.id.eq(category.id))
             .where(
                 eqId(qna, qnaId),
-                eqApartCode(qna, apartCode)
+                eqApartCode(qna, apartCode),
+                    removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds)
             )
             .fetchOne();
 
@@ -153,6 +181,10 @@ public class QnaRepositoryImpl implements QnaRepository {
                 member.eq(loginMember)
             )
             .fetchFirst() != null;
+    }
+
+    private BooleanExpression removeMemberBlock(QMember member, List<Long> blockedMemberIds, List<Long> blockingMemberIds) {
+        return member.id.notIn(blockedMemberIds).and(member.id.notIn(blockingMemberIds));
     }
 
     private BooleanExpression eqId(QQna qna, Long qnaId) {
