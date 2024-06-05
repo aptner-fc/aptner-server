@@ -1,10 +1,7 @@
 package com.fc8.service.impl;
 
 import com.fc8.platform.domain.entity.notice.NoticeFile;
-import com.fc8.platform.dto.record.EmojiCountInfo;
-import com.fc8.platform.dto.record.EmojiReactionInfo;
-import com.fc8.platform.dto.record.NoticeDetailInfo;
-import com.fc8.platform.dto.record.NoticeFileInfo;
+import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.MemberRepository;
 import com.fc8.platform.repository.NoticeEmojiRepository;
 import com.fc8.platform.repository.NoticeFileRepository;
@@ -12,6 +9,10 @@ import com.fc8.platform.repository.NoticeRepository;
 import com.fc8.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,5 +52,20 @@ public class NoticeServiceImpl implements NoticeService {
         final List<NoticeFile> noticeFileList = noticeFileRepository.getNoticeFileListByNotice(notice);
 
         return noticeFileList.stream().map(NoticeFileInfo::fromEntity).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NoticeInfo> loadNoticeList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 게시글 조회 (아파트 코드, 차단 사용자)
+        var noticeList = noticeRepository.getNoticeListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
+        final List<NoticeInfo> noticeInfoList = noticeList.stream()
+            .map(notice -> NoticeInfo.fromEntity(notice, notice.getAdmin(), notice.getCategory()))
+            .toList();
+
+        return new PageImpl<>(noticeInfoList, pageable, noticeList.getTotalElements());
     }
 }
