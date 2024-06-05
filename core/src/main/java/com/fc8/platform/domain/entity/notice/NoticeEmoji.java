@@ -32,4 +32,12 @@ public class NoticeEmoji {
     @Column(name = "emoji", nullable = false, columnDefinition = "varchar(20) comment '이모지'")
     private EmojiType emoji;
 
+    public static NoticeEmoji create(Notice notice, Member member, EmojiType emoji) {
+        return NoticeEmoji.builder()
+            .notice(notice)
+            .member(member)
+            .emoji(emoji)
+            .build();
+    }
+
 }

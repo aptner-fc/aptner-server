@@ -1,6 +1,11 @@
 package com.fc8.service.impl;
 
+import com.fc8.platform.common.exception.BaseException;
+import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.NoticeFile;
+import com.fc8.platform.domain.entity.qna.QnaEmoji;
+import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.NoticeService;
@@ -74,5 +79,26 @@ public class NoticeServiceImpl implements NoticeService {
 
         // 2. 댓글 조회
         return noticeCommentRepository.getCommentListByQna(noticeId, pageable);
+    }
+
+    @Override
+    @Transactional
+    public EmojiInfo registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var notice = noticeRepository.getNoticeWithCategoryByIdAndApartCode(noticeId, apartCode);
+
+        // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
+        boolean affected = noticeEmojiRepository.existsByNoticeAndMemberAndEmoji(notice, member, emoji);
+        if (affected) {
+            throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
+        }
+
+        var noticeEmoji = NoticeEmoji.create(notice, member, emoji);
+        var newNoticeEmoji = noticeEmojiRepository.store(noticeEmoji);
+
+        return EmojiInfo.fromNoticeEmojiEntity(newNoticeEmoji);
     }
 }
