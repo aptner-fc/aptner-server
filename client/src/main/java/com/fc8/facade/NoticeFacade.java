@@ -1,10 +1,8 @@
 package com.fc8.facade;
 
+import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.*;
-import com.fc8.platform.dto.response.LoadNoticeCommentListResponse;
-import com.fc8.platform.dto.response.LoadNoticeDetailResponse;
-import com.fc8.platform.dto.response.LoadNoticeListResponse;
-import com.fc8.platform.dto.response.PageResponse;
+import com.fc8.platform.dto.response.*;
 import com.fc8.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,5 +35,9 @@ public class NoticeFacade {
     public PageResponse<LoadNoticeCommentListResponse> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
         final Page<NoticeCommentInfo> commentList = noticeService.loadCommentList(memberId, apartCode, noticeId, command);
         return new PageResponse<>(commentList, new LoadNoticeCommentListResponse(commentList.getContent()));
+    }
+
+    public RegisterEmojiResponse registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji) {
+        return new RegisterEmojiResponse(noticeService.registerEmoji(memberId, noticeId, apartCode, emoji));
     }
 }

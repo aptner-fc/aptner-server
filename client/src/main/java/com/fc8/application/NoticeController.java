@@ -5,23 +5,18 @@ import com.fc8.annotation.CheckCurrentMember;
 import com.fc8.facade.NoticeFacade;
 import com.fc8.platform.common.exception.code.SuccessCode;
 import com.fc8.platform.common.response.CommonResponse;
+import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.CurrentMember;
 import com.fc8.platform.dto.request.CustomPageRequest;
 import com.fc8.platform.dto.request.SearchPageRequest;
-import com.fc8.platform.dto.response.LoadNoticeCommentListResponse;
-import com.fc8.platform.dto.response.LoadNoticeDetailResponse;
-import com.fc8.platform.dto.response.LoadNoticeListResponse;
-import com.fc8.platform.dto.response.PageResponse;
+import com.fc8.platform.dto.response.*;
 import com.fc8.platform.mapper.PageMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @Tag(name = "공지사항 관련 API")
 @RestController
@@ -68,18 +63,18 @@ public class NoticeController {
         return CommonResponse.success(SuccessCode.SUCCESS, noticeFacade.loadCommentList(currentMember.id(), apartCode, noticeId, command));
     }
 
-//    @Operation(summary = "민원 게시판 이모지 등록 API")
-//    @CheckApartType
-//    @PostMapping("/{apartCode}/{qnaId}/emoji")
-//    public ResponseEntity<CommonResponse<RegisterEmojiResponse>> registerEmoji(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long qnaId,
-//        @CheckCurrentMember CurrentMember currentMember,
-//        @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
-//    ) {
-//        return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.registerEmoji(currentMember.id(), qnaId, apartCode, type));
-//    }
-//
+    @Operation(summary = "공지사항 이모지 등록 API")
+    @CheckApartType
+    @PostMapping("/{apartCode}/{noticeId}/emoji")
+    public ResponseEntity<CommonResponse<RegisterEmojiResponse>> registerEmoji(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long noticeId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, noticeFacade.registerEmoji(currentMember.id(), noticeId, apartCode, type));
+    }
+
 //    @Operation(summary = "민원 게시판 이모지 삭제 API")
 //    @CheckApartType
 //    @DeleteMapping("/{apartCode}/{qnaId}/emoji")

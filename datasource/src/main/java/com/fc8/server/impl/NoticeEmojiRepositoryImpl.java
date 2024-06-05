@@ -3,14 +3,17 @@ package com.fc8.server.impl;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.Notice;
+import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.QNotice;
 import com.fc8.platform.domain.entity.notice.QNoticeEmoji;
+import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.QQnaEmoji;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.EmojiCountInfo;
 import com.fc8.platform.dto.record.EmojiReactionInfo;
 import com.fc8.platform.repository.NoticeEmojiRepository;
+import com.fc8.server.NoticeEmojiJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +26,7 @@ import java.util.Optional;
 public class NoticeEmojiRepositoryImpl implements NoticeEmojiRepository {
 
     private final JPAQueryFactory jpaQueryFactory;
+    private final NoticeEmojiJpaRepository noticeEmojiJpaRepository;
 
     QNoticeEmoji noticeEmoji = QNoticeEmoji.noticeEmoji;
     QNotice notice = QNotice.notice;
@@ -48,6 +52,25 @@ public class NoticeEmojiRepositoryImpl implements NoticeEmojiRepository {
         boolean reactedSad = reactedEmoji(notice, member, EmojiType.SAD);
 
         return new EmojiReactionInfo(reactedLike, reactedEmpathy, reactedFun, reactedAmazing, reactedSad);
+    }
+
+    @Override
+    public boolean existsByNoticeAndMemberAndEmoji(Notice activeNotice, Member loginMember, EmojiType emoji) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(noticeEmoji)
+            .innerJoin(notice).on(eqNotice(noticeEmoji, activeNotice))
+            .innerJoin(member).on(eqMember(noticeEmoji, loginMember))
+            .where(
+                isNotDeleted(notice),
+                eqEmojiType(noticeEmoji, emoji)
+            )
+            .fetchFirst() != null;
+    }
+
+    @Override
+    public NoticeEmoji store(NoticeEmoji noticeEmoji) {
+        return noticeEmojiJpaRepository.save(noticeEmoji);
     }
 
     private boolean reactedEmoji(Notice notice, Member member, EmojiType emojiType) {
@@ -85,5 +108,9 @@ public class NoticeEmojiRepositoryImpl implements NoticeEmojiRepository {
 
     private BooleanExpression eqEmojiType(QNoticeEmoji noticeEmoji, EmojiType emoji) {
         return noticeEmoji.emoji.eq(emoji);
+    }
+
+    private BooleanExpression isNotDeleted(QNotice notice) {
+        return notice.deletedAt.isNull();
     }
 }

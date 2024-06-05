@@ -1,5 +1,6 @@
 package com.fc8.service;
 
+import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.*;
 import org.springframework.data.domain.Page;
 
@@ -13,4 +14,6 @@ public interface NoticeService {
     Page<NoticeInfo> loadNoticeList(Long memberId, String apartCode, SearchPageCommand command);
 
     Page<NoticeCommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command);
+
+    EmojiInfo registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
 }
