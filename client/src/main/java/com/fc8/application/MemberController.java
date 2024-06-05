@@ -132,4 +132,44 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.changePhone(currentMember.id(), command));
     }
 
+    @Operation(summary = "아이디 찾기 API")
+    @GetMapping(value = "/{apartCode}/auth/email")
+    public ResponseEntity<CommonResponse<FindEmailResponse>> findEmail(
+            @NotNull @PathVariable String apartCode,
+            FindEmailRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.findEmail(apartCode, command));
+    }
+
+    @Operation(summary = "비밀번호 변경 API")
+    @PatchMapping(value = "/{apartCode}/auth/password")
+    public ResponseEntity<CommonResponse<ModifyPasswordResponse>> modifyPassword(
+            @NotNull @PathVariable String apartCode,
+            @Valid @RequestBody ModifyPasswordRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.modifyPassword(apartCode, command));
+    }
+
+    @Operation(summary = "회원 차단 API")
+    @PostMapping(value = "/block")
+    public ResponseEntity<CommonResponse<BlockMemberResponse>> blockMember(
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody BlockMemberRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.blockMember(currentMember.id(), command));
+    }
+
+//    @Operation(summary = "회원 목록 조회 API")
+//    @PostMapping(value = "/block")
+//    public ResponseEntity<CommonResponse<LoadBlockedMemberResponse>> loadBlockedMember(
+//            @CheckCurrentMember CurrentMember currentMember,
+//            @Valid @RequestBody LoadBlockedMemberRequest request
+//    ) {
+//        var command = memberMapper.of(request);
+//        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadBlockedMember(currentMember.id(), command));
+//    }
+
 }

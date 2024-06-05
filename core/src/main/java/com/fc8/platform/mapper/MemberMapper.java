@@ -27,4 +27,10 @@ public interface MemberMapper {
 
     DeleteMyCommentListCommand of(DeleteMyCommentListRequest request);
 
+    FindEmailCommand of(FindEmailRequest request);
+
+    ModifyPasswordCommand of(ModifyPasswordRequest request);
+
+    BlockMemberCommand of(BlockMemberRequest request);
+
 }
