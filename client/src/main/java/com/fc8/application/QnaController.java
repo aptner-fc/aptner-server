@@ -107,7 +107,7 @@ public class QnaController {
         @RequestPart(value = "image", required = false) MultipartFile image
     ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS, qnaFacade.writeComment(currentMember.id(), qnaId, apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeComment(currentMember.id(), qnaId, apartCode, command, image));
     }
 
     @Operation(summary = "민원 게시판 댓글 수정 API")
