@@ -8,9 +8,11 @@ import com.fc8.platform.common.response.CommonResponse;
 import com.fc8.platform.dto.record.CurrentAdmin;
 import com.fc8.platform.dto.request.SignInAdminRequest;
 import com.fc8.platform.dto.request.SignUpAdminRequest;
+import com.fc8.platform.dto.request.WriteQnaAnswerRequest;
 import com.fc8.platform.dto.response.AuthMemberResponse;
 import com.fc8.platform.dto.response.SignInAdminResponse;
 import com.fc8.platform.dto.response.SignUpAdminResponse;
+import com.fc8.platform.dto.response.WriteQnaAnswerResponse;
 import com.fc8.platform.mapper.AdminMapper;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
@@ -45,6 +47,18 @@ public class AdminController {
             @CheckCurrentAdmin CurrentAdmin currentAdmin,
             @NotNull @PathVariable Long memberId) {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, adminFacade.authenticateMember(currentAdmin.id(), memberId, currentAdmin.apartInfo()));
+    }
+
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/{qnaId}/answers")
+    public ResponseEntity<CommonResponse<WriteQnaAnswerResponse>> writeAnswer(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long qnaId,
+        @CheckCurrentAdmin CurrentAdmin currentAdmin,
+        @Valid @RequestPart(value = "request") WriteQnaAnswerRequest request
+    ) {
+        var command = adminMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, adminFacade.writeAnswer(currentAdmin.id(), qnaId, apartCode, command));
     }
 
 }

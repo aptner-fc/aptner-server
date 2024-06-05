@@ -23,4 +23,6 @@ public interface QnaRepository {
     Qna getByIdAndMemberId(Long postId, Long memberId);
 
     List<Qna> getAllByIdsAndMember(List<Long> postIds, Member member);
+
+    Qna getById(Long qnaId);
 }

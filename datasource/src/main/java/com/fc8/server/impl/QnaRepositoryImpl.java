@@ -142,6 +142,12 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
+    public Qna getById(Long qnaId) {
+        return qnaJpaRepository.findById(qnaId)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
     public Qna getQnaWithCategoryByIdAndApartCode(Long memberId, Long qnaId, String apartCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = jpaQueryFactory

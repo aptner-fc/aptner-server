@@ -7,13 +7,12 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.member.MemberAuth;
+import com.fc8.platform.domain.enums.ProcessingStatus;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
+import com.fc8.platform.dto.command.WriteQnaAnswerCommand;
 import com.fc8.platform.dto.record.*;
-import com.fc8.platform.repository.AdminRepository;
-import com.fc8.platform.repository.ApartRepository;
-import com.fc8.platform.repository.MemberAuthRepository;
-import com.fc8.platform.repository.MemberRepository;
+import com.fc8.platform.repository.*;
 import com.fc8.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +31,8 @@ public class AdminServiceImpl implements AdminService {
     private final ApartRepository apartRepository;
     private final MemberRepository memberRepository;
     private final MemberAuthRepository memberAuthRepository;
+    private final QnaRepository qnaRepository;
+    private final QnaAnswerRepository qnaAnswerRepository;
 
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
@@ -85,6 +86,31 @@ public class AdminServiceImpl implements AdminService {
                 AdminInfo.fromEntity(admin),
                 apartInfo,
                 memberAuth.getAuthenticatedAt());
+    }
+
+    @Override
+    @Transactional
+    public void changeStatus(Long qnaId, ProcessingStatus processingStatus) {
+        // 1. 민원 조회
+        var qna = qnaRepository.getById(qnaId);
+
+        // 2. 처리 상태 변경
+        qna.changeStatus(processingStatus);
+    }
+
+    @Override
+    @Transactional
+    public Long writeAnswer(Long adminId, Long qnaId, String apartCode, WriteQnaAnswerCommand command) {
+        // 1. 관리자 조회
+        var admin = adminRepository.getById(adminId);
+
+        // 2. 민원 조회
+        var qna = qnaRepository.getById(qnaId);
+
+        // 3. 답변 저장
+        var qnaAnswer = command.toEntity(qna, admin);
+
+        return qnaAnswerRepository.store(qnaAnswer).getId();
     }
 
     private TokenInfo getTokenInfoByEmail(String email) {
