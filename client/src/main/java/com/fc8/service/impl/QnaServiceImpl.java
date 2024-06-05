@@ -184,20 +184,23 @@ public class QnaServiceImpl implements QnaService {
         // 1. 댓글 조회
         var qnaComment = qnaCommentRepository.getByIdAndQnaIdAndMemberId(commentId, qnaId, memberId);
 
-//        var qnaReplyImage = qnaReplyImageRepository.getByIdAndCommentId(commentId);
+        // 2. 댓글 이미지 조회
+        var qnaReplyImage = qnaReplyImageRepository.getImageByQnaCommentId(commentId);
 
-        // 2. 댓글 수정
+        // 3. 댓글 수정
         qnaComment.modify(command.getContent());
 
-        // 3. 이미지 변경
-        // TODO : 이미지 deletedAt 상태 변경 후
-//        Optional.ofNullable(image)
-//            .filter(img -> !img.isEmpty())
-//            .ifPresent(img -> {
-//                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
-//
-//                QnaReplyImage.modify(uploadImageInfo.originalImageUrl());
-//            });
+        // 4. 기존 이미지 삭제 및 변경
+        qnaReplyImage.delete();
+
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var newQnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaReplyImageRepository.store(newQnaReplyImage);
+            });
 
         return qnaComment.getId();
     }

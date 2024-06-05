@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.post;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -40,4 +42,11 @@ public class PostCommentImage {
             .build();
     }
 
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST_COMMENT_IMAGE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }

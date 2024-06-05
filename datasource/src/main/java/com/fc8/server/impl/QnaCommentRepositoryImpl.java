@@ -89,7 +89,8 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
             .leftJoin(qnaReplyImage).on(qnaReplyImage.qnaComment.id.eq(qnaComment.id))
             .where(
                 qnaComment.qna.id.eq(qnaId),
-                qnaComment.deletedAt.isNull() // 삭제되지 않은 댓글만 조회
+                qnaComment.deletedAt.isNull(), // 삭제되지 않은 댓글만 조회
+                qnaReplyImage.deletedAt.isNull()
             )
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())
