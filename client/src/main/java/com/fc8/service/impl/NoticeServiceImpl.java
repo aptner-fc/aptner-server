@@ -2,10 +2,7 @@ package com.fc8.service.impl;
 
 import com.fc8.platform.domain.entity.notice.NoticeFile;
 import com.fc8.platform.dto.record.*;
-import com.fc8.platform.repository.MemberRepository;
-import com.fc8.platform.repository.NoticeEmojiRepository;
-import com.fc8.platform.repository.NoticeFileRepository;
-import com.fc8.platform.repository.NoticeRepository;
+import com.fc8.platform.repository.*;
 import com.fc8.service.NoticeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,6 +24,7 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeRepository noticeRepository;
     private final NoticeEmojiRepository noticeEmojiRepository;
     private final NoticeFileRepository noticeFileRepository;
+    private final NoticeCommentRepository noticeCommentRepository;
 
     @Override
     @Transactional(readOnly = true)
@@ -67,5 +65,14 @@ public class NoticeServiceImpl implements NoticeService {
             .toList();
 
         return new PageImpl<>(noticeInfoList, pageable, noticeList.getTotalElements());
+    }
+
+    @Override
+    public Page<NoticeCommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 댓글 조회
+        return noticeCommentRepository.getCommentListByQna(noticeId, pageable);
     }
 }
