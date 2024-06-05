@@ -35,4 +35,6 @@ public interface MemberMapper {
 
     UnBlockMemberCommand of(UnBlockMemberRequest request);
 
+    CheckEmailCommand of(CheckEmailRequest request);
+
 }

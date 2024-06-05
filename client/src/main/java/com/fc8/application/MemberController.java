@@ -142,6 +142,16 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.findEmail(apartCode, command));
     }
 
+    @Operation(summary = "아이디 확인 API")
+    @GetMapping(value = "/{apartCode}/auth/check-email")
+    public ResponseEntity<CommonResponse<CheckEmailResponse>> checkEmail(
+            @NotNull @PathVariable String apartCode,
+            CheckEmailRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.checkEmail(apartCode, command));
+    }
+
     @Operation(summary = "비밀번호 변경 API")
     @PatchMapping(value = "/{apartCode}/auth/password")
     public ResponseEntity<CommonResponse<ModifyPasswordResponse>> modifyPassword(

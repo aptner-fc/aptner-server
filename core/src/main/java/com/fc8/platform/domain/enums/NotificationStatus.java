@@ -1,6 +1,6 @@
 package com.fc8.platform.domain.enums;
 
-public enum AlertStatus {
+public enum NotificationStatus {
     UNREAD,
     READ,
     DELETED

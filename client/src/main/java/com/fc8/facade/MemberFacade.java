@@ -79,6 +79,10 @@ public class MemberFacade {
         return new FindEmailResponse(memberService.findEmail(apartCode, command));
     }
 
+    public CheckEmailResponse checkEmail(String apartCode, CheckEmailCommand command) {
+        return new CheckEmailResponse(memberService.checkEmail(apartCode, command));
+    }
+
     public ModifyPasswordResponse modifyPassword(String apartCode, ModifyPasswordCommand command) {
         return new ModifyPasswordResponse(memberService.modifyPassword(apartCode, command));
     }

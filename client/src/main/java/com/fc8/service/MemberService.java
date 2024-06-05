@@ -28,6 +28,8 @@ public interface MemberService {
 
     MemberInfo findEmail(String apartCode, FindEmailCommand command);
 
+    MemberInfo checkEmail(String apartCode, CheckEmailCommand command);
+
     MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command);
 
     MemberInfo blockMember(Long memberId, String apartCode, BlockMemberCommand command);

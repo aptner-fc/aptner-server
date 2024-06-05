@@ -231,6 +231,17 @@ public class MemberServiceImpl implements MemberService {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public MemberInfo checkEmail(String apartCode, CheckEmailCommand command) {
+        var member = memberRepository.getByApartCodeAndNameAndPhone(apartCode, command.getName(), command.getPhone());
+        if (!Objects.equals(member.getEmail(), command.getEmail())) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER);
+        }
+
+        return MemberInfo.fromEntity(member);
+    }
+
+    @Override
     @Transactional
     public MemberInfo modifyPassword(String apartCode, ModifyPasswordCommand command) {
         // 1. 휴대전화 인증 검사

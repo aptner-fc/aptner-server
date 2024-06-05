@@ -1,8 +1,8 @@
-package com.fc8.platform.domain.entity.alert;
+package com.fc8.platform.domain.entity.notification;
 
 import com.fc8.platform.domain.BaseTimeEntity;
 import com.fc8.platform.domain.entity.member.Member;
-import com.fc8.platform.domain.enums.AlertStatus;
+import com.fc8.platform.domain.enums.NotificationStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -12,9 +12,9 @@ import lombok.*;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-    name = "alert"
+    name = "notification"
 )
-public class Alert extends BaseTimeEntity {
+public class Notification extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,6 +30,6 @@ public class Alert extends BaseTimeEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, columnDefinition = "varchar(20) comment '알림 상태'")
-    private AlertStatus status;
+    private NotificationStatus status;
 
 }
