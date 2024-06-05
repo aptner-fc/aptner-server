@@ -7,6 +7,7 @@ import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.mapping.QApartMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostComment;
 import com.fc8.platform.domain.entity.post.QPost;
@@ -17,14 +18,17 @@ import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaComment;
 import com.fc8.platform.dto.record.LoadMyArticleInfo;
 import com.fc8.platform.dto.record.LoadMyCommentInfo;
+import com.fc8.platform.dto.record.MemberSummary;
 import com.fc8.platform.repository.MemberRepository;
 import com.fc8.server.MemberJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.stereotype.Repository;
 
 import java.util.Comparator;
@@ -40,6 +44,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     private final MemberJpaRepository memberJpaRepository;
 
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QApart apart = QApart.apart;
     QApartMemberMapping apartMemberMapping = QApartMemberMapping.apartMemberMapping;
     QPost post = QPost.post;
@@ -61,7 +66,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .from(member)
                 .where(
                         eqEmail(email),
-                        isNotWithdrawal()
+                        isNotWithdrawal(member)
                 )
                 .fetchFirst() != null;
     }
@@ -78,7 +83,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .from(member)
                 .where(
                         eqPhone(member, phone),
-                        isNotWithdrawal()
+                        isNotWithdrawal(member)
                 )
                 .fetchFirst() != null;
     }
@@ -224,10 +229,10 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .innerJoin(apartMemberMapping).on(member.eq(apartMemberMapping.member))
                 .innerJoin(apart).on(apartMemberMapping.apart.eq(apart))
                 .where(
-                        isNotWithdrawal(),
+                        isNotWithdrawal(member),
                         member.name.eq(name),
                         member.phone.eq(phone),
-                        apart.code.eq(apartCode)
+                        eqApartCode(apart, apartCode)
                 )
                 .fetchOne();
 
@@ -242,14 +247,45 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .innerJoin(apartMemberMapping).on(member.eq(apartMemberMapping.member))
                 .innerJoin(apart).on(apartMemberMapping.apart.eq(apart))
                 .where(
-                        isNotWithdrawal(),
+                        isNotWithdrawal(member),
                         member.email.eq(email),
-                        apart.code.eq(apartCode)
+                        eqApartCode(apart, apartCode)
                 )
                 .fetchOne();
 
         return Optional.ofNullable(activeMember)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    @Override
+    public Page<MemberSummary> getAllBlockedMemberByMemberAndApartCode(Member activeMember, String apartCode, Pageable pageable) {
+        List<Member> memberList = jpaQueryFactory
+                .selectFrom(member)
+                .innerJoin(memberBlock).on(member.id.eq(memberBlock.blocked.id))
+                .where(
+                        isNotWithdrawal(memberBlock.member),
+                        isNotWithdrawal(memberBlock.blocked),
+                        eqMember(memberBlock.member, activeMember)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(memberBlock.blockedAt.desc())
+                .fetch();
+
+        JPAQuery<Long> count = jpaQueryFactory
+                .select(member.count())
+                .from(member)
+                .innerJoin(memberBlock).on(member.id.eq(memberBlock.blocked.id))
+                .where(
+                        isNotWithdrawal(memberBlock.member),
+                        isNotWithdrawal(memberBlock.blocked),
+                        eqMember(memberBlock.member, activeMember)
+                );
+
+        return PageableExecutionUtils.getPage(
+                memberList.stream()
+                        .map(MemberSummary::fromEntity)
+                        .toList(), pageable, count::fetchOne);
     }
 
     @Override
@@ -263,7 +299,7 @@ public class MemberRepositoryImpl implements MemberRepository {
                 .selectFrom(member)
                 .where(
                         eqId(id),
-                        isNotWithdrawal()
+                        isNotWithdrawal(member)
                 )
                 .fetchOne();
 
@@ -272,12 +308,33 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
     @Override
+    public Member getByIdAndApartCode(Long id, String apartCode) {
+        Member activeMember = jpaQueryFactory
+                .selectFrom(member)
+                .innerJoin(apartMemberMapping).on(member.eq(apartMemberMapping.member))
+                .innerJoin(apart).on(apartMemberMapping.apart.eq(apart))
+                .where(
+                        eqId(id),
+                        isNotWithdrawal(member),
+                        eqApartCode(apart, apartCode)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(activeMember)
+                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_MEMBER));
+    }
+
+    private BooleanExpression eqApartCode(QApart apart, String apartCode) {
+        return apart.code.eq(apartCode);
+    }
+
+    @Override
     public Member getActiveMemberByEmail(String email) {
         Member activeMember = jpaQueryFactory
                 .selectFrom(member)
                 .where(
                         eqEmail(email),
-                        isNotWithdrawal()
+                        isNotWithdrawal(member)
                 )
                 .fetchOne();
 
@@ -314,7 +371,7 @@ public class MemberRepositoryImpl implements MemberRepository {
     }
 
 
-    private BooleanExpression isNotWithdrawal() {
+    private BooleanExpression isNotWithdrawal(QMember member) {
         return member.deletedAt.isNull();
     }
 

@@ -153,23 +153,39 @@ public class MemberController {
     }
 
     @Operation(summary = "회원 차단 API")
-    @PostMapping(value = "/block")
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/block")
     public ResponseEntity<CommonResponse<BlockMemberResponse>> blockMember(
+            @NotNull @PathVariable String apartCode,
             @CheckCurrentMember CurrentMember currentMember,
             @Valid @RequestBody BlockMemberRequest request
     ) {
         var command = memberMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.blockMember(currentMember.id(), command));
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.blockMember(currentMember.id(), apartCode, command));
     }
 
-//    @Operation(summary = "회원 목록 조회 API")
-//    @PostMapping(value = "/block")
-//    public ResponseEntity<CommonResponse<LoadBlockedMemberResponse>> loadBlockedMember(
-//            @CheckCurrentMember CurrentMember currentMember,
-//            @Valid @RequestBody LoadBlockedMemberRequest request
-//    ) {
-//        var command = memberMapper.of(request);
-//        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadBlockedMember(currentMember.id(), command));
-//    }
+    @Operation(summary = "회원 차단 해제 API")
+    @CheckApartType
+    @PostMapping(value = "/{apartCode}/unblock")
+    public ResponseEntity<CommonResponse<UnBlockMemberResponse>> unBlockMember(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember,
+            @Valid @RequestBody UnBlockMemberRequest request
+    ) {
+        var command = memberMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.unBlockMember(currentMember.id(), apartCode, command));
+    }
+
+    @Operation(summary = "차단 목록 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/block")
+    public ResponseEntity<CommonResponse<PageResponse<LoadBlockedMemberResponse>>> loadBlockedMember(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember,
+            CustomPageRequest request
+    ) {
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadBlockedMember(currentMember.id(), apartCode, command));
+    }
 
 }

@@ -129,7 +129,7 @@ public class QnaServiceImpl implements QnaService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
@@ -273,7 +273,7 @@ public class QnaServiceImpl implements QnaService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
         boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member, emoji);
@@ -294,7 +294,7 @@ public class QnaServiceImpl implements QnaService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
         // 3. 레코드 검사 (등록된 감정 표현이 없을 경우 등록이 필요하다.)
         QnaEmoji qnaEmoji = qnaEmojiRepository.getByQnaAndMemberAndEmoji(qna, member, emoji);
@@ -306,7 +306,7 @@ public class QnaServiceImpl implements QnaService {
     @Override
     public List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode) {
         // 게시글 조회
-        var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(qnaId, apartCode);
+        var qna = qnaRepository.getByIdAndApartCode(qnaId, apartCode);
 
         // 파일 조회
         final List<QnaFile> qnaFileList = qnaFileRepository.getQnaFileListByQna(qna);

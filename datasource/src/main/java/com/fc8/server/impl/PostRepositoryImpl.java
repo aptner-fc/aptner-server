@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.QPost;
 import com.fc8.platform.domain.enums.SearchType;
@@ -32,6 +33,7 @@ public class PostRepositoryImpl implements PostRepository {
 
     QPost post = QPost.post;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
 
     @Override
@@ -41,6 +43,20 @@ public class PostRepositoryImpl implements PostRepository {
 
     @Override
     public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
+
         List<Post> postList = jpaQueryFactory
                 .selectFrom(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
@@ -50,11 +66,10 @@ public class PostRepositoryImpl implements PostRepository {
                         isNotDeleted(post),
                         // 2. 아파트 코드
                         eqApartCode(post, apartCode),
-                        // 3. 회원 차단 TODO
-
+                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                        removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
                         // 4. 카테고리
                         eqCategoryCode(category, categoryCode),
-
                         // 5. 검색어
                         containsSearch(post, member, search, type)
                 )
@@ -67,16 +82,16 @@ public class PostRepositoryImpl implements PostRepository {
                 .select(post.count())
                 .from(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
+                .innerJoin(member).on(post.member.id.eq(member.id))
                 .where(
                         // 1. 삭제된 포스트
                         isNotDeleted(post),
                         // 2. 아파트 코드
                         eqApartCode(post, apartCode),
-                        // 3. 회원 차단 TODO
-
+                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                        removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
                         // 4. 카테고리
                         eqCategoryCode(category, categoryCode),
-
                         // 5. 검색어
                         containsSearch(post, member, search, type)
                 );
@@ -120,13 +135,27 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Post getPostWithCategoryByIdAndApartCode(Long postId, String apartCode) {
+    public Post getPostWithCategoryByIdAndApartCode(Long memberId, Long postId, String apartCode) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
+
         Post activePost = jpaQueryFactory
                 .selectFrom(post)
-                .innerJoin(category).on(post.category.id.eq(category.id))
                 .where(
                         eqId(post, postId),
-                        eqApartCode(post, apartCode)
+                        eqApartCode(post, apartCode),
+                        removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds)
                 )
                 .fetchOne();
 
@@ -157,6 +186,10 @@ public class PostRepositoryImpl implements PostRepository {
                         post.id.in(postIds)
                 )
                 .fetch();
+    }
+
+    private BooleanExpression removeMemberBlock(QMember member, List<Long> blockedMemberIds, List<Long> blockingMemberIds) {
+        return member.id.notIn(blockedMemberIds).and(member.id.notIn(blockingMemberIds));
     }
 
     private BooleanExpression eqId(QPost post, Long postId) {

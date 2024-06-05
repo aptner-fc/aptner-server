@@ -189,7 +189,7 @@ public class PostServiceImpl implements PostService {
         var member = memberRepository.getActiveMemberById(memberId);
 
         // 2. 게시글 조회
-        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+        var post = postRepository.getPostWithCategoryByIdAndApartCode(memberId, postId, apartCode);
 
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
@@ -292,7 +292,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public List<PostFileInfo> loadPostFileList(Long postId, String apartCode) {
         // 게시글 조회
-        var post = postRepository.getPostWithCategoryByIdAndApartCode(postId, apartCode);
+        var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 파일 조회
         final List<PostFile> postFileList = postFileRepository.getPostFileListByPost(post);

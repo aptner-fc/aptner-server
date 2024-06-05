@@ -33,4 +33,6 @@ public interface MemberMapper {
 
     BlockMemberCommand of(BlockMemberRequest request);
 
+    UnBlockMemberCommand of(UnBlockMemberRequest request);
+
 }
