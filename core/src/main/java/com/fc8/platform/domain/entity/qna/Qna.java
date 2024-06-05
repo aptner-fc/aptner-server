@@ -94,4 +94,12 @@ public class Qna extends BaseApartEntity {
         this.content = content;
     }
 
+    public void changeStatus(ProcessingStatus processingStatus) {
+        if (this.processingStatus == processingStatus) {
+            return;
+        }
+
+        this.processingStatus = processingStatus;
+    }
+
 }
