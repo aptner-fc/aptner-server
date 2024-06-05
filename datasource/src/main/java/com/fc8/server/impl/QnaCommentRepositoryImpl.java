@@ -29,10 +29,10 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
     private final JPAQueryFactory jpaQueryFactory;
     private final QnaCommentJpaRepository qnaCommentJpaRepository;
 
-    QQnaComment qnaComment = QQnaComment.qnaComment;
-    QQna qna = QQna.qna;
+    QQnaCommentImage qnaCommentImage = QQnaCommentImage.qnaCommentImage;
     QMember member = QMember.member;
-    QQnaReplyImage qnaReplyImage = QQnaReplyImage.qnaReplyImage;
+    QQna qna = QQna.qna;
+    QQnaComment qnaComment = QQnaComment.qnaComment;
 
     @Override
     public QnaComment getByIdAndQna(Long commentId, Qna qna) {
@@ -76,7 +76,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
                 qnaComment.content,
                 qnaComment.createdAt,
                 qnaComment.updatedAt,
-                qnaReplyImage.imagePath.as("imageUrl"),
+                qnaCommentImage.imagePath.as("imageUrl"),
                 Projections.constructor(
                     WriterInfo.class,
                     qnaComment.member.id,
@@ -86,11 +86,11 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
             ))
             .from(qnaComment)
             .innerJoin(qna).on(qnaComment.qna.id.eq(qna.id))
-            .leftJoin(qnaReplyImage).on(qnaReplyImage.qnaComment.id.eq(qnaComment.id))
+            .leftJoin(qnaCommentImage).on(qnaCommentImage.qnaComment.id.eq(qnaComment.id))
             .where(
                 qnaComment.qna.id.eq(qnaId),
                 qnaComment.deletedAt.isNull(), // 삭제되지 않은 댓글만 조회
-                qnaReplyImage.deletedAt.isNull()
+                qnaCommentImage.deletedAt.isNull()
             )
             .offset(pageable.getOffset())
             .limit(pageable.getPageSize())

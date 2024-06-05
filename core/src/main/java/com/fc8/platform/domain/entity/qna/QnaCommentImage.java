@@ -15,7 +15,7 @@ import java.time.LocalDateTime;
 @Table(
     name = "qna_reply_image"
 )
-public class QnaReplyImage {
+public class QnaCommentImage {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +23,7 @@ public class QnaReplyImage {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "qna_reply_id", columnDefinition = "bigint unsigned comment '민원 게시판 댓글 ID'")
+    @JoinColumn(name = "qna_comment_id", columnDefinition = "bigint unsigned comment '민원 게시판 댓글 ID'")
     private QnaComment qnaComment;
 
     @Column(name = "seq", columnDefinition = "int comment '이미지 순서'")
@@ -35,8 +35,8 @@ public class QnaReplyImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
-    public static QnaReplyImage create(QnaComment qnaComment, String imagePath) {
-        return QnaReplyImage.builder()
+    public static QnaCommentImage create(QnaComment qnaComment, String imagePath) {
+        return QnaCommentImage.builder()
             .qnaComment(qnaComment)
             .imagePath(imagePath)
             .build();

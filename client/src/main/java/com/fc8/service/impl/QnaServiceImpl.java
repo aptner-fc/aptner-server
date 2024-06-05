@@ -7,9 +7,9 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.entity.qna.QnaFile;
-import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
@@ -42,7 +42,7 @@ public class QnaServiceImpl implements QnaService {
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final S3UploadService s3UploadService;
-    private final QnaReplyImageRepository qnaReplyImageRepository;
+    private final QnaCommentImageRepository qnaCommentImageRepository;
     private final QnaFileRepository qnaFileRepository;
 
     @Override
@@ -171,8 +171,8 @@ public class QnaServiceImpl implements QnaService {
             .ifPresent(img -> {
                 UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
 
-                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
-                qnaReplyImageRepository.store(qnaReplyImage);
+                var qnaCommentImage = QnaCommentImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaCommentImageRepository.store(qnaCommentImage);
             });
 
         return newQnaComment.getId();
@@ -185,21 +185,21 @@ public class QnaServiceImpl implements QnaService {
         var qnaComment = qnaCommentRepository.getByIdAndQnaIdAndMemberId(commentId, qnaId, memberId);
 
         // 2. 댓글 이미지 조회
-        var qnaReplyImage = qnaReplyImageRepository.getImageByQnaCommentId(commentId);
+        var qnaCommentImage = qnaCommentImageRepository.getImageByQnaCommentId(commentId);
 
         // 3. 댓글 수정
         qnaComment.modify(command.getContent());
 
         // 4. 기존 이미지 삭제 및 변경
-        qnaReplyImage.delete();
+        qnaCommentImage.delete();
 
         Optional.ofNullable(image)
             .filter(img -> !img.isEmpty())
             .ifPresent(img -> {
                 UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
 
-                var newQnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
-                qnaReplyImageRepository.store(newQnaReplyImage);
+                var newQnaCommentImage = QnaCommentImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaCommentImageRepository.store(newQnaCommentImage);
             });
 
         return qnaComment.getId();
@@ -262,8 +262,8 @@ public class QnaServiceImpl implements QnaService {
             .ifPresent(img -> {
                 UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
 
-                var qnaReplyImage = QnaReplyImage.create(qnaComment, uploadImageInfo.originalImageUrl());
-                qnaReplyImageRepository.store(qnaReplyImage);
+                var qnaCommentImage = QnaCommentImage.create(qnaComment, uploadImageInfo.originalImageUrl());
+                qnaCommentImageRepository.store(qnaCommentImage);
             });
 
         return newQnaReply.getId();
