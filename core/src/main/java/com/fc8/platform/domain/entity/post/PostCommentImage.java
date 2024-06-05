@@ -33,11 +33,11 @@ public class PostCommentImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
-//    public static PostCommentImage createImage(PostComment postComment, int seq) {
-//        return PostCommentImage.builder()
-//                .postComment(postComment)
-//                .seq(seq)
-//                .build();
-//    }
+    public static PostCommentImage create(PostComment postComment, String imagePath) {
+        return PostCommentImage.builder()
+            .postComment(postComment)
+            .imagePath(imagePath)
+            .build();
+    }
 
 }
