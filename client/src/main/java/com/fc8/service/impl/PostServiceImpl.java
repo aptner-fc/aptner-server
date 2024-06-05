@@ -8,8 +8,10 @@ import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.post.Post;
+import com.fc8.platform.domain.entity.post.PostCommentImage;
 import com.fc8.platform.domain.entity.post.PostEmoji;
 import com.fc8.platform.domain.entity.post.PostFile;
+import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
@@ -43,7 +45,7 @@ public class PostServiceImpl implements PostService {
     private final ApartRepository apartRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
-
+    private final PostCommentImageRepository postCommentImageRepository;
     private final S3UploadService s3UploadService;
 
     @Override
@@ -136,7 +138,15 @@ public class PostServiceImpl implements PostService {
         var postComment = command.toEntity(post, member);
         var newPostComment = postCommentRepository.store(postComment);
 
-        // 4. 댓글 이미지 저장 TODO
+        // 4. 댓글 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var postCommentImage = PostCommentImage.create(postComment, uploadImageInfo.originalImageUrl());
+                postCommentImageRepository.store(postCommentImage);
+            });
 
         return newPostComment.getId();
     }
@@ -160,11 +170,13 @@ public class PostServiceImpl implements PostService {
 
         // 4. 댓글 이미지 저장
         Optional.ofNullable(image)
-                .filter(img -> !img.isEmpty())
-                .ifPresent(img -> {
-                    UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
-                    post.updateThumbnail(uploadImageInfo.originalImageUrl());
-                });
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var postCommentImage = PostCommentImage.create(postComment, uploadImageInfo.originalImageUrl());
+                postCommentImageRepository.store(postCommentImage);
+            });
 
         return newPostReply.getId();
     }
