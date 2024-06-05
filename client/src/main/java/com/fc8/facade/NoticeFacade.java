@@ -40,4 +40,8 @@ public class NoticeFacade {
     public RegisterEmojiResponse registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji) {
         return new RegisterEmojiResponse(noticeService.registerEmoji(memberId, noticeId, apartCode, emoji));
     }
+
+    public void deleteEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji) {
+        noticeService.deleteEmoji(memberId, noticeId, apartCode, emoji);
+    }
 }

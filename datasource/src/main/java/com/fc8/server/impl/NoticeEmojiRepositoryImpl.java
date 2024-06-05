@@ -1,14 +1,13 @@
 package com.fc8.server.impl;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.QNotice;
 import com.fc8.platform.domain.entity.notice.QNoticeEmoji;
-import com.fc8.platform.domain.entity.qna.QQna;
-import com.fc8.platform.domain.entity.qna.QQnaEmoji;
-import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.EmojiCountInfo;
 import com.fc8.platform.dto.record.EmojiReactionInfo;
@@ -71,6 +70,27 @@ public class NoticeEmojiRepositoryImpl implements NoticeEmojiRepository {
     @Override
     public NoticeEmoji store(NoticeEmoji noticeEmoji) {
         return noticeEmojiJpaRepository.save(noticeEmoji);
+    }
+
+    @Override
+    public NoticeEmoji getByNoticeAndMemberAndEmoji(Notice activeNotice, Member loginMember, EmojiType emoji) {
+        NoticeEmoji addedEmoji = jpaQueryFactory
+            .selectFrom(noticeEmoji)
+            .innerJoin(notice).on(eqNotice(noticeEmoji, activeNotice))
+            .innerJoin(member).on(eqMember(noticeEmoji, loginMember))
+            .where(
+                isNotDeleted(notice),
+                eqEmojiType(noticeEmoji, emoji)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(addedEmoji)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_EMOJI));
+    }
+
+    @Override
+    public void delete(NoticeEmoji noticeEmoji) {
+        noticeEmojiJpaRepository.delete(noticeEmoji);
     }
 
     private boolean reactedEmoji(Notice notice, Member member, EmojiType emojiType) {
