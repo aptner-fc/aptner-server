@@ -15,4 +15,8 @@ public interface NoticeEmojiRepository {
     boolean existsByNoticeAndMemberAndEmoji(Notice notice, Member member, EmojiType emoji);
 
     NoticeEmoji store(NoticeEmoji noticeEmoji);
+
+    NoticeEmoji getByNoticeAndMemberAndEmoji(Notice notice, Member member, EmojiType emoji);
+
+    void delete(NoticeEmoji noticeEmoji);
 }

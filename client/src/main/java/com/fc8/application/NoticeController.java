@@ -75,17 +75,17 @@ public class NoticeController {
         return CommonResponse.success(SuccessCode.SUCCESS, noticeFacade.registerEmoji(currentMember.id(), noticeId, apartCode, type));
     }
 
-//    @Operation(summary = "민원 게시판 이모지 삭제 API")
-//    @CheckApartType
-//    @DeleteMapping("/{apartCode}/{qnaId}/emoji")
-//    public ResponseEntity<CommonResponse<Void>> deleteEmoji(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long qnaId,
-//        @CheckCurrentMember CurrentMember currentMember,
-//        @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
-//    ) {
-//        qnaFacade.deleteEmoji(currentMember.id(), qnaId, apartCode, type);
-//        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
-//    }
+    @Operation(summary = "공지사항 이모지 삭제 API")
+    @CheckApartType
+    @DeleteMapping("/{apartCode}/{noticeId}/emoji")
+    public ResponseEntity<CommonResponse<Void>> deleteEmoji(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long noticeId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @NotNull(message = "이모지가 누락되었습니다.") @RequestParam EmojiType type
+    ) {
+        noticeFacade.deleteEmoji(currentMember.id(), noticeId, apartCode, type);
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
+    }
 
 }
