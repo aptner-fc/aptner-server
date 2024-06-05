@@ -6,4 +6,5 @@ public interface PostCommentImageRepository {
 
     PostCommentImage store(PostCommentImage postCommentImage);
 
+    PostCommentImage getImageByQnaCommentId(Long commentId);
 }

@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 @Getter
 @Builder
@@ -49,14 +48,6 @@ public class QnaReplyImage {
         }
 
         this.deletedAt = LocalDateTime.now();
-    }
-
-    public void modify(String imagePath) {
-        if (Objects.equals(this.imagePath, imagePath)) {
-            return;
-        }
-
-        this.imagePath = imagePath;
     }
 
 }

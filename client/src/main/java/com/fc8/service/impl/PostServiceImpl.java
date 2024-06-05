@@ -11,7 +11,6 @@ import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostCommentImage;
 import com.fc8.platform.domain.entity.post.PostEmoji;
 import com.fc8.platform.domain.entity.post.PostFile;
-import com.fc8.platform.domain.entity.qna.QnaReplyImage;
 import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
@@ -187,10 +186,24 @@ public class PostServiceImpl implements PostService {
         // 1. 댓글 조회
         var postComment = postCommentRepository.getByIdAndPostIdAndMemberId(commentId, postId, memberId);
 
-        // 2. 댓글 수정
+        // 2. 댓글 이미지 조회
+        var postCommentImage = postCommentImageRepository.getImageByQnaCommentId(commentId);
+
+        // 3. 댓글 수정
         postComment.modify(command.getContent());
 
-        // 3. 이미지 변경 TODO
+        // 4. 기존 이미지 삭제 및 변경
+        postCommentImage.delete();
+
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var newPostCommentImage = PostCommentImage.create(postComment, uploadImageInfo.originalImageUrl());
+                postCommentImageRepository.store(newPostCommentImage);
+            });
+
         return postComment.getId();
     }
 

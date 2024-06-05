@@ -6,4 +6,5 @@ public interface QnaReplyImageRepository {
 
     QnaReplyImage store(QnaReplyImage qnaReplyImage);
 
+    QnaReplyImage getImageByQnaCommentId(Long commentId);
 }
