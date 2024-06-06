@@ -75,6 +75,10 @@ public class MemberFacade {
         return new DeleteMyCommentListResponse(memberService.deleteMyCommentList(memberId, apartCode, command));
     }
 
+    public LoadMyProfileResponse loadProfile(Long memberId, String apartCode) {
+        return new LoadMyProfileResponse(memberService.loadProfile(memberId, apartCode));
+    }
+
     public FindEmailResponse findEmail(String apartCode, FindEmailCommand command) {
         return new FindEmailResponse(memberService.findEmail(apartCode, command));
     }

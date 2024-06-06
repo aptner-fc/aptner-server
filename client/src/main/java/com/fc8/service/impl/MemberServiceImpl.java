@@ -225,6 +225,13 @@ public class MemberServiceImpl implements MemberService {
 
     @Override
     @Transactional(readOnly = true)
+    public MemberInfo loadProfile(Long memberId, String apartCode) {
+        var member = memberRepository.getByIdAndApartCode(memberId, apartCode);
+        return MemberInfo.fromEntity(member);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public MemberInfo findEmail(String apartCode, FindEmailCommand command) {
         var member = memberRepository.getByApartCodeAndNameAndPhone(apartCode, command.getName(), command.getPhone());
         return MemberInfo.fromEntity(member);

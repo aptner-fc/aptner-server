@@ -104,6 +104,27 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.deleteMyCommentList(currentMember.id(), apartCode, command));
     }
 
+    @Operation(summary = "로그인된 사용자 기본 정보 조회")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/my-pages/profile")
+    public ResponseEntity<CommonResponse<LoadMyProfileResponse>> loadMyProfile(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadProfile(currentMember.id(), apartCode));
+    }
+
+    @Operation(summary = "사용자 기본 정보 조회")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/profile/{memberId}")
+    public ResponseEntity<CommonResponse<LoadMyProfileResponse>> loadProfile(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember,
+            @NotNull @PathVariable Long memberId
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadProfile(memberId, apartCode));
+    }
+
     @Operation(summary = "기본 정보 변경 API")
     @PatchMapping(value = "/my-pages/profile")
     public ResponseEntity<CommonResponse<ModifyProfileResponse>> modifyProfile(
