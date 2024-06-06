@@ -36,4 +36,6 @@ public interface PostService {
     Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command);
 
     List<PostFileInfo> loadPostFileList(Long postId, String apartCode);
+
+    List<ApartAreaSummary> loadApartArea(String apartCode);
 }

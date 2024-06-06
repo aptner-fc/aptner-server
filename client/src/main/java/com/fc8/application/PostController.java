@@ -177,4 +177,14 @@ public class PostController {
         return CommonResponse.success(SuccessCode.SUCCESS_DELETE);
     }
 
+    @Operation(summary = "아파트 평수 조회 API")
+    @CheckApartType
+    @GetMapping(value = "/{apartCode}/area")
+    public ResponseEntity<CommonResponse<LoadApartAreaResponse>> loadApartArea(
+            @NotNull @PathVariable String apartCode,
+            @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadApartArea(apartCode));
+    }
+
 }

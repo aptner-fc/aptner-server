@@ -82,4 +82,8 @@ public class PostFacade {
         final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
         return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
     }
+
+    public LoadApartAreaResponse loadApartArea(String apartCode) {
+        return new LoadApartAreaResponse(postService.loadApartArea(apartCode));
+    }
 }
