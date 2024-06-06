@@ -19,7 +19,7 @@ public class NoticeFile {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "qna_id", columnDefinition = "bigint unsigned comment '공지사항 ID'")
+    @JoinColumn(name = "notice_id", columnDefinition = "bigint unsigned comment '공지사항 ID'")
     private Notice notice;
 
     @Column(name = "file_name", nullable = false, columnDefinition = "varchar(255) comment '파일 이름'")

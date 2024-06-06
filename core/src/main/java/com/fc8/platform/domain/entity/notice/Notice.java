@@ -21,7 +21,7 @@ public class Notice extends BaseApartEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id", columnDefinition = "bigint unsigned comment '민원 게시판 고유 번호'")
+    @Column(name = "id", columnDefinition = "bigint unsigned comment '공지사항 고유 번호'")
     private Long id;
 
     @ManyToOne
