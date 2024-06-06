@@ -188,10 +188,13 @@ VALUES ('POST', 'PT004', '주변 추천', 1);
 INSERT INTO category (type, code, name, is_used)
 VALUES ('POST', 'PT005', '분실물', 1);
 
+INSERT INTO category (type, code, name, is_used)
+VALUES ('POST', 'PT006', '인테리어', 1);
+
 UPDATE category c
 JOIN (SELECT id FROM category WHERE code = 'PT000') parent
 SET c.parent_id = parent.id
-WHERE c.code IN ('PT001', 'PT002', 'PT003', 'PT004', 'PT005');
+WHERE c.code IN ('PT001', 'PT002', 'PT003', 'PT004', 'PT005', 'PT006');
 
 
 
@@ -242,3 +245,7 @@ UPDATE category c
     JOIN (SELECT id FROM category WHERE code = 'NT000') parent
 SET c.parent_id = parent.id
 WHERE c.code IN ('NT001', 'NT002', 'NT003', 'NT004', 'NT005', 'NT006');
+
+INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 28, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/28.png');
+INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 31, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/31.png');
+INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 34, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/34.png');
