@@ -18,6 +18,8 @@ public class WritePostCommand {
 
     private final String content;
 
+    private final Long apartAreaId;
+
     public Post toEntity(Category category, Member member, Apart apart) {
         return Post.create(category, member, apart, title, content);
     }

@@ -1,11 +1,13 @@
 package com.fc8.platform.dto.record;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fc8.platform.domain.entity.apartment.ApartArea;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.post.Post;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 
 public record PostDetailInfo(Long id,
                              String title,
@@ -14,9 +16,10 @@ public record PostDetailInfo(Long id,
                              @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
                              WriterInfo writer,
                              CategoryInfo category,
-                             PostEmojiInfo emoji) {
+                             PostEmojiInfo emoji,
+                             ApartAreaSummary apartArea) {
 
-    public static PostDetailInfo fromEntity(Post post, Member member, Category category, EmojiCountInfo emojiCount, EmojiReactionInfo emojiReaction) {
+    public static PostDetailInfo fromEntityWithDomain(Post post, Member member, Category category, ApartArea apartArea,  EmojiCountInfo emojiCount, EmojiReactionInfo emojiReaction) {
         return new PostDetailInfo(
                 post.getId(),
                 post.getTitle(),
@@ -25,7 +28,10 @@ public record PostDetailInfo(Long id,
                 post.getUpdatedAt(),
                 WriterInfo.fromMemberEntity(member),
                 CategoryInfo.fromEntity(category),
-                new PostEmojiInfo(emojiCount, emojiReaction)
+                new PostEmojiInfo(emojiCount, emojiReaction),
+                Optional.ofNullable(apartArea)
+                        .map(ApartAreaSummary::fromEntity)
+                        .orElse(null)
         );
     }
 

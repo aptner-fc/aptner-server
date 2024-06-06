@@ -95,6 +95,7 @@ public enum ErrorCode {
     ALREADY_DELETED_POST(HttpStatus.BAD_REQUEST, "이미 삭제된 게시글입니다."),
     ALREADY_DELETED_POST_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
     ALREADY_DELETED_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글 이미지입니다."),
+    ONLY_CATEGORY_INTERIOR(HttpStatus.BAD_REQUEST, "인테리어 게시판에서만 사용 가능합니다."),
 
     /**
      * EMOJI
