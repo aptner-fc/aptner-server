@@ -247,7 +247,7 @@ public class MemberServiceImpl implements MemberService {
         // 1. 휴대전화 인증 검사
         String phone = command.getPhone();
         String verificationCode = command.getVerificationCode();
-        validatePhoneAndCode(phone, verificationCode);
+        validateAndVerifyCode(phone, verificationCode);
 
         // 2. 비밀번호 확인
         String password = command.getPassword();
@@ -370,6 +370,10 @@ public class MemberServiceImpl implements MemberService {
             throw new InvalidParamException(ErrorCode.EXIST_PHONE);
         }
 
+        validateAndVerifyCode(phone, verificationCode);
+    }
+
+    private void validateAndVerifyCode(String phone, String verificationCode) {
         if (!redisUtils.isValidateAndVerified(phone, verificationCode)) {
             throw new CustomRedisException(ErrorCode.INVALID_OR_EXPIRED_SMS);
         }
