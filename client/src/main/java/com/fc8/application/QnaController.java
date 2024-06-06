@@ -43,7 +43,7 @@ public class QnaController {
         @NotNull @PathVariable String apartCode,
         @CheckCurrentMember CurrentMember currentMember,
         @Valid @RequestPart(value = "request") WriteQnaRequest request,
-        @RequestPart(value = "files", required = false)List<MultipartFile> files
+        @RequestPart(value = "files", required = false) List<MultipartFile> files
     ) {
         var command = qnaMapper.of(request);
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, qnaFacade.writeQna(currentMember.id(), apartCode, command, files));
@@ -57,9 +57,10 @@ public class QnaController {
         @NotNull @PathVariable Long qnaId,
         @CheckCurrentMember CurrentMember currentMember,
         @Valid @RequestPart(value = "request") WriteQnaRequest request,
-        @RequestPart(value = "image", required = false) MultipartFile image) {
+        @RequestPart(value = "files", required = false) List<MultipartFile> files
+    ) {
         var command = qnaMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, qnaFacade.modifyQna(currentMember.id(), qnaId, apartCode, command, image));
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, qnaFacade.modifyQna(currentMember.id(), qnaId, apartCode, command, files));
     }
 
     @Operation(summary = "민원 삭제 API")

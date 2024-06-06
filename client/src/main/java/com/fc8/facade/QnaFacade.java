@@ -27,8 +27,8 @@ public class QnaFacade {
         return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, files));
     }
 
-    public WriteQnaResponse modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
-        return new WriteQnaResponse(qnaService.modifyQna(memberId, qnaId, apartCode, command, image));
+    public WriteQnaResponse modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
+        return new WriteQnaResponse(qnaService.modifyQna(memberId, qnaId, apartCode, command, files));
     }
 
     public DeleteQnaResponse deleteQna(Long memberId, Long qnaId, String apartCode) {

@@ -33,4 +33,12 @@ public class QnaFileRepositoryImpl implements QnaFileRepository {
             .where(qnaFile.qna.eq(qna))
             .fetch();
     }
+
+    @Override
+    public void deleteAllFiles(Qna qna) {
+        jpaQueryFactory
+            .delete(qnaFile)
+            .where(qnaFile.qna.eq(qna))
+            .execute();
+    }
 }

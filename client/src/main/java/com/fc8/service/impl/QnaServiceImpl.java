@@ -86,7 +86,7 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional
-    public Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, MultipartFile image) {
+    public Long modifyQna(Long memberId, Long qnaId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
         // 1. 게시글 조회
         var qna = qnaRepository.getByIdAndMemberId(qnaId, memberId);
 
@@ -94,9 +94,34 @@ public class QnaServiceImpl implements QnaService {
         var category = categoryRepository.getChildCategoryByCode(command.getCategoryCode());
         ValidateUtils.validateChildCategoryType(CategoryType.QNA, category);
 
-        // 3. 게시글 수정
+        // TODO : 파일 수정 로직 검토
+        // 3. 기존 파일 리스트 삭제
+        qnaFileRepository.deleteAllFiles(qna);
+
+        // 4. 게시글 수정
         qna.changeCategory(category);
         qna.modify(command.getTitle(), command.getContent());
+
+        // 5. 파일 저장
+        Optional.ofNullable(files)
+            .filter(f -> !f.isEmpty())
+            .ifPresent(nonEmptyFiles -> {
+                FileUtils.validateFiles(nonEmptyFiles);
+                if (nonEmptyFiles.size() > AptnerProperties.FILE_MAX_SIZE_COUNT) {
+                    throw new InvalidParamException(ErrorCode.EXCEEDED_FILE_COUNT);
+                }
+
+                nonEmptyFiles.forEach(file -> {
+                    UploadFileInfo uploadFileInfo = s3UploadService.uploadQnaFile(file);
+                    var qnaFile = QnaFile.create(
+                        qna,
+                        uploadFileInfo.originalFileName(),
+                        uploadFileInfo.originalFilUrl(),
+                        uploadFileInfo.fileSize()
+                    );
+                    qnaFileRepository.store(qnaFile);
+                });
+            });
 
         return qna.getId();
     }

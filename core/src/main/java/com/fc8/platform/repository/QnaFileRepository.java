@@ -11,4 +11,6 @@ public interface QnaFileRepository {
 
     List<QnaFile> getQnaFileListByQna(Qna qna);
 
+    void deleteAllFiles(Qna qna);
+
 }
