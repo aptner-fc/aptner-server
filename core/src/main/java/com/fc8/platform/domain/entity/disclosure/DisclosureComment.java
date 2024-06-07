@@ -2,8 +2,6 @@ package com.fc8.platform.domain.entity.disclosure;
 
 import com.fc8.platform.domain.BaseTimeEntity;
 import com.fc8.platform.domain.entity.member.Member;
-import com.fc8.platform.domain.entity.notice.Notice;
-import com.fc8.platform.domain.entity.notice.NoticeComment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,7 +24,7 @@ public class DisclosureComment extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "disclosure_id", columnDefinition = "bigint unsigned comment '의무공개 ID'")
-    private Notice notice;
+    private Disclosure disclosure;
 
     @ManyToOne
     @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
@@ -34,7 +32,7 @@ public class DisclosureComment extends BaseTimeEntity {
 
     @ManyToOne
     @JoinColumn(name = "parent_id", columnDefinition = "bigint unsigned comment '상위 댓글 ID'")
-    private NoticeComment parent;
+    private DisclosureComment parent;
 
     @Column(name = "content", columnDefinition = "varchar(255) comment '댓글 내용'")
     private String content;

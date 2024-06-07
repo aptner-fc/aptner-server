@@ -1,6 +1,5 @@
 package com.fc8.platform.domain.entity.disclosure;
 
-import com.fc8.platform.domain.entity.notice.NoticeComment;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,7 +22,7 @@ public class DisclosureCommentImage {
 
     @ManyToOne
     @JoinColumn(name = "disclosure_comment_id", columnDefinition = "bigint unsigned comment '의무공개 댓글 ID'")
-    private NoticeComment noticeComment;
+    private DisclosureComment disclosureComment;
 
     @Column(name = "seq", columnDefinition = "int comment '이미지 순서'")
     private int seq;

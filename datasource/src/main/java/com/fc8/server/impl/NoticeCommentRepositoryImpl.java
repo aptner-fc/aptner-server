@@ -1,6 +1,5 @@
 package com.fc8.server.impl;
 
-import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.QNotice;
 import com.fc8.platform.domain.entity.notice.QNoticeComment;
 import com.fc8.platform.domain.entity.notice.QNoticeCommentImage;
@@ -26,7 +25,6 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
 
     QNoticeComment noticeComment = QNoticeComment.noticeComment;
     QNotice notice = QNotice.notice;
-    QMember member = QMember.member;
     QNoticeCommentImage noticeCommentImage = QNoticeCommentImage.noticeCommentImage;
 
     @Override
