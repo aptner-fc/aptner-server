@@ -215,9 +215,12 @@ public class QnaServiceImpl implements QnaService {
         // 3. 댓글 수정
         qnaComment.modify(command.getContent());
 
-        // 4. 기존 이미지 삭제 및 변경
-        qnaCommentImage.delete();
+        // 4. 기존 이미지가 있는 경우 기존 이미지 삭제 및 변경
+        if (qnaCommentImage != null) {
+            qnaCommentImage.delete();
+        }
 
+        // 5. 새로운 이미지가 있는 경우 이미지 저장
         Optional.ofNullable(image)
             .filter(img -> !img.isEmpty())
             .ifPresent(img -> {

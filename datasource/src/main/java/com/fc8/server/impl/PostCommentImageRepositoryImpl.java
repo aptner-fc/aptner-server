@@ -1,7 +1,5 @@
 package com.fc8.server.impl;
 
-import com.fc8.platform.common.exception.InvalidParamException;
-import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.post.PostCommentImage;
 import com.fc8.platform.domain.entity.post.QPostComment;
 import com.fc8.platform.domain.entity.post.QPostCommentImage;
@@ -10,8 +8,6 @@ import com.fc8.server.PostCommentImageJpaRepository;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
-
-import java.util.Optional;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,7 +27,7 @@ public class PostCommentImageRepositoryImpl implements PostCommentImageRepositor
 
     @Override
     public PostCommentImage getImageByQnaCommentId(Long commentId) {
-        PostCommentImage image = jpaQueryFactory
+        return jpaQueryFactory
             .selectFrom(postCommentImage)
             .innerJoin(postCommentImage.postComment, postComment)
             .where(
@@ -39,8 +35,6 @@ public class PostCommentImageRepositoryImpl implements PostCommentImageRepositor
                 postCommentImage.deletedAt.isNull()
             )
             .fetchOne();
-
-        return Optional.ofNullable(image)
-            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT_IMAGE));
     }
+
 }
