@@ -88,34 +88,6 @@ public class AdminServiceImpl implements AdminService {
                 memberAuth.getAuthenticatedAt());
     }
 
-    @Override
-    @Transactional
-    public void changeStatus(Long adminId, Long qnaId, String apartCode, ProcessingStatus processingStatus) {
-        // 1. 관리자 조회
-        var admin = adminRepository.getById(adminId);
-
-        // 2. 민원 조회
-        var qna = qnaRepository.getById(qnaId);
-
-        // 3. 처리 상태 변경
-        qna.changeStatus(processingStatus);
-    }
-
-    @Override
-    @Transactional
-    public Long writeAnswer(Long adminId, Long qnaId, String apartCode, WriteQnaAnswerCommand command) {
-        // 1. 관리자 조회
-        var admin = adminRepository.getById(adminId);
-
-        // 2. 민원 조회
-        var qna = qnaRepository.getById(qnaId);
-
-        // 3. 답변 저장
-        var qnaAnswer = command.toEntity(qna, admin);
-
-        return qnaAnswerRepository.store(qnaAnswer).getId();
-    }
-
     private TokenInfo getTokenInfoByEmail(String email) {
         final String accessToken = jwtTokenProvider.createAccessToken(email);
         final Date accessExpiredAt = jwtTokenProvider.getExpirationByToken(accessToken);

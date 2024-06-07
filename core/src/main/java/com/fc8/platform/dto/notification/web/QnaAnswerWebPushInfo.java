@@ -1,6 +1,5 @@
 package com.fc8.platform.dto.notification.web;
 
-import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.enums.MessageType;
 import com.fc8.platform.domain.enums.NotificationType;
@@ -9,7 +8,6 @@ import lombok.Builder;
 
 @Builder
 public record QnaAnswerWebPushInfo(
-        Long id,
         Long memberId,
         String title,
         String content,
@@ -17,22 +15,17 @@ public record QnaAnswerWebPushInfo(
         MessageType messageType,
         QnaInfo qna
 ) {
-    public static QnaAnswerWebPushInfo fromEntity(Long id,
-                                                  String title,
-                                                  String content,
-                                                  NotificationType notificationType,
-                                                  MessageType messageType,
-                                                  Qna qna) {
+    public static QnaAnswerWebPushInfo fromQnaEntity(String title,
+                                                     String content,
+                                                     Qna qna) {
 
-        Member member = qna.getMember();
         return QnaAnswerWebPushInfo.builder()
-                .id(id)
-                .memberId(member.getId())
+                .memberId(qna.getMember().getId())
                 .title(title)
                 .content(content)
-                .notificationType(notificationType)
-                .messageType(messageType)
-                .qna(QnaInfo.fromEntity(qna, member, qna.getCategory()))
+                .notificationType(NotificationType.QNA)
+                .messageType(MessageType.INFO)
+                .qna(QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
                 .build();
     }
 }

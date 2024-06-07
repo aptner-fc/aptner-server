@@ -1,7 +1,9 @@
 package com.fc8.platform.mapper;
 
+import com.fc8.platform.dto.command.WriteQnaAnswerCommand;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
+import com.fc8.platform.dto.request.WriteQnaAnswerRequest;
 import com.fc8.platform.dto.request.WriteQnaRequest;
 import com.fc8.platform.dto.request.WriteQnaCommentRequest;
 import org.mapstruct.InjectionStrategy;
@@ -20,5 +22,7 @@ public interface QnaMapper {
     WriteQnaCommand of(WriteQnaRequest request);
 
     WriteQnaCommentCommand of(WriteQnaCommentRequest request);
+
+    WriteQnaAnswerCommand of (WriteQnaAnswerRequest request);
 
 }

@@ -40,7 +40,7 @@ public class Notification {
     private MessageType messageType;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false, columnDefinition = "BIGINT UNSIGNED comment '어드민 고유 번호'")
+    @JoinColumn(name = "admin_id", columnDefinition = "BIGINT UNSIGNED comment '어드민 고유 번호'")
     private Admin admin;
 
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL)

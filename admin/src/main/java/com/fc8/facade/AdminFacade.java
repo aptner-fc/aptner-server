@@ -1,21 +1,17 @@
 package com.fc8.facade;
 
-import com.fc8.platform.domain.enums.ProcessingStatus;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
-import com.fc8.platform.dto.command.WriteQnaAnswerCommand;
 import com.fc8.platform.dto.record.ApartInfo;
 import com.fc8.platform.dto.record.AuthMemberInfo;
 import com.fc8.platform.dto.record.SignInAdminInfo;
+import com.fc8.platform.dto.response.AuthMemberResponse;
 import com.fc8.platform.dto.response.SignInAdminResponse;
 import com.fc8.platform.dto.response.SignUpAdminResponse;
-import com.fc8.platform.dto.response.AuthMemberResponse;
-import com.fc8.platform.dto.response.WriteQnaAnswerResponse;
 import com.fc8.service.AdminService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
@@ -42,13 +38,4 @@ public class AdminFacade {
                 authMemberInfo.authenticatedAt());
     }
 
-    @Transactional
-    public WriteQnaAnswerResponse writeAnswer(Long adminId, Long qnaId, String apartCode, WriteQnaAnswerCommand command) {
-        adminService.changeStatus(adminId, qnaId, apartCode, command.getProcessingStatus());
-        return new WriteQnaAnswerResponse(adminService.writeAnswer(adminId, qnaId, apartCode, command));
-    }
-
-    public void changeStatus(Long adminId, Long qnaId, String apartCode, ProcessingStatus status) {
-        adminService.changeStatus(adminId, qnaId, apartCode, status);
-    }
 }
