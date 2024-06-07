@@ -2,6 +2,7 @@ package com.fc8.platform.common.utils;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.enums.CategoryType;
 import lombok.AccessLevel;
@@ -24,6 +25,12 @@ public class ValidateUtils {
     public static void validateChangePassword(String currentPassword, String newPassword, String confirmNewPassword) {
         validateMatchNewPassword(currentPassword, newPassword);
         validateConfirmPassword(newPassword, confirmNewPassword);
+    }
+
+    public static void validateInteriorPost(Category category) {
+        if (!Objects.equals(category.getCode(), AptnerProperties.CATEGORY_CODE_INTERIOR)) {
+            throw new InvalidParamException(ErrorCode.ONLY_CATEGORY_INTERIOR);
+        }
     }
 
     private static void validateMatchNewPassword(String currentPassword, String newPassword) {

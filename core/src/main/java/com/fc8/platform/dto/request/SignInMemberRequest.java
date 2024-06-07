@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 public class SignInMemberRequest {
 
     @NotBlank(message = "이메일이 누락되었습니다.")
-    @Email(message = "이메일 주소 형식이 잘못되었습니다.")
+//    @Email(message = "이메일 주소 형식이 잘못되었습니다.")
     @Schema(description = "로그인할 이메일", defaultValue = "jinyngg5@gmail.com")
     private String email;
 

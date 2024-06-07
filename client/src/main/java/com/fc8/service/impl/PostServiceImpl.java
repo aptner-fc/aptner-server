@@ -7,6 +7,9 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.apartment.ApartArea;
+import com.fc8.platform.domain.entity.category.Category;
+import com.fc8.platform.domain.entity.mapping.ApartAreaPostMapping;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostCommentImage;
 import com.fc8.platform.domain.entity.post.PostEmoji;
@@ -42,6 +45,8 @@ public class PostServiceImpl implements PostService {
     private final PostEmojiRepository postEmojiRepository;
     private final PostFileRepository postFileRepository;
     private final ApartRepository apartRepository;
+    private final ApartAreaRepository apartAreaRepository;
+    private final ApartAreaPostMappingRepository apartAreaPostMappingRepository;
     private final MemberRepository memberRepository;
     private final CategoryRepository categoryRepository;
     private final PostCommentImageRepository postCommentImageRepository;
@@ -58,9 +63,13 @@ public class PostServiceImpl implements PostService {
         // 2. 아파트 정보 조회
         var apart = apartRepository.getByCode(apartCode);
 
-        // 3. 글 저장
+        // 3-1. 글 저장
         var post = command.toEntity(category, member, apart);
         postRepository.store(post);
+
+        // 3-2. 인테리어 게시판일 경우, 추가 정보 저장
+        Long apartAreaId = command.getApartAreaId();
+        updateApartArea(apartAreaId, post, category);
 
         // 4. 썸네일 이미지 저장
         uploadPostThumbnailImage(post, image);
@@ -70,6 +79,24 @@ public class PostServiceImpl implements PostService {
         postFileRepository.storeAll(newPostFileList);
 
         return post.getId();
+    }
+
+    private void updateApartArea(Long apartAreaId, Post post, Category category) {
+        Optional.ofNullable(apartAreaId)
+                .map(apartAreaRepository::getById)
+                .ifPresent(apartArea -> {
+                    ValidateUtils.validateInteriorPost(category);
+
+                    ApartAreaPostMapping apartAreaPostMapping =
+                            apartAreaPostMappingRepository.findByPost(post)
+                                    .orElse(ApartAreaPostMapping.create(apartArea, post));
+
+                    if (apartAreaPostMappingRepository.existByPost(post)) {
+                        apartAreaPostMapping.changeApartArea(apartArea);
+                    }
+
+                    apartAreaPostMappingRepository.store(apartAreaPostMapping);
+                });
     }
 
     private List<PostFile> uploadPostFileList(Post post, List<MultipartFile> files) {
@@ -105,6 +132,9 @@ public class PostServiceImpl implements PostService {
         // 3. 게시글 수정
         post.changeCategory(category);
         post.modify(command.getTitle(), command.getContent());
+
+        Long apartAreaId = command.getApartAreaId();
+        updateApartArea(apartAreaId, post, category);
 
         return post.getId();
     }
@@ -216,10 +246,15 @@ public class PostServiceImpl implements PostService {
         // 2. 게시글 조회
         var post = postRepository.getPostWithCategoryByIdAndApartCode(memberId, postId, apartCode);
 
+        // 3. 인테리어 정보 조회
+        var apartArea = apartAreaPostMappingRepository.findByPost(post)
+                .map(ApartAreaPostMapping::getApartArea)
+                .orElse(null);
+
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
 
-        return PostDetailInfo.fromEntity(post, post.getMember(), post.getCategory(), emojiCount, emojiReaction);
+        return PostDetailInfo.fromEntityWithDomain(post, post.getMember(), post.getCategory(), apartArea, emojiCount, emojiReaction);
     }
 
     @Override
@@ -323,6 +358,15 @@ public class PostServiceImpl implements PostService {
         final List<PostFile> postFileList = postFileRepository.getPostFileListByPost(post);
 
         return postFileList.stream().map(PostFileInfo::fromEntity).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<ApartAreaSummary> loadApartArea(String apartCode) {
+        List<ApartArea> apartAreaList = apartAreaRepository.getAllByApartCode(apartCode);
+        return apartAreaList.stream()
+                .map(apartArea -> ApartAreaSummary.fromEntity(apartArea))
+                .toList();
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {
