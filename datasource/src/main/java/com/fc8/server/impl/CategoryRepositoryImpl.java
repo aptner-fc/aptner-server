@@ -49,6 +49,18 @@ public class CategoryRepositoryImpl implements CategoryRepository {
             .fetch();
     }
 
+    @Override
+    public List<Category> getAllChildCategoryByParentId(Long parentCategoryId) {
+        return jpaQueryFactory
+            .selectFrom(category)
+            .where(
+                isChildCategory(),
+                isUsed(),
+                eqParentId(parentCategoryId)
+            )
+            .fetch();
+    }
+
     private BooleanExpression isParentCategory() {
         return category.parent.isNull();
     }
@@ -59,6 +71,9 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
     private BooleanExpression eqCode(String code) {
         return category.code.eq(code);
+    }
+    private BooleanExpression eqParentId(Long parentCategoryId) {
+        return category.parent.id.eq(parentCategoryId);
     }
 
     private BooleanExpression isUsed() {
