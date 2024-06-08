@@ -39,4 +39,6 @@ public interface MemberService {
     MemberInfo unBlockMember(Long memberId, String apartCode, UnBlockMemberCommand command);
 
     Page<MemberSummary> loadBlockedMember(Long memberId, String apartCode, CustomPageCommand command);
+
+    Page<NotificationInfo> loadNotificationList(Long memberId, CustomPageCommand command);
 }

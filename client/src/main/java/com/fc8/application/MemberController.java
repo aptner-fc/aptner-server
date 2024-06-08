@@ -219,4 +219,15 @@ public class MemberController {
         return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadBlockedMember(currentMember.id(), apartCode, command));
     }
 
+    @Operation(summary = "알림 목록 조회 API")
+    @GetMapping(value = "/notification")
+    public ResponseEntity<CommonResponse<PageResponse<LoadNotificationListResponse>>> loadNotificationList(
+            @CheckCurrentMember CurrentMember currentMember,
+            CustomPageRequest request
+    ) {
+        var command = pageMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS, memberFacade.loadNotificationList(currentMember.id(), command));
+    }
+
+
 }
