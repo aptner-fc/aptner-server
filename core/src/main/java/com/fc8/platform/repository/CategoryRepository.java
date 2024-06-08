@@ -9,4 +9,6 @@ public interface CategoryRepository {
     Category getChildCategoryByCode(String code);
 
     List<Category> getParentCategory();
+
+    List<Category> getAllChildCategoryByParentId(Long parentCategoryId);
 }
