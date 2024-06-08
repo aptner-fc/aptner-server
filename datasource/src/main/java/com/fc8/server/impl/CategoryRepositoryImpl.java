@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -35,6 +36,17 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
         return Optional.ofNullable(childCategory)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY));
+    }
+
+    @Override
+    public List<Category> getParentCategory() {
+        return jpaQueryFactory
+            .selectFrom(category)
+            .where(
+                isParentCategory(),
+                isUsed()
+            )
+            .fetch();
     }
 
     private BooleanExpression isParentCategory() {
