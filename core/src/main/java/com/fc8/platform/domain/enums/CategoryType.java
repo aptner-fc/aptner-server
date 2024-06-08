@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public enum CategoryType {
-    POST, QNA, NOTICE, INTRO
+    POST, QNA, NOTICE, INTRO, DISCLOSURE
 }

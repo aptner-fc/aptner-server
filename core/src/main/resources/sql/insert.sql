@@ -270,7 +270,7 @@ INSERT INTO category (type, code, name, is_used)
 VALUES ('DISCLOSURE', 'DC006', '입찰정보', 1);
 
 UPDATE category c
-    JOIN (SELECT id FROM category WHERE code = 'NT000') parent
+    JOIN (SELECT id FROM category WHERE code = 'DC000') parent
 SET c.parent_id = parent.id
 WHERE c.code IN ('DC001', 'DC002', 'DC003', 'DC004', 'DC005', 'DC006');
 

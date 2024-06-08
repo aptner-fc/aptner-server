@@ -11,6 +11,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -37,6 +38,29 @@ public class CategoryRepositoryImpl implements CategoryRepository {
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY));
     }
 
+    @Override
+    public List<Category> getParentCategory() {
+        return jpaQueryFactory
+            .selectFrom(category)
+            .where(
+                isParentCategory(),
+                isUsed()
+            )
+            .fetch();
+    }
+
+    @Override
+    public List<Category> getAllChildCategoryByParentId(Long parentCategoryId) {
+        return jpaQueryFactory
+            .selectFrom(category)
+            .where(
+                isChildCategory(),
+                isUsed(),
+                eqParentId(parentCategoryId)
+            )
+            .fetch();
+    }
+
     private BooleanExpression isParentCategory() {
         return category.parent.isNull();
     }
@@ -47,6 +71,9 @@ public class CategoryRepositoryImpl implements CategoryRepository {
 
     private BooleanExpression eqCode(String code) {
         return category.code.eq(code);
+    }
+    private BooleanExpression eqParentId(Long parentCategoryId) {
+        return category.parent.id.eq(parentCategoryId);
     }
 
     private BooleanExpression isUsed() {
