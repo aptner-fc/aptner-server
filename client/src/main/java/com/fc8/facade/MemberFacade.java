@@ -103,4 +103,10 @@ public class MemberFacade {
         final Page<MemberSummary> myList = memberService.loadBlockedMember(memberId, apartCode, command);
         return new PageResponse<>(myList, new LoadBlockedMemberResponse(myList.getContent()));
     }
+
+    public PageResponse<LoadNotificationListResponse> loadNotificationList(Long memberId, CustomPageCommand command) {
+        final Page<NotificationInfo> myList = memberService.loadNotificationList(memberId, command);
+        return new PageResponse<>(myList, new LoadNotificationListResponse(myList.getContent()));
+    }
+
 }

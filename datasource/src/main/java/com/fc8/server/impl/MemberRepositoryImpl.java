@@ -5,9 +5,12 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.mapping.QApartMemberMapping;
+import com.fc8.platform.domain.entity.mapping.QNotificationMemberMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.member.QMemberBlock;
+import com.fc8.platform.domain.entity.notification.Notification;
+import com.fc8.platform.domain.entity.notification.QNotification;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.PostComment;
 import com.fc8.platform.domain.entity.post.QPost;
@@ -16,9 +19,11 @@ import com.fc8.platform.domain.entity.qna.QQna;
 import com.fc8.platform.domain.entity.qna.QQnaComment;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaComment;
+import com.fc8.platform.domain.enums.NotificationStatus;
 import com.fc8.platform.dto.record.LoadMyArticleInfo;
 import com.fc8.platform.dto.record.LoadMyCommentInfo;
 import com.fc8.platform.dto.record.MemberSummary;
+import com.fc8.platform.dto.record.NotificationInfo;
 import com.fc8.platform.repository.MemberRepository;
 import com.fc8.server.MemberJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -52,6 +57,8 @@ public class MemberRepositoryImpl implements MemberRepository {
     QPostComment postComment = QPostComment.postComment;
     QQna qna = QQna.qna;
     QCategory category = QCategory.category;
+    QNotification notification = QNotification.notification;
+    QNotificationMemberMapping notificationMemberMapping = QNotificationMemberMapping.notificationMemberMapping;
 
     @Override
     public Member getByEmail(String email) {
@@ -285,6 +292,32 @@ public class MemberRepositoryImpl implements MemberRepository {
         return PageableExecutionUtils.getPage(
                 memberList.stream()
                         .map(MemberSummary::fromEntity)
+                        .toList(), pageable, count::fetchOne);
+    }
+
+    @Override
+    public Page<NotificationInfo> getAllNotificationByMember(Member activeMember, Pageable pageable) {
+        List<Notification> notificationList = jpaQueryFactory
+                .selectFrom(notification)
+                .innerJoin(notificationMemberMapping).on(notification.id.eq(notificationMemberMapping.notification.id))
+                .where(
+                        notificationMemberMapping.member.eq(activeMember),
+                        notificationMemberMapping.status.ne(NotificationStatus.DELETED)
+                )
+                .fetch();
+
+        JPAQuery<Long> count = jpaQueryFactory
+                .select(notification.count())
+                .from(notification)
+                .innerJoin(notificationMemberMapping).on(notification.id.eq(notificationMemberMapping.notification.id))
+                .where(
+                        notificationMemberMapping.member.eq(activeMember),
+                        notificationMemberMapping.status.ne(NotificationStatus.DELETED)
+                );
+
+        return PageableExecutionUtils.getPage(
+                notificationList.stream()
+                        .map(NotificationInfo::fromEntity)
                         .toList(), pageable, count::fetchOne);
     }
 
