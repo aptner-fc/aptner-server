@@ -275,6 +275,30 @@ SET c.parent_id = parent.id
 WHERE c.code IN ('DC001', 'DC002', 'DC003', 'DC004', 'DC005', 'DC006');
 
 
+
 INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 28, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/28.png');
 INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 31, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/31.png');
 INSERT INTO apart_area (apart_id, area, is_used, image_path) VALUES (1, 34, 1, 's3://elasticbeanstalk-ap-northeast-2-730335234157/apart/34.png');
+
+
+
+-- PT000 (소통게시판) 중요글 작성 예제
+INSERT INTO pinned_post (id, category_id, title, content, admin_id, deleted_at, created_at, apart_id)
+VALUES (1, 1, '소통 게시판 중요글 알림', '테스트', 1, NULL, now(), 1);
+
+-- 회원이 작성한 댓글 삽입
+INSERT INTO pinned_post_comment (pinned_post_id, member_id, admin_id, parent_id, content, deleted_at, created_at, updated_at)
+VALUES (1, 1, NULL, NULL, '회원이 작성한 댓글 내용입니다.', NULL, NOW(), NOW());
+
+-- 관리자가 작성한 댓글 삽입
+INSERT INTO pinned_post_comment (pinned_post_id, member_id, admin_id, parent_id, content, deleted_at, created_at, updated_at)
+VALUES (1, NULL, 1, NULL, '관리자가 작성한 댓글 내용입니다.', NULL, NOW(), NOW());
+
+-- 회원이 작성한 대댓글 삽입 (부모 댓글 ID가 2인 경우)
+INSERT INTO pinned_post_comment (pinned_post_id, member_id, admin_id, parent_id, content, deleted_at, created_at, updated_at)
+VALUES (1, 1, NULL, 2, '회원이 작성한 대댓글 내용입니다.', NULL, NOW(), NOW());
+
+INSERT INTO pinned_post_comment_image (pinned_post_comment_id, seq, image_path, deleted_at)
+VALUES (1, 1, 'https://elasticbeanstalk-ap-northeast-2-730335234157.s3.ap-northeast-2.amazonaws.com/apart/28.png', NULL);
+
+
