@@ -107,6 +107,9 @@ public enum ErrorCode {
     /**
      * FILE
      */
+    NOT_FOUND_FILE(HttpStatus.BAD_REQUEST, "파일을 찾을 수 없습니다"),
+    INVALID_FILE_NAME_OR_EXTENSIONS(HttpStatus.BAD_REQUEST, "파일 이름 또는 확장자가 잘못되었습니다."),
+    INVALID_EXTENSIONS(HttpStatus.BAD_REQUEST, "파일의 확장자가 올바르지 않습니다."),
     EXCEEDED_FILE_SIZE(HttpStatus.BAD_REQUEST, "파일의 허용 용량을 초과했습니다."),
     EXCEEDED_FILE_COUNT(HttpStatus.BAD_REQUEST, "파일 첨부 허용 개수를 초과했습니다."),
 
