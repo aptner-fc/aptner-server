@@ -92,6 +92,7 @@ public enum ErrorCode {
     NOT_FOUND_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "댓글 이미지를 찾을 수 없습니다."),
     NOT_POST_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
     NOT_POST_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자가 아닙니다."),
+    NOT_FOUND_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자를 찾을 수 없습니다."),
     ALREADY_DELETED_POST(HttpStatus.BAD_REQUEST, "이미 삭제된 게시글입니다."),
     ALREADY_DELETED_POST_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
     ALREADY_DELETED_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글 이미지입니다."),

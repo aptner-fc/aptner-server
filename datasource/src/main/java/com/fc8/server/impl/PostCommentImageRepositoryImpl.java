@@ -26,7 +26,7 @@ public class PostCommentImageRepositoryImpl implements PostCommentImageRepositor
     }
 
     @Override
-    public PostCommentImage getImageByQnaCommentId(Long commentId) {
+    public PostCommentImage getByPostCommentId(Long commentId) {
         return jpaQueryFactory
             .selectFrom(postCommentImage)
             .innerJoin(postCommentImage.postComment, postComment)

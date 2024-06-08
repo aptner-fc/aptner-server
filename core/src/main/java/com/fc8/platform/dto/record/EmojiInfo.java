@@ -2,6 +2,7 @@ package com.fc8.platform.dto.record;
 
 import com.fc8.platform.domain.entity.disclosure.DisclosureEmoji;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
+import com.fc8.platform.domain.entity.pinned.PinnedPostEmoji;
 import com.fc8.platform.domain.entity.post.PostEmoji;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.enums.EmojiType;
@@ -24,5 +25,9 @@ public record EmojiInfo(
 
     public static EmojiInfo fromDisclosureEmojiEntity(DisclosureEmoji disclosureEmoji) {
         return new EmojiInfo(disclosureEmoji.getId(), disclosureEmoji.getEmoji());
+    }
+
+    public static EmojiInfo fromPinnedPostEmojiEntity(PinnedPostEmoji pinnedPostEmoji) {
+        return new EmojiInfo(pinnedPostEmoji.getId(), pinnedPostEmoji.getEmoji());
     }
 }

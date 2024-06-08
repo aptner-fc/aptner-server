@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class LoadUnifiedListResponse {
 
-//    List<PinnedPost> pinnedPostList;
+//    List<PinnedPostSummary> pinnedPostList;
     List<QnaInfo> qnaList;
     List<PostInfo> postList;
     List<NoticeInfo> noticeList;
