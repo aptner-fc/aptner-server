@@ -1,5 +1,6 @@
 package com.fc8.platform.dto.record;
 
+import com.fc8.platform.domain.entity.pinned.PinnedPostFile;
 import com.fc8.platform.domain.entity.post.PostFile;
 
 public record PostFileInfo(
@@ -14,6 +15,15 @@ public record PostFileInfo(
             postFile.getName(),
             postFile.getPath(),
             postFile.getSize()
+        );
+    }
+
+    public static PostFileInfo fromEntity(PinnedPostFile pinnedPostFile) {
+        return new PostFileInfo(
+                pinnedPostFile.getId(),
+                pinnedPostFile.getName(),
+                pinnedPostFile.getPath(),
+                pinnedPostFile.getSize()
         );
     }
 }

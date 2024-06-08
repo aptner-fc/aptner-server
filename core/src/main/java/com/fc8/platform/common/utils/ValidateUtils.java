@@ -8,6 +8,7 @@ import com.fc8.platform.domain.enums.CategoryType;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.StringUtils;
 
 import java.util.Objects;
 
@@ -45,6 +46,11 @@ public class ValidateUtils {
         }
     }
 
+    public static void validateParentCategoryCode(String categoryCode, Category category) {
+        isParentCategory(category);
+        validateCategoryCode(categoryCode, category);
+    }
+
     public static void validateChildCategoryType(CategoryType type, Category category) {
         isChildCategory(category);
         validateCategoryType(type, category);
@@ -56,8 +62,20 @@ public class ValidateUtils {
         }
     }
 
+    private static void isParentCategory(Category category) {
+        if (category.getParent() != null) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
+        }
+    }
+
     private static void validateCategoryType(CategoryType type, Category category) {
         if (type == null || !type.equals(category.getType())) {
+            throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
+        }
+    }
+
+    private static void validateCategoryCode(String code, Category category) {
+        if (!StringUtils.hasText(code) || !code.equals(category.getCode())) {
             throw new InvalidParamException(ErrorCode.NOT_FOUND_CATEGORY);
         }
     }
