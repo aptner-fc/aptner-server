@@ -5,6 +5,7 @@ import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.dto.record.LoadMyArticleInfo;
 import com.fc8.platform.dto.record.LoadMyCommentInfo;
 import com.fc8.platform.dto.record.MemberSummary;
+import com.fc8.platform.dto.record.NotificationInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -35,5 +36,7 @@ public interface MemberRepository {
     Member getByApartCodeAndEmail(String apartCode, String email);
 
     Page<MemberSummary> getAllBlockedMemberByMemberAndApartCode(Member member, String apartCode, Pageable pageable);
+
+    Page<NotificationInfo> getAllNotificationByMember(Member member, Pageable pageable);
 
 }

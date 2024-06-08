@@ -326,8 +326,21 @@ public class MemberServiceImpl implements MemberService {
         // 2. 회원 조회
         var member = memberRepository.getActiveMemberById(memberId);
 
-        // 3. 차단 회원 리스트 조회
+        // 3. 차단 회원 목록 조회
         return memberRepository.getAllBlockedMemberByMemberAndApartCode(member, apartCode, pageable);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Page<NotificationInfo> loadNotificationList(Long memberId, CustomPageCommand command) {
+        // 1. 페이지 생성
+        Pageable pageable = PageRequest.of(command.page() - 1, command.size());
+
+        // 2. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 3. 알림 목록 조회
+        return memberRepository.getAllNotificationByMember(member, pageable);
     }
 
     private void checkBlockOrUnBlockMySelf(Long memberId, Long blockedMemberId) {
