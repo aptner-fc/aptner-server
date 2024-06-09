@@ -156,6 +156,11 @@ public class QnaServiceImpl implements QnaService {
         // 2. 게시글 조회
         var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
+        // 3. 비밀글일 경우 본인 작성글 여부
+        if (!memberId.equals(qna.getMember().getId()) && qna.isPrivate()) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_WRITER);
+        }
+
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
 
