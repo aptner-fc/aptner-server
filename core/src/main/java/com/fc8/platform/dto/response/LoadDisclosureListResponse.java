@@ -9,7 +9,7 @@ import java.util.List;
 @Getter
 public class LoadDisclosureListResponse {
 
-    List<DisclosureInfo> disclosureInfoList;
+    private final List<DisclosureInfo> disclosureInfoList;
 
     private final List<PinnedPostSummary> pinnedPosts;
 

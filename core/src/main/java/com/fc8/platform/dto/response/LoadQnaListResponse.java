@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 public class LoadQnaListResponse {
 
-    List<QnaInfo> qnas;
-    List<PinnedPostSummary> pinnedQnas;
+    private final List<QnaInfo> qnas;
+    private final List<PinnedPostSummary> pinnedQnas;
 
     public LoadQnaListResponse(List<QnaInfo> qnas, List<PinnedPostSummary> pinnedQnas) {
         this.qnas = qnas;

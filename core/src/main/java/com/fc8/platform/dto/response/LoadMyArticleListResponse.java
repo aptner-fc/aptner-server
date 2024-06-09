@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class LoadMyArticleListResponse {
 
-    List<LoadMyArticleInfo> myArticleList;
+    private final List<LoadMyArticleInfo> myArticleList;
 
     public LoadMyArticleListResponse(List<LoadMyArticleInfo> myArticleList) {
         this.myArticleList = myArticleList;

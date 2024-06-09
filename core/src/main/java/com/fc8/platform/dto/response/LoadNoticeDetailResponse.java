@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 public class LoadNoticeDetailResponse {
 
-    NoticeDetailInfo noticeDetailInfo;
-    List<NoticeFileInfo> noticeFileInfoList;
+    private final NoticeDetailInfo noticeDetailInfo;
+    private final List<NoticeFileInfo> noticeFileInfoList;
 
     public LoadNoticeDetailResponse(NoticeDetailInfo noticeDetailInfo, List<NoticeFileInfo> noticeFileInfoList) {
         this.noticeDetailInfo = noticeDetailInfo;
