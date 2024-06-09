@@ -96,6 +96,24 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
         return PageableExecutionUtils.getPage(disclosureList, pageable, count::fetchOne);
     }
 
+    @Override
+    public List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount) {
+        return jpaQueryFactory
+            .selectFrom(disclosure)
+            .innerJoin(category).on(disclosure.category.id.eq(category.id))
+            .where(
+                // 1. 삭제된 포스트
+                isNotDeleted(disclosure),
+                // 2. 아파트 코드
+                eqApartCode(disclosure, apartCode),
+                // 4. 검색어
+                containsSearch(disclosure, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .limit(5 - pinnedDisclosureCount)
+            .orderBy(disclosure.createdAt.desc())
+            .fetch();
+    }
+
     private BooleanExpression eqId(QDisclosure disclosure, Long disclosureId) {
         return disclosure.id.eq(disclosureId);
     }

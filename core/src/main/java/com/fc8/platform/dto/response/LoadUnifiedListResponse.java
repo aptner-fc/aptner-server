@@ -8,15 +8,17 @@ import java.util.List;
 @Getter
 public class LoadUnifiedListResponse {
 
-//    List<PinnedPostSummary> pinnedPostList;
-    List<QnaInfo> qnaList;
-    List<PostInfo> postList;
+    List<PinnedPostQueryInfo> pinnedPostList;
     List<NoticeInfo> noticeList;
-//    List<의무공개Info> 의무공개List;
+    List<DisclosureInfo> disclosureList;
+    List<PostInfo> postList;
+    List<QnaInfo> qnaList;
 
-    public LoadUnifiedListResponse(List<QnaInfo> qnaList, List<PostInfo> postList, List<NoticeInfo> noticeList) {
-        this.qnaList = qnaList;
-        this.postList = postList;
+    public LoadUnifiedListResponse(List<PinnedPostQueryInfo> pinnedPostList, List<NoticeInfo> noticeList, List<DisclosureInfo> disclosureList, List<PostInfo> postList, List<QnaInfo> qnaList) {
+        this.pinnedPostList = pinnedPostList;
         this.noticeList = noticeList;
+        this.disclosureList = disclosureList;
+        this.postList = postList;
+        this.qnaList = qnaList;
     }
 }
