@@ -1,9 +1,11 @@
 package com.fc8.facade;
 
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.DisclosureService;
+import com.fc8.service.PinnedPostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -18,6 +20,7 @@ import java.util.List;
 public class DisclosureFacade {
 
     private final DisclosureService disclosureService;
+    private final PinnedPostService pinnedPostService;
 
     @Transactional(readOnly = true)
     public LoadDisclosureDetailResponse loadDisclosureDetail(Long memberId, Long disclosureId, String apartCode) {
@@ -29,7 +32,9 @@ public class DisclosureFacade {
     @Transactional(readOnly = true)
     public PageResponse<LoadDisclosureListResponse> loadDisclosureList(Long memberId, String apartCode, SearchPageCommand command) {
         final Page<DisclosureInfo> disclosureList = disclosureService.loadDisclosureList(memberId, apartCode, command);
-        return new PageResponse<>(disclosureList, new LoadDisclosureListResponse(disclosureList.getContent()));
+        // 2. 상단 고정 게시물(중요글) 조회
+        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
+        return new PageResponse<>(disclosureList, new LoadDisclosureListResponse(disclosureList.getContent(), pinnedPosts));
     }
 
     public PageResponse<LoadDisclosureCommentListResponse> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command) {

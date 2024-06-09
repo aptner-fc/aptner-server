@@ -25,4 +25,6 @@ public interface PinnedPostService {
     EmojiInfo registerEmoji(Long memberId, Long pinnedPostId, String apartCode, EmojiType emoji);
 
     void deleteEmoji(Long memberId, Long pinnedPostId, String apartCode, EmojiType emoji);
+
+    List<PinnedPostSummary> loadPinnedPostList(String apartCode, String categoryCode);
 }

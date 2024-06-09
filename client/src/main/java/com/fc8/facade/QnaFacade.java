@@ -1,10 +1,12 @@
 package com.fc8.facade;
 
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
+import com.fc8.service.PinnedPostService;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.util.Optional;
 public class QnaFacade {
 
     private final QnaService qnaService;
+    private final PinnedPostService pinnedPostService;
 
     public WriteQnaResponse writeQna(Long memberId, String apartCode, WriteQnaCommand command, List<MultipartFile> files) {
         return new WriteQnaResponse(qnaService.writeQna(memberId, apartCode, command, files));
@@ -45,8 +48,9 @@ public class QnaFacade {
     @Transactional(readOnly = true)
     public PageResponse<LoadQnaListResponse> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
         final Page<QnaInfo> qnaList = qnaService.loadQnaList(memberId, apartCode, command);
-        // 상단 고정 게시물
-        return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), null));
+        // 2. 상단 고정 게시물(중요글) 조회
+        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_QNA);
+        return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), pinnedPosts));
     }
 
     public WriteQnaCommentResponse writeComment(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image) {

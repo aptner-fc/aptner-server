@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.pinned.PinnedPost;
 import com.fc8.platform.domain.entity.pinned.PinnedPostCommentImage;
 import com.fc8.platform.domain.entity.pinned.PinnedPostEmoji;
 import com.fc8.platform.domain.entity.pinned.PinnedPostFile;
@@ -207,4 +208,14 @@ public class PinnedPostServiceImpl implements PinnedPostService {
         // 4. 삭제
         pinnedPostEmojiRepository.delete(pinnedPostEmoji);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<PinnedPostSummary> loadPinnedPostList(String apartCode, String categoryCode) {
+        List<PinnedPost> pinnedPosts = pinnedPostRepository.getAllByApartCodeAndCategoryCode(apartCode, categoryCode);
+        return pinnedPosts.stream()
+                .map(pinnedPost -> PinnedPostSummary.fromEntity(pinnedPost, pinnedPost.getAdmin(), pinnedPost.getCategory()))
+                .toList();
+    }
+
 }

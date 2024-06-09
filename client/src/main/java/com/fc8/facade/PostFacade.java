@@ -1,10 +1,12 @@
 package com.fc8.facade;
 
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WritePostCommand;
 import com.fc8.platform.dto.command.WritePostCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
+import com.fc8.service.PinnedPostService;
 import com.fc8.service.PostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,7 +24,7 @@ import java.util.Optional;
 public class PostFacade {
 
     private final PostService postService;
-//    private final PinnedPostService pinnedPostService;
+    private final PinnedPostService pinnedPostService;
 
     public WritePostResponse writePost(Long memberId, String apartCode, WritePostCommand command, MultipartFile image, List<MultipartFile> files) {
         return new WritePostResponse(postService.writePost(memberId, apartCode, command, image, files));
@@ -37,9 +39,10 @@ public class PostFacade {
         // 1. 소통 게시판 게시물 조회
         final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, command);
 
-        // 2. 상단 고정 게시물 조회
+        // 2. 상단 고정 게시물(중요글) 조회
+        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_POST);
 
-        return new PageResponse<>(posts, new LoadPostListResponse(posts.getContent(), null));
+        return new PageResponse<>(posts, new LoadPostListResponse(posts.getContent(), pinnedPosts));
     }
 
     public WritePostCommentResponse writeComment(Long memberId, Long postId, String apartCode, WritePostCommentCommand command, MultipartFile image) {
