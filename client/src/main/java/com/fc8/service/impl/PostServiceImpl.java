@@ -373,10 +373,10 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount, String categoryCode) {
+    public List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
         if (pinnedPostCount >= 5) return null;
 
-        List<Post> postList = postRepository.getPostListByKeyword(memberId, apartCode, keyword, pinnedPostCount, categoryCode);
+        List<Post> postList = postRepository.getPostListByKeyword(memberId, apartCode, keyword, pinnedPostCount);
 
         return postList.stream()
             .map(post -> SearchPostInfo.fromPost(post, post.getMember(), post.getCategory()))

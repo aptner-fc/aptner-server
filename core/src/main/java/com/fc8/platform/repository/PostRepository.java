@@ -24,5 +24,5 @@ public interface PostRepository {
 
     List<Post> getAllByIdsAndMember(List<Long> postIds, Member member);
 
-    List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount, String categoryCode);
+    List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount);
 }

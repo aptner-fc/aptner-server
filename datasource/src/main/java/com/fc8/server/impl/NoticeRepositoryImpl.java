@@ -94,17 +94,11 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     }
 
     @Override
-    public List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount, String categoryCode) {
+    public List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount) {
         return jpaQueryFactory
             .selectFrom(notice)
-            .innerJoin(category).on(notice.category.eq(category))
             .innerJoin(apart).on(notice.apart.eq(apart))
             .where(
-                // 카테고리 체크
-                category.code.eq(categoryCode),
-                category.isUsed,
-                category.parent.isNull(),
-
                 // 아파트 체크
                 apart.code.eq(apartCode),
 

@@ -29,11 +29,11 @@ public class SearchFacade {
         List<SearchPostInfo> pinnedPostList = pinnedPostService.searchPinnedPostList(apartCode, keyword, "PT000");
         List<SearchQnaInfo> pinnedQnaList = pinnedPostService.searchPinnedQnaList(apartCode, keyword, "QA000");
 
-        // 2. 게시글마다 5 - 중요글 개수만큼 게시글 조회
-        List<SearchNoticeInfo> noticeList = noticeService.searchNoticeList(apartCode, keyword, pinnedNoticeList.size(), "NT000");
-        List<SearchDisclosureInfo> disclosureList = disclosureService.searchDisclosureList(apartCode, keyword, pinnedDisclosureList.size(), "DC000");
-        List<SearchPostInfo> postList = postService.searchPostList(memberId, apartCode, keyword, pinnedPostList.size(), "PT000");
-        List<SearchQnaInfo> qnaList = qnaService.searchQnaList(memberId, apartCode, keyword, pinnedQnaList.size(), "QA000");
+        // 2. 게시글 조회
+        List<SearchNoticeInfo> noticeList = noticeService.searchNoticeList(apartCode, keyword, pinnedNoticeList.size());
+        List<SearchDisclosureInfo> disclosureList = disclosureService.searchDisclosureList(apartCode, keyword, pinnedDisclosureList.size());
+        List<SearchPostInfo> postList = postService.searchPostList(memberId, apartCode, keyword, pinnedPostList.size());
+        List<SearchQnaInfo> qnaList = qnaService.searchQnaList(memberId, apartCode, keyword, pinnedQnaList.size());
 
         return new LoadUnifiedListResponse(
             pinnedNoticeList, noticeList, pinnedDisclosureList, disclosureList, pinnedPostList, postList, pinnedQnaList, qnaList);

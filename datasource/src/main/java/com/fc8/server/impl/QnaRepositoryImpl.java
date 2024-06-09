@@ -142,7 +142,7 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public List<Qna> getQnaListByKeyword(Long memberId, String apartCode, String keyword, int pinnedQnaCount, String categoryCode) {
+    public List<Qna> getQnaListByKeyword(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
@@ -151,15 +151,9 @@ public class QnaRepositoryImpl implements QnaRepository {
 
         return jpaQueryFactory
             .selectFrom(qna)
-            .innerJoin(category).on(qna.category.id.eq(category.id))
             .innerJoin(member).on(qna.member.id.eq(member.id))
             .innerJoin(apart).on(qna.apart.eq(apart))
             .where(
-                // 카테고리 체크
-                category.code.eq(categoryCode),
-                category.isUsed,
-                category.parent.isNull(),
-
                 // 아파트 체크
                 apart.code.eq(apartCode),
 

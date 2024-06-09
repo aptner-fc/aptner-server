@@ -21,22 +21,22 @@ public class LoadUnifiedListResponse {
     List<SearchQnaInfo> qnaList;
 
     public LoadUnifiedListResponse(
-        List<SearchNoticeInfo> noticeList,
         List<SearchNoticeInfo> pinnedNoticeList,
-        List<SearchDisclosureInfo> disclosureList,
+        List<SearchNoticeInfo> noticeList,
         List<SearchDisclosureInfo> pinnedDisclosureList,
-        List<SearchPostInfo> postList,
+        List<SearchDisclosureInfo> disclosureList,
         List<SearchPostInfo> pinnedPostList,
-        List<SearchQnaInfo> qnaList,
-        List<SearchQnaInfo> pinnedQnaList
+        List<SearchPostInfo> postList,
+        List<SearchQnaInfo> pinnedQnaList,
+        List<SearchQnaInfo> qnaList
     ) {
-        this.noticeList = noticeList;
         this.pinnedNoticeList = pinnedNoticeList;
-        this.disclosureList = disclosureList;
+        this.noticeList = noticeList;
         this.pinnedDisclosureList = pinnedDisclosureList;
-        this.postList = postList;
+        this.disclosureList = disclosureList;
         this.pinnedPostList = pinnedPostList;
-        this.qnaList = qnaList;
+        this.postList = postList;
         this.pinnedQnaList = pinnedQnaList;
+        this.qnaList = qnaList;
     }
 }

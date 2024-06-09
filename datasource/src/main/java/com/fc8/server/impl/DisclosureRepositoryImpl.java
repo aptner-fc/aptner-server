@@ -94,17 +94,11 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
     }
 
     @Override
-    public List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount, String categoryCode) {
+    public List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount) {
         return jpaQueryFactory
             .selectFrom(disclosure)
-            .innerJoin(category).on(disclosure.category.eq(category))
             .innerJoin(apart).on(disclosure.apart.eq(apart))
             .where(
-                // 카테고리 체크
-                category.code.eq(categoryCode),
-                category.isUsed,
-                category.parent.isNull(),
-
                 // 아파트 체크
                 apart.code.eq(apartCode),
 

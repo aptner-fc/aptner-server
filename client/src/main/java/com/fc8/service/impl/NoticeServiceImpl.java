@@ -119,10 +119,10 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public List<SearchNoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount, String categoryCode) {
+    public List<SearchNoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount) {
         if (pinnedNoticeCount >= 5) return null;
 
-        List<Notice> noticeList = noticeRepository.getNoticeListByKeyword(apartCode, keyword, pinnedNoticeCount, categoryCode);
+        List<Notice> noticeList = noticeRepository.getNoticeListByKeyword(apartCode, keyword, pinnedNoticeCount);
 
         return noticeList.stream()
             .map(notice -> SearchNoticeInfo.fromNotice(notice, notice.getAdmin(), notice.getCategory()))

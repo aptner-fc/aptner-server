@@ -175,7 +175,7 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount, String categoryCode) {
+    public List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
@@ -184,15 +184,9 @@ public class PostRepositoryImpl implements PostRepository {
 
         return jpaQueryFactory
             .selectFrom(post)
-            .innerJoin(category).on(post.category.id.eq(category.id))
             .innerJoin(member).on(post.member.id.eq(member.id))
             .innerJoin(apart).on(post.apart.eq(apart))
             .where(
-                // 카테고리 체크
-                category.code.eq(categoryCode),
-                category.isUsed,
-                category.parent.isNull(),
-
                 // 아파트 체크
                 apart.code.eq(apartCode),
 
