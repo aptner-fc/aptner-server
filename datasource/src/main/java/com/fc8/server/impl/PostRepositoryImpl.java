@@ -2,8 +2,10 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.apartment.QApartArea;
 import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
+import com.fc8.platform.domain.entity.mapping.QApartAreaPostMapping;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.member.QMemberBlock;
@@ -33,6 +35,8 @@ public class PostRepositoryImpl implements PostRepository {
     private final PostJpaRepository postJpaRepository;
 
     QPost post = QPost.post;
+    QApartArea apartArea = QApartArea.apartArea;
+    QApartAreaPostMapping apartAreaPostMapping = QApartAreaPostMapping.apartAreaPostMapping;
     QMember member = QMember.member;
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
@@ -44,7 +48,7 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+    public Page<Post> getPostListByApartCodeAndApartAreaId(Long memberId, String apartCode, Long apartAreaId, Pageable pageable, String search, SearchType type, String categoryCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
@@ -55,6 +59,8 @@ public class PostRepositoryImpl implements PostRepository {
                 .selectFrom(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
                 .innerJoin(member).on(post.member.id.eq(member.id))
+                .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
+                .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
                 .where(
                         // 1. 삭제된 포스트
                         isNotDeleted(post),
@@ -65,7 +71,9 @@ public class PostRepositoryImpl implements PostRepository {
                         // 4. 카테고리
                         eqCategoryCode(category, categoryCode),
                         // 5. 검색어
-                        containsSearch(post, member, search, type)
+                        containsSearch(post, member, search, type),
+                        // 6. 평수 조회
+                        containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -77,6 +85,8 @@ public class PostRepositoryImpl implements PostRepository {
                 .from(post)
                 .innerJoin(category).on(post.category.id.eq(category.id))
                 .innerJoin(member).on(post.member.id.eq(member.id))
+                .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
+                .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
                 .where(
                         // 1. 삭제된 포스트
                         isNotDeleted(post),
@@ -87,7 +97,9 @@ public class PostRepositoryImpl implements PostRepository {
                         // 4. 카테고리
                         eqCategoryCode(category, categoryCode),
                         // 5. 검색어
-                        containsSearch(post, member, search, type)
+                        containsSearch(post, member, search, type),
+                        // 6. 평수 조회
+                        containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
                 );
 
         return PageableExecutionUtils.getPage(postList, pageable, count::fetchOne);
@@ -247,6 +259,12 @@ public class PostRepositoryImpl implements PostRepository {
             case TITLE_AND_CONTENT -> post.title.contains(search).or(post.content.contains(search));
             case WRITER -> member.name.contains(search).or(member.nickname.contains(search));
         };
+    }
+
+    private BooleanExpression containsApartArea(QApartArea apartArea, Long apartAreaId) {
+        return Optional.ofNullable(apartAreaId)
+                .map(apartArea.id::eq)
+                .orElse(null);
     }
 
     private BooleanExpression eqCategoryCode(QCategory category, String categoryCode) {
