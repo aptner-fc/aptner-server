@@ -3,6 +3,7 @@ package com.fc8.platform.repository;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.PostInfo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -24,4 +25,5 @@ public interface PostRepository {
 
     List<Post> getAllByIdsAndMember(List<Long> postIds, Member member);
 
+    List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount);
 }

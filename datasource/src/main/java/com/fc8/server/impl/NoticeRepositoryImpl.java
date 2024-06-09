@@ -93,6 +93,24 @@ public class NoticeRepositoryImpl implements NoticeRepository {
         return PageableExecutionUtils.getPage(noticeList, pageable, count::fetchOne);
     }
 
+    @Override
+    public List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount) {
+        return jpaQueryFactory
+            .selectFrom(notice)
+            .innerJoin(category).on(notice.category.id.eq(category.id))
+            .where(
+                // 1. 삭제된 포스트
+                isNotDeleted(notice),
+                // 2. 아파트 코드
+                eqApartCode(notice, apartCode),
+                // 4. 검색어
+                containsSearch(notice, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .limit(5 - pinnedNoticeCount)
+            .orderBy(notice.createdAt.desc())
+            .fetch();
+    }
+
     private BooleanExpression eqId(QNotice notice, Long noticeId) {
         return notice.id.eq(noticeId);
     }

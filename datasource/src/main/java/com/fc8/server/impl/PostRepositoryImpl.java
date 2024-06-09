@@ -9,6 +9,7 @@ import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.QPost;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.PostInfo;
 import com.fc8.platform.repository.PostRepository;
 import com.fc8.server.PostJpaRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -44,18 +45,10 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public Page<Post> getPostListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
         // 해당 회원이 차단한 회원의 목록
-        List<Long> blockedMemberIds = jpaQueryFactory
-                .select(memberBlock.blocked.id)
-                .from(memberBlock)
-                .where(memberBlock.member.id.eq(memberId))
-                .fetch();
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
         // 해당 회원이 차단당한 회원의 목록
-        List<Long> blockingMemberIds = jpaQueryFactory
-                .select(memberBlock.member.id)
-                .from(memberBlock)
-                .where(memberBlock.blocked.id.eq(memberId))
-                .fetch();
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
 
         List<Post> postList = jpaQueryFactory
                 .selectFrom(post)
@@ -137,18 +130,10 @@ public class PostRepositoryImpl implements PostRepository {
     @Override
     public Post getPostWithCategoryByIdAndApartCode(Long memberId, Long postId, String apartCode) {
         // 해당 회원이 차단한 회원의 목록
-        List<Long> blockedMemberIds = jpaQueryFactory
-                .select(memberBlock.blocked.id)
-                .from(memberBlock)
-                .where(memberBlock.member.id.eq(memberId))
-                .fetch();
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
         // 해당 회원이 차단당한 회원의 목록
-        List<Long> blockingMemberIds = jpaQueryFactory
-                .select(memberBlock.member.id)
-                .from(memberBlock)
-                .where(memberBlock.blocked.id.eq(memberId))
-                .fetch();
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
 
         Post activePost = jpaQueryFactory
                 .selectFrom(post)
@@ -186,6 +171,49 @@ public class PostRepositoryImpl implements PostRepository {
                         post.id.in(postIds)
                 )
                 .fetch();
+    }
+
+    @Override
+    public List<Post> getPostListByKeyword(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return jpaQueryFactory
+            .selectFrom(post)
+            .innerJoin(category).on(post.category.id.eq(category.id))
+            .innerJoin(member).on(post.member.id.eq(member.id))
+            .where(
+                // 1. 삭제된 포스트
+                isNotDeleted(post),
+                // 2. 아파트 코드
+                eqApartCode(post, apartCode),
+                // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
+                // 4. 검색어
+                containsSearch(post, member, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .limit(5 - pinnedPostCount)
+            .orderBy(post.createdAt.desc())
+            .fetch();
+    }
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.blocked.id)
+            .from(memberBlock)
+            .where(memberBlock.member.id.eq(memberId))
+            .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.member.id)
+            .from(memberBlock)
+            .where(memberBlock.blocked.id.eq(memberId))
+            .fetch();
     }
 
     private BooleanExpression removeMemberBlock(QMember member, List<Long> blockedMemberIds, List<Long> blockingMemberIds) {

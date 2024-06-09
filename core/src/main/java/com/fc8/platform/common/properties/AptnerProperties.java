@@ -18,7 +18,11 @@ public abstract class AptnerProperties {
     public static final String CATEGORY_QNA = "qna";
     public static final String CATEGORY_MEMBER = "member";
 
-    public static final String CATEGORY_CODE_INTERIOR = "PT006";
+    public static final String CATEGORY_CODE_POST = "PT000";
+    public static final String CATEGORY_CODE_QNA = "QA000";
+    public static final String CATEGORY_CODE_NOTICE = "NT000";
+    public static final String CATEGORY_CODE_DISCLOSURE = "DC000";
+    public static final String CATEGORY_CODE_POST_INTERIOR = "PT006";
 
     /**
      * File

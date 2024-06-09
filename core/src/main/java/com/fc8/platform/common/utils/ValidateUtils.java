@@ -29,7 +29,7 @@ public class ValidateUtils {
     }
 
     public static void validateInteriorPost(Category category) {
-        if (!Objects.equals(category.getCode(), AptnerProperties.CATEGORY_CODE_INTERIOR)) {
+        if (!Objects.equals(category.getCode(), AptnerProperties.CATEGORY_CODE_POST_INTERIOR)) {
             throw new InvalidParamException(ErrorCode.ONLY_CATEGORY_INTERIOR);
         }
     }

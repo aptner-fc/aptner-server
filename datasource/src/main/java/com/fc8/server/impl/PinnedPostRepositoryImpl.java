@@ -2,6 +2,7 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.pinned.PinnedPost;
@@ -13,6 +14,7 @@ import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -24,6 +26,7 @@ public class PinnedPostRepositoryImpl implements PinnedPostRepository {
 
     QPinnedPost pinnedPost = QPinnedPost.pinnedPost;
     QMember member = QMember.member;
+    QApart apart = QApart.apart;
     QCategory category = QCategory.category;
 
     @Override
@@ -53,6 +56,20 @@ public class PinnedPostRepositoryImpl implements PinnedPostRepository {
 
         return Optional.ofNullable(activePost)
                 .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
+    @Override
+    public List<PinnedPost> getAllByApartCodeAndCategoryCode(String apartCode, String categoryCode) {
+        return jpaQueryFactory
+                .selectFrom(pinnedPost)
+                .innerJoin(category).on(pinnedPost.category.eq(category))
+                .innerJoin(apart).on(pinnedPost.apart.eq(apart))
+                .where(
+                        category.code.eq(categoryCode),
+                        category.isUsed,
+                        category.parent.isNull()
+                )
+                .fetch();
     }
 
     private BooleanExpression isNotDeleted(QPinnedPost pinnedPost) {
