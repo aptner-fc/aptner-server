@@ -39,5 +39,5 @@ public interface PostService {
 
     List<ApartAreaSummary> loadApartArea(String apartCode);
 
-    List<PostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount);
+    List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount, String categoryCode);
 }

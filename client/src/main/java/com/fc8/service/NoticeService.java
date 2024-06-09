@@ -19,5 +19,5 @@ public interface NoticeService {
 
     void deleteEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
 
-    List<NoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount);
+    List<SearchNoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount, String categoryCode);
 }

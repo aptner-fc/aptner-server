@@ -12,5 +12,5 @@ public interface NoticeRepository {
 
     Page<Notice> getNoticeListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
 
-    List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount);
+    List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount, String categoryCode);
 }

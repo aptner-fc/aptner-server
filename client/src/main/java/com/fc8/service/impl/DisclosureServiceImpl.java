@@ -119,13 +119,13 @@ public class DisclosureServiceImpl implements DisclosureService {
     }
 
     @Override
-    public List<DisclosureInfo> searchDisclosureList(String apartCode, String keyword, int pinnedDisclosureCount) {
+    public List<SearchDisclosureInfo> searchDisclosureList(String apartCode, String keyword, int pinnedDisclosureCount, String categoryCode) {
         if (pinnedDisclosureCount >= 5) return null;
 
-        List<Disclosure> disclosureList = disclosureRepository.getDisclosureListByKeyword(apartCode, keyword, pinnedDisclosureCount);
+        List<Disclosure> disclosureList = disclosureRepository.getDisclosureListByKeyword(apartCode, keyword, pinnedDisclosureCount, categoryCode);
 
         return disclosureList.stream()
-            .map(disclosure -> DisclosureInfo.fromEntity(disclosure, disclosure.getAdmin(), disclosure.getCategory()))
+            .map(disclosure -> SearchDisclosureInfo.fromDisclosure(disclosure, disclosure.getAdmin(), disclosure.getCategory()))
             .toList();
     }
 }

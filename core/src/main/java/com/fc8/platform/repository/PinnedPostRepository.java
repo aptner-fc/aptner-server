@@ -12,4 +12,5 @@ public interface PinnedPostRepository {
 
     List<PinnedPost> getAllByApartCodeAndCategoryCode(String apartCode, String categoryCode);
 
+    List<PinnedPost> getPinnedBulletinListByKeyword(String apartCode, String keyword, String categoryCode);
 }

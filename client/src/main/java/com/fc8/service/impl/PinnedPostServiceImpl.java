@@ -218,4 +218,40 @@ public class PinnedPostServiceImpl implements PinnedPostService {
                 .toList();
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchNoticeInfo> searchPinnedNoticeList(String apartCode, String keyword, String categoryCode) {
+        List<PinnedPost> pinnedNoticeList = pinnedPostRepository.getPinnedBulletinListByKeyword(apartCode, keyword, categoryCode);
+        return pinnedNoticeList.stream()
+            .map(pinnedNotice -> SearchNoticeInfo.fromPinnedNotice(pinnedNotice, pinnedNotice.getAdmin(), pinnedNotice.getCategory()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchDisclosureInfo> searchPinnedDisclosureList(String apartCode, String keyword, String categoryCode) {
+        List<PinnedPost> pinnedDisclosureList = pinnedPostRepository.getPinnedBulletinListByKeyword(apartCode, keyword, categoryCode);
+        return pinnedDisclosureList.stream()
+            .map(pinnedDisclosure -> SearchDisclosureInfo.fromPinnedDisclosure(pinnedDisclosure, pinnedDisclosure.getAdmin(), pinnedDisclosure.getCategory()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchPostInfo> searchPinnedPostList(String apartCode, String keyword, String categoryCode) {
+        List<PinnedPost> pinnedPostList = pinnedPostRepository.getPinnedBulletinListByKeyword(apartCode, keyword, categoryCode);
+        return pinnedPostList.stream()
+            .map(pinnedPost -> SearchPostInfo.fromPinnedPost(pinnedPost, pinnedPost.getAdmin(), pinnedPost.getCategory()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchQnaInfo> searchPinnedQnaList(String apartCode, String keyword, String categoryCode) {
+        List<PinnedPost> pinnedQnaList = pinnedPostRepository.getPinnedBulletinListByKeyword(apartCode, keyword, categoryCode);
+        return pinnedQnaList.stream()
+            .map(pinnedQna -> SearchQnaInfo.fromPinnedQna(pinnedQna, pinnedQna.getAdmin(), pinnedQna.getCategory()))
+            .toList();
+    }
+
 }

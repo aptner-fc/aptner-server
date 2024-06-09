@@ -37,5 +37,5 @@ public interface QnaService {
 
     List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode);
 
-    List<QnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount);
+    List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount, String categoryCode);
 }

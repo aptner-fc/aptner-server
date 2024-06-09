@@ -352,13 +352,13 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
-    public List<QnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
+    public List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount, String categoryCode) {
         if (pinnedQnaCount >= 5) return null;
 
-        List<Qna> qnaList = qnaRepository.getQnaListByKeyword(memberId, apartCode, keyword, pinnedQnaCount);
+        List<Qna> qnaList = qnaRepository.getQnaListByKeyword(memberId, apartCode, keyword, pinnedQnaCount, categoryCode);
 
         return qnaList.stream()
-            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
+            .map(qna -> SearchQnaInfo.fromQna(qna, qna.getMember(), qna.getCategory()))
             .toList();
     }
 

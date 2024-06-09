@@ -2,6 +2,7 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
@@ -35,6 +36,7 @@ public class QnaRepositoryImpl implements QnaRepository {
     QMember member = QMember.member;
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
+    QApart apart = QApart.apart;
 
     @Override
     public Qna store(Qna qna) {
@@ -140,7 +142,7 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public List<Qna> getQnaListByKeyword(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
+    public List<Qna> getQnaListByKeyword(Long memberId, String apartCode, String keyword, int pinnedQnaCount, String categoryCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
@@ -151,14 +153,23 @@ public class QnaRepositoryImpl implements QnaRepository {
             .selectFrom(qna)
             .innerJoin(category).on(qna.category.id.eq(category.id))
             .innerJoin(member).on(qna.member.id.eq(member.id))
+            .innerJoin(apart).on(qna.apart.eq(apart))
             .where(
-                // 1. 삭제된 포스트
+                // 카테고리 체크
+                category.code.eq(categoryCode),
+                category.isUsed,
+                category.parent.isNull(),
+
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
                 isNotDeleted(qna),
-                // 2. 아파트 코드
-                eqApartCode(qna, apartCode),
-                // 3. 차단한 회원 및 차단된 회원 포스트 제거
+
+                // 차단한 회원 및 차단된 회원 포스트 제거
                 removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
-                // 4. 검색어
+
+                // 검색어
                 containsSearch(qna, member, keyword, SearchType.TITLE_AND_CONTENT)
             )
             .limit(5 - pinnedQnaCount)
