@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.entity.qna.QnaFile;
@@ -348,6 +349,17 @@ public class QnaServiceImpl implements QnaService {
         final List<QnaFile> qnaFileList = qnaFileRepository.getQnaFileListByQna(qna);
 
         return qnaFileList.stream().map(QnaFileInfo::fromEntity).toList();
+    }
+
+    @Override
+    public List<QnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
+        if (pinnedQnaCount >= 5) return null;
+
+        List<Qna> qnaList = qnaRepository.getQnaListByKeyword(memberId, apartCode, keyword, pinnedQnaCount);
+
+        return qnaList.stream()
+            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
+            .toList();
     }
 
 }

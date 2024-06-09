@@ -2,6 +2,7 @@ package com.fc8.service.impl;
 
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.NoticeFile;
 import com.fc8.platform.domain.enums.EmojiType;
@@ -115,5 +116,16 @@ public class NoticeServiceImpl implements NoticeService {
 
         // 4. 삭제
         noticeEmojiRepository.delete(noticeEmoji);
+    }
+
+    @Override
+    public List<NoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount) {
+        if (pinnedNoticeCount >= 5) return null;
+
+        List<Notice> noticeList = noticeRepository.getNoticeListByKeyword(apartCode, keyword, pinnedNoticeCount);
+
+        return noticeList.stream()
+            .map(notice -> NoticeInfo.fromEntity(notice, notice.getAdmin(), notice.getCategory()))
+            .toList();
     }
 }

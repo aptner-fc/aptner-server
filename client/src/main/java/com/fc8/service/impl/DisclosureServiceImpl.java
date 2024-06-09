@@ -2,6 +2,7 @@ package com.fc8.service.impl;
 
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.disclosure.Disclosure;
 import com.fc8.platform.domain.entity.disclosure.DisclosureEmoji;
 import com.fc8.platform.domain.entity.disclosure.DisclosureFile;
 import com.fc8.platform.domain.enums.EmojiType;
@@ -115,6 +116,17 @@ public class DisclosureServiceImpl implements DisclosureService {
 
         // 4. 삭제
         disclosureEmojiRepository.delete(disclosureEmoji);
+    }
+
+    @Override
+    public List<DisclosureInfo> searchDisclosureList(String apartCode, String keyword, int pinnedDisclosureCount) {
+        if (pinnedDisclosureCount >= 5) return null;
+
+        List<Disclosure> disclosureList = disclosureRepository.getDisclosureListByKeyword(apartCode, keyword, pinnedDisclosureCount);
+
+        return disclosureList.stream()
+            .map(disclosure -> DisclosureInfo.fromEntity(disclosure, disclosure.getAdmin(), disclosure.getCategory()))
+            .toList();
     }
 }
 

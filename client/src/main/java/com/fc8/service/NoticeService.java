@@ -18,4 +18,6 @@ public interface NoticeService {
     EmojiInfo registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
 
     void deleteEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
+
+    List<NoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount);
 }

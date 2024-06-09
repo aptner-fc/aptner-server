@@ -18,5 +18,7 @@ public interface DisclosureService {
     EmojiInfo registerEmoji(Long memberId, Long disclosureId, String apartCode, EmojiType emoji);
 
     void deleteEmoji(Long memberId, Long disclosureId, String apartCode, EmojiType emoji);
+
+    List<DisclosureInfo> searchDisclosureList(String apartCode, String keyword, int pinnedDisclosureCount);
 }
 

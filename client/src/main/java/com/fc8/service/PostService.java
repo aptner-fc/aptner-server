@@ -38,4 +38,6 @@ public interface PostService {
     List<PostFileInfo> loadPostFileList(Long postId, String apartCode);
 
     List<ApartAreaSummary> loadApartArea(String apartCode);
+
+    List<PostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount);
 }

@@ -372,6 +372,17 @@ public class PostServiceImpl implements PostService {
                 .toList();
     }
 
+    @Override
+    public List<PostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
+        if (pinnedPostCount >= 5) return null;
+
+        List<Post> postList = postRepository.getPostListByKeyword(memberId, apartCode, keyword, pinnedPostCount);
+
+        return postList.stream()
+            .map(post -> PostInfo.fromEntity(post, post.getMember(), post.getCategory()))
+            .toList();
+    }
+
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {
         if (null == image || image.isEmpty()) {
             return;
