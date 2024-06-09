@@ -178,7 +178,7 @@ public class MemberServiceImpl implements MemberService {
         // 2. 휴대전화 인증 검사
         String phone = command.getPhone();
         String verificationCode = command.getVerificationCode();
-        validatePhoneAndCode(phone, verificationCode);
+        validateAndVerifyCode(phone, verificationCode);
 
         member.changePhone(command.getNewPhone());
 
