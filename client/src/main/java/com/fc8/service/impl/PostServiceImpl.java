@@ -141,12 +141,12 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostSummary> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
+    public Page<PostSummary> loadPostList(Long memberId, String apartCode, Long apartAreaId, SearchPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var postList = postRepository.getPostListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
+        var postList = postRepository.getPostListByApartCodeAndApartAreaId(memberId, apartCode, apartAreaId, pageable, command.search(), command.type(), command.categoryCode());
         final List<PostSummary> postInfoList = postList.stream()
                 .map(post -> PostSummary.fromEntity(post, post.getMember(), post.getCategory()))
                 .toList();

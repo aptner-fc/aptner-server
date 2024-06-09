@@ -91,11 +91,12 @@ public class PostController {
     @GetMapping(value = "/{apartCode}")
     public ResponseEntity<CommonResponse<PageResponse<LoadPostListResponse>>> loadPostList(
         @NotNull @PathVariable String apartCode,
+        @RequestParam(required = false, value = "apartAreaId") Long apartAreaId,
         @CheckCurrentMember CurrentMember currentMember,
         SearchPageRequest request
     ) {
         var command = pageMapper.of(request);
-        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostList(currentMember.id(), apartCode, command));
+        return CommonResponse.success(SuccessCode.SUCCESS, postFacade.loadPostList(currentMember.id(), apartCode, apartAreaId, command));
     }
 
     @Operation(summary = "소통 게시판 댓글 등록 API")

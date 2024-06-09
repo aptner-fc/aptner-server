@@ -35,9 +35,9 @@ public class PostFacade {
     }
 
     @Transactional(readOnly = true)
-    public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, SearchPageCommand command) {
+    public PageResponse<LoadPostListResponse> loadPostList(Long memberId, String apartCode, Long apartAreaId, SearchPageCommand command) {
         // 1. 소통 게시판 게시물 조회
-        final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, command);
+        final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, apartAreaId, command);
 
         // 2. 상단 고정 게시물(중요글) 조회
         List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_POST);
