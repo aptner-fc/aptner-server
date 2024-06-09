@@ -91,7 +91,7 @@ public class NoticeServiceImpl implements NoticeService {
         var notice = noticeRepository.getNoticeWithCategoryByIdAndApartCode(noticeId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = noticeEmojiRepository.existsByNoticeAndMemberAndEmoji(notice, member, emoji);
+        boolean affected = noticeEmojiRepository.existsByNoticeAndMemberAndEmoji(notice, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }

@@ -15,7 +15,7 @@ public interface PinnedPostEmojiRepository {
 
     EmojiReactionInfo getEmojiReactionInfoByPostAndMember(PinnedPost pinnedPost, Member member);
 
-    boolean existsByPinnedPostAndMemberAndEmoji(PinnedPost pinnedPost, Member member, EmojiType emoji);
+    boolean existsByPinnedPostAndMemberAndEmoji(PinnedPost pinnedPost, Member member);
 
     PinnedPostEmoji getByPinnedPostAndMemberAndEmoji(PinnedPost pinnedPost, Member member, EmojiType emoji);
 

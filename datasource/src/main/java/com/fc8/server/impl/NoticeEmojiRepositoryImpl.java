@@ -54,15 +54,14 @@ public class NoticeEmojiRepositoryImpl implements NoticeEmojiRepository {
     }
 
     @Override
-    public boolean existsByNoticeAndMemberAndEmoji(Notice activeNotice, Member loginMember, EmojiType emoji) {
+    public boolean existsByNoticeAndMemberAndEmoji(Notice activeNotice, Member loginMember) {
         return jpaQueryFactory
             .selectOne()
             .from(noticeEmoji)
             .innerJoin(notice).on(eqNotice(noticeEmoji, activeNotice))
             .innerJoin(member).on(eqMember(noticeEmoji, loginMember))
             .where(
-                isNotDeleted(notice),
-                eqEmojiType(noticeEmoji, emoji)
+                isNotDeleted(notice)
             )
             .fetchFirst() != null;
     }

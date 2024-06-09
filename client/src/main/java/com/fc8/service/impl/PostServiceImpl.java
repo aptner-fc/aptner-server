@@ -270,7 +270,7 @@ public class PostServiceImpl implements PostService {
         var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = postEmojiRepository.existsByPostAndMemberAndEmoji(post, member, emoji);
+        boolean affected = postEmojiRepository.existsByPostAndMemberAndEmoji(post, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }

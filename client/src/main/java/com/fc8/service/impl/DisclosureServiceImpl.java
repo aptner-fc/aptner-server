@@ -91,7 +91,7 @@ public class DisclosureServiceImpl implements DisclosureService {
         var disclosure = disclosureRepository.getDisclosureWithCategoryByIdAndApartCode(disclosureId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = disclosureEmojiRepository.existsByDisclosureAndMemberAndEmoji(disclosure, member, emoji);
+        boolean affected = disclosureEmojiRepository.existsByDisclosureAndMemberAndEmoji(disclosure, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }

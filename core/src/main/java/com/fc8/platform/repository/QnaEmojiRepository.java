@@ -11,7 +11,7 @@ public interface QnaEmojiRepository {
 
     QnaEmoji store(QnaEmoji qnaEmoji);
 
-    boolean existsByQnaAndMemberAndEmoji(Qna qna, Member member, EmojiType emoji);
+    boolean existsByQnaAndMemberAndEmoji(Qna qna, Member member);
 
     QnaEmoji getByQnaAndMemberAndEmoji(Qna qna, Member member, EmojiType emoji);
 
