@@ -313,7 +313,7 @@ public class QnaServiceImpl implements QnaService {
         var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member, emoji);
+        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }

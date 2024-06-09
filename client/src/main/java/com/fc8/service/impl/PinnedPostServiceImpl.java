@@ -182,7 +182,7 @@ public class PinnedPostServiceImpl implements PinnedPostService {
         var pinnedPost = pinnedPostRepository.getByIdAndApartCode(pinnedPostId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = pinnedPostEmojiRepository.existsByPinnedPostAndMemberAndEmoji(pinnedPost, member, emoji);
+        boolean affected = pinnedPostEmojiRepository.existsByPinnedPostAndMemberAndEmoji(pinnedPost, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }

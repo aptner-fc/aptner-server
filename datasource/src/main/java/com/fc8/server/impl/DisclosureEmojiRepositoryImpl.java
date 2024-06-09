@@ -54,15 +54,14 @@ public class DisclosureEmojiRepositoryImpl implements DisclosureEmojiRepository 
     }
 
     @Override
-    public boolean existsByDisclosureAndMemberAndEmoji(Disclosure activeDisclosure, Member loginMember, EmojiType emoji) {
+    public boolean existsByDisclosureAndMemberAndEmoji(Disclosure activeDisclosure, Member loginMember) {
         return jpaQueryFactory
             .selectOne()
             .from(disclosureEmoji)
             .innerJoin(disclosure).on(eqDisclosure(disclosureEmoji, activeDisclosure))
             .innerJoin(member).on(eqMember(disclosureEmoji, loginMember))
             .where(
-                isNotDeleted(disclosure),
-                eqEmojiType(disclosureEmoji, emoji)
+                isNotDeleted(disclosure)
             )
             .fetchFirst() != null;
     }

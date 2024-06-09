@@ -59,15 +59,14 @@ public class PinnedPostEmojiRepositoryImpl implements PinnedPostEmojiRepository 
     }
 
     @Override
-    public boolean existsByPinnedPostAndMemberAndEmoji(PinnedPost activePinnedPost, Member loginMember, EmojiType emoji) {
+    public boolean existsByPinnedPostAndMemberAndEmoji(PinnedPost activePinnedPost, Member loginMember) {
         return jpaQueryFactory
                 .selectOne()
                 .from(pinnedPostEmoji)
                 .innerJoin(pinnedPost).on(eqPinnedPost(pinnedPostEmoji, activePinnedPost))
                 .innerJoin(member).on(eqMember(pinnedPostEmoji, loginMember))
                 .where(
-                        isNotDeleted(pinnedPost),
-                        eqEmojiType(pinnedPostEmoji, emoji)
+                        isNotDeleted(pinnedPost)
                 )
                 .fetchFirst() != null;
     }

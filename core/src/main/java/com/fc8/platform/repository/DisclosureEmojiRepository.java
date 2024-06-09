@@ -12,7 +12,7 @@ public interface DisclosureEmojiRepository {
 
     EmojiReactionInfo getEmojiReactionInfoByDisclosureAndMember(Disclosure disclosure, Member member);
 
-    boolean existsByDisclosureAndMemberAndEmoji(Disclosure disclosure, Member member, EmojiType emoji);
+    boolean existsByDisclosureAndMemberAndEmoji(Disclosure disclosure, Member member);
 
     DisclosureEmoji store(DisclosureEmoji disclosureEmoji);
 

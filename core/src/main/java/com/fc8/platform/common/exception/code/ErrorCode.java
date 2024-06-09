@@ -101,7 +101,7 @@ public enum ErrorCode {
     /**
      * EMOJI
      */
-    ALREADY_REGISTER_EMOJI(HttpStatus.BAD_REQUEST, "이미 해당 감정 표현이 등록되어있습니다."),
+    ALREADY_REGISTER_EMOJI(HttpStatus.BAD_REQUEST, "이미 감정 표현이 등록되어있습니다."),
     NOT_FOUND_EMOJI(HttpStatus.BAD_REQUEST, "회원이 등록한 감정 표현을 찾을 수 없습니다."),
 
     /**

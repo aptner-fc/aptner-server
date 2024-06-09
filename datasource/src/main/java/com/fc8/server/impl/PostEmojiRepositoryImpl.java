@@ -37,15 +37,14 @@ public class PostEmojiRepositoryImpl implements PostEmojiRepository {
     }
 
     @Override
-    public boolean existsByPostAndMemberAndEmoji(Post activePost, Member loginMember, EmojiType emoji) {
+    public boolean existsByPostAndMemberAndEmoji(Post activePost, Member loginMember) {
         return jpaQueryFactory
                 .selectOne()
                 .from(postEmoji)
                 .innerJoin(post).on(eqPost(postEmoji, activePost))
                 .innerJoin(member).on(eqMember(postEmoji, loginMember))
                 .where(
-                        isNotDeleted(post),
-                        eqEmojiType(postEmoji, emoji)
+                        isNotDeleted(post)
                 )
                 .fetchFirst() != null;
     }
