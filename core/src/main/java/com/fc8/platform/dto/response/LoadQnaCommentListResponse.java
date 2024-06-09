@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class LoadQnaCommentListResponse {
 
-    List<QnaCommentInfo> comments;
+    private final List<QnaCommentInfo> comments;
 
     public LoadQnaCommentListResponse(List<QnaCommentInfo> comments) {
         this.comments = comments;

@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 public class LoadDisclosureDetailResponse {
 
-    DisclosureDetailInfo disclosureDetailInfo;
-    List<DisclosureFileInfo> disclosureFileInfoList;
+    private final DisclosureDetailInfo disclosureDetailInfo;
+    private final List<DisclosureFileInfo> disclosureFileInfoList;
 
     public LoadDisclosureDetailResponse(DisclosureDetailInfo disclosureDetailInfo, List<DisclosureFileInfo> disclosureFileInfoList) {
         this.disclosureDetailInfo = disclosureDetailInfo;

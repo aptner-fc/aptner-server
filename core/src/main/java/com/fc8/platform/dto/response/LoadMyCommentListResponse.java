@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class LoadMyCommentListResponse {
 
-    List<LoadMyCommentInfo> myCommentList;
+    private final List<LoadMyCommentInfo> myCommentList;
 
     public LoadMyCommentListResponse(List<LoadMyCommentInfo> myCommentList) {
         this.myCommentList = myCommentList;

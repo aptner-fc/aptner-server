@@ -9,9 +9,9 @@ import java.util.List;
 @Getter
 public class LoadPostListResponse {
 
-    List<PostSummary> posts;
+    private final List<PostSummary> posts;
 
-    List<PinnedPostSummary> pinnedPosts;
+    private final List<PinnedPostSummary> pinnedPosts;
 
     public LoadPostListResponse(List<PostSummary> posts, List<PinnedPostSummary> pinnedPosts) {
         this.posts = posts;
