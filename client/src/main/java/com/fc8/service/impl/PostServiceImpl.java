@@ -217,7 +217,7 @@ public class PostServiceImpl implements PostService {
         var postComment = postCommentRepository.getByIdAndPostIdAndMemberId(commentId, postId, memberId);
 
         // 2. 댓글 이미지 조회
-        var postCommentImage = postCommentImageRepository.getImageByQnaCommentId(commentId);
+        var postCommentImage = postCommentImageRepository.getByPostCommentId(commentId);
 
         // 3. 댓글 수정
         postComment.modify(command.getContent());

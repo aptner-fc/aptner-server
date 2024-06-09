@@ -12,6 +12,7 @@ import com.fc8.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -24,10 +25,8 @@ public class NotificationServiceImpl implements NotificationService {
     private final NotificationHistoryRepository notificationHistoryRepository;
     private final NotificationMemberMappingRepository notificationMemberMappingRepository;
 
-
     @Override
-    @Transactional
-//    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public void sendQnaAnswerWebPush(QnaAnswerWebPushInfo webPushInfo) {
         if (webPushInfo == null) {
             return;
@@ -39,7 +38,6 @@ public class NotificationServiceImpl implements NotificationService {
                 webPushInfo.content(),
                 webPushInfo.notificationType(),
                 webPushInfo.messageType());
-
         notificationRepository.store(notification);
 
         var notificationHistory = NotificationHistory.createWebPushHistory(notification);
@@ -47,5 +45,7 @@ public class NotificationServiceImpl implements NotificationService {
 
         var notificationMemberMapping = NotificationMemberMapping.create(notification, member);
         notificationMemberMappingRepository.store(notificationMemberMapping);
+
     }
+
 }

@@ -7,6 +7,7 @@ import com.fc8.platform.domain.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,6 +39,9 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(name = "message_type", columnDefinition = "varchar(20) comment '메세지 타입(안내, 광고 등)'")
     private MessageType messageType;
+
+    @Column(name = "created_at", columnDefinition = "datetime comment '생성 일시'")
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "admin_id", columnDefinition = "BIGINT UNSIGNED comment '어드민 고유 번호'")

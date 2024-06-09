@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.PutObjectRequest;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
+import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.dto.record.UploadFileInfo;
 import com.fc8.platform.dto.record.UploadImageInfo;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,6 @@ import java.io.IOException;
 import java.net.URLConnection;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.UUID;
 
 @Slf4j
@@ -58,7 +58,7 @@ public class S3Uploader {
         try {
             String originalFilename = file.getOriginalFilename();
             long fileSize = file.getSize();
-            String fileExtension = Objects.requireNonNull(originalFilename).substring(originalFilename.lastIndexOf(AptnerProperties.FILE_DOT) + 1);
+            String fileExtension = FileUtils.getFileExtensionByOriginalFilename(originalFilename);
             amazonS3.putObject(
                     new PutObjectRequest(bucket, filePath, file.getInputStream(), metadata)
                             .withCannedAcl(CannedAccessControlList.PublicRead)

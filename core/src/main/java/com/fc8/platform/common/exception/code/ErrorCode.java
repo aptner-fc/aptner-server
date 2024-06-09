@@ -92,6 +92,7 @@ public enum ErrorCode {
     NOT_FOUND_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "댓글 이미지를 찾을 수 없습니다."),
     NOT_POST_WRITER(HttpStatus.BAD_REQUEST, "게시글 작성자가 아닙니다."),
     NOT_POST_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자가 아닙니다."),
+    NOT_FOUND_COMMENT_WRITER(HttpStatus.BAD_REQUEST, "댓글 작성자를 찾을 수 없습니다."),
     ALREADY_DELETED_POST(HttpStatus.BAD_REQUEST, "이미 삭제된 게시글입니다."),
     ALREADY_DELETED_POST_COMMENT(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글입니다."),
     ALREADY_DELETED_POST_COMMENT_IMAGE(HttpStatus.BAD_REQUEST, "이미 삭제된 댓글 이미지입니다."),
@@ -106,6 +107,9 @@ public enum ErrorCode {
     /**
      * FILE
      */
+    NOT_FOUND_FILE(HttpStatus.BAD_REQUEST, "파일을 찾을 수 없습니다"),
+    INVALID_FILE_NAME_OR_EXTENSIONS(HttpStatus.BAD_REQUEST, "파일 이름 또는 확장자가 잘못되었습니다."),
+    INVALID_EXTENSIONS(HttpStatus.BAD_REQUEST, "파일의 확장자가 올바르지 않습니다."),
     EXCEEDED_FILE_SIZE(HttpStatus.BAD_REQUEST, "파일의 허용 용량을 초과했습니다."),
     EXCEEDED_FILE_COUNT(HttpStatus.BAD_REQUEST, "파일 첨부 허용 개수를 초과했습니다."),
 

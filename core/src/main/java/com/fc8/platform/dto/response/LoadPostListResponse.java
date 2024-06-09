@@ -1,6 +1,6 @@
 package com.fc8.platform.dto.response;
 
-import com.fc8.platform.dto.record.PinnedPost;
+import com.fc8.platform.dto.record.PinnedPostSummary;
 import com.fc8.platform.dto.record.PostSummary;
 import lombok.Getter;
 
@@ -11,10 +11,10 @@ public class LoadPostListResponse {
 
     List<PostSummary> posts;
 
-    List<PinnedPost> pinnedPost;
+    List<PinnedPostSummary> pinnedPosts;
 
-    public LoadPostListResponse(List<PostSummary> posts, List<PinnedPost> pinnedPost) {
+    public LoadPostListResponse(List<PostSummary> posts, List<PinnedPostSummary> pinnedPosts) {
         this.posts = posts;
-        this.pinnedPost = pinnedPost;
+        this.pinnedPosts = pinnedPosts;
     }
 }
