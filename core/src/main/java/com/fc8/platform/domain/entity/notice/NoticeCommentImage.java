@@ -33,4 +33,12 @@ public class NoticeCommentImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static NoticeCommentImage create(NoticeComment noticeComment, String imagePath) {
+        return NoticeCommentImage.builder()
+            .noticeComment(noticeComment)
+            .imagePath(imagePath)
+            .build();
+    }
+
+
 }

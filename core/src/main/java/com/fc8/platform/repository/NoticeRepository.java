@@ -15,4 +15,6 @@ public interface NoticeRepository {
     List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount);
 
     Long getNoticeCountByKeyword(String apartCode, String keyword);
+
+    Notice getByIdAndApartCode(Long noticeId, String apartCode);
 }

@@ -1,6 +1,7 @@
 package com.fc8.facade;
 
 import com.fc8.platform.domain.enums.EmojiType;
+import com.fc8.platform.dto.command.WriteNoticeCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.NoticeService;
@@ -9,8 +10,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -43,5 +46,13 @@ public class NoticeFacade {
 
     public void deleteEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji) {
         noticeService.deleteEmoji(memberId, noticeId, apartCode, emoji);
+    }
+
+    public WriteNoticeCommentResponse writeComment(Long memberId, Long noticeId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
+        return new WriteNoticeCommentResponse(
+            Optional.ofNullable(command.getParentId())
+                .map(parentId -> noticeService.writeReply(memberId, noticeId, apartCode, command, image))
+                .orElseGet(() -> noticeService.writeComment(memberId, noticeId, apartCode, command, image))
+        );
     }
 }
