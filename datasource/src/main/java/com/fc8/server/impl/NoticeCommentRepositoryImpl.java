@@ -2,11 +2,13 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.*;
 import com.fc8.platform.dto.record.NoticeCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.NoticeCommentRepository;
 import com.fc8.server.NoticeCommentJpaRepository;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -29,6 +31,7 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
 
     QNoticeComment noticeComment = QNoticeComment.noticeComment;
     QNotice notice = QNotice.notice;
+    QMember member = QMember.member;
     QNoticeCommentImage noticeCommentImage = QNoticeCommentImage.noticeCommentImage;
 
     @Override
@@ -89,6 +92,36 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
     @Override
     public NoticeComment store(NoticeComment noticeComment) {
         return noticeCommentJpaRepository.save(noticeComment);
+    }
+
+    @Override
+    public NoticeComment getByIdAndNoticeIdAndMemberId(Long commentId, Long noticeId, Long memberId) {
+        NoticeComment writtenComment = jpaQueryFactory
+            .selectFrom(noticeComment)
+            .innerJoin(notice).on(noticeComment.notice.id.eq(notice.id))
+            .innerJoin(member).on(noticeComment.member.id.eq(member.id))
+            .where(
+                eqId(commentId),
+                eqNoticeCommentNotice(noticeComment.notice, noticeId),
+                eqNoticeCommentWriter(noticeComment.member, memberId),
+                isNotDeleted()
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(writtenComment)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+    }
+
+    private BooleanExpression isNotDeleted() {
+        return noticeComment.deletedAt.isNull();
+    }
+
+    private BooleanExpression eqNoticeCommentWriter(QMember member, Long memberId) {
+        return member.id.eq(memberId);
+    }
+
+    private BooleanExpression eqNoticeCommentNotice(QNotice notice, Long noticeId) {
+        return notice.id.eq(noticeId);
     }
 
     private BooleanExpression eqId(Long id) {

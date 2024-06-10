@@ -55,4 +55,8 @@ public class NoticeFacade {
                 .orElseGet(() -> noticeService.writeComment(memberId, noticeId, apartCode, command, image))
         );
     }
+
+    public WriteNoticeCommentResponse modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
+        return new WriteNoticeCommentResponse(noticeService.modifyComment(memberId, noticeId, commentId, apartCode, command, image));
+    }
 }

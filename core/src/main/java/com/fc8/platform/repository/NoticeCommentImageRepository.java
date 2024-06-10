@@ -6,4 +6,5 @@ public interface NoticeCommentImageRepository {
 
     NoticeCommentImage store(NoticeCommentImage noticeCommentImage);
 
+    NoticeCommentImage getImageByNoticeCommentId(Long commentId);
 }
