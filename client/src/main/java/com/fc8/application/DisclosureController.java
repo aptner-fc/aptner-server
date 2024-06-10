@@ -85,17 +85,17 @@ public class DisclosureController {
         return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, disclosureFacade.modifyComment(currentMember.id(), disclosureId, commentId, apartCode, command, image));
     }
 
-//    @Operation(summary = "공개사항 댓글 삭제 API")
-//    @CheckApartType
-//    @DeleteMapping(value = "/{apartCode}/{disclosureId}/comments/{commentId}")
-//    public ResponseEntity<CommonResponse<DeleteDisclosureCommentResponse>> deleteComment(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long disclosureId,
-//        @NotNull @PathVariable Long commentId,
-//        @CheckCurrentMember CurrentMember currentMember
-//    ) {
-//        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, disclosureFacade.deleteComment(currentMember.id(), disclosureId, commentId, apartCode));
-//    }
+    @Operation(summary = "공개사항 댓글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{disclosureId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<DeleteDisclosureCommentResponse>> deleteComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long disclosureId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, disclosureFacade.deleteComment(currentMember.id(), disclosureId, commentId, apartCode));
+    }
 
 
     @Operation(summary = "의무공개 댓글 목록 조회 API")

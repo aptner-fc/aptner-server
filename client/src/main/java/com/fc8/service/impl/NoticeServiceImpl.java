@@ -203,6 +203,7 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    @Transactional
     public Long modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
         // 1. 댓글 조회
         var noticeComment = noticeCommentRepository.getByIdAndNoticeIdAndMemberId(commentId, noticeId, memberId);

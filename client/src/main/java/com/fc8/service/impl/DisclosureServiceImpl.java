@@ -201,6 +201,7 @@ public class DisclosureServiceImpl implements DisclosureService {
     }
 
     @Override
+    @Transactional
     public Long modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image) {
         // 1. 댓글 조회
         var disclosureComment = disclosureCommentRepository.getByIdAndDisclosureIdAndMemberId(commentId, disclosureId, memberId);
@@ -227,6 +228,30 @@ public class DisclosureServiceImpl implements DisclosureService {
             });
 
         return disclosureComment.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long deleteComment(Long memberId, Long disclosureId, Long commentId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 공개자료 조회
+        var disclosure = disclosureRepository.getByIdAndApartCode(disclosureId, apartCode);
+
+        // 3. 댓글 조회
+        var comment = disclosureCommentRepository.getByIdAndDisclosure(commentId, disclosure);
+
+        // 4. 본인 작성 댓글 여부 확인
+        boolean affected = disclosureCommentRepository.isWriter(comment, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
+        }
+
+        // 5. 댓글 삭제
+        comment.delete();
+
+        return commentId;
     }
 }
 
