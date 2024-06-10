@@ -352,6 +352,7 @@ public class QnaServiceImpl implements QnaService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
         if (pinnedQnaCount >= 5) return null;
 
@@ -360,6 +361,12 @@ public class QnaServiceImpl implements QnaService {
         return qnaList.stream()
             .map(qna -> SearchQnaInfo.fromQna(qna, qna.getMember(), qna.getCategory()))
             .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getQnaCount(Long memberId, String apartCode, String keyword) {
+        return qnaRepository.getQnaCountByKeyword(memberId, apartCode, keyword);
     }
 
 }

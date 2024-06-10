@@ -27,4 +27,6 @@ public interface QnaRepository {
     Qna getById(Long qnaId);
 
     List<Qna> getQnaListByKeyword(Long memberId, String apartCode, String keyword, int pinnedQnaCount);
+
+    Long getQnaCountByKeyword(Long memberId, String apartCode, String keyword);
 }

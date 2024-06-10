@@ -216,6 +216,37 @@ public class PostRepositoryImpl implements PostRepository {
             .fetch();
     }
 
+    @Override
+    public Long getPostCountByKeyword(Long memberId, String apartCode, String keyword) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        Long count = jpaQueryFactory
+            .select(post.count())
+            .from(post)
+            .innerJoin(member).on(post.member.id.eq(member.id))
+            .innerJoin(apart).on(post.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(post),
+
+                // 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
+
+                // 검색어
+                containsSearch(post, member, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
     private List<Long> getBlockedMemberIds(Long memberId) {
         return jpaQueryFactory
             .select(memberBlock.blocked.id)

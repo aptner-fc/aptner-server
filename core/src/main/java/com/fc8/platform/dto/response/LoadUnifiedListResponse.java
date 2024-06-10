@@ -11,6 +11,10 @@ import java.util.List;
 @Getter
 public class LoadUnifiedListResponse {
 
+    private final Long noticeCount;
+    private final Long disclosureCount;
+    private final Long postCount;
+    private final Long qnaCount;
     private final List<SearchNoticeInfo> pinnedNoticeList;
     private final List<SearchNoticeInfo> noticeList;
     private final List<SearchDisclosureInfo> pinnedDisclosureList;
@@ -21,6 +25,7 @@ public class LoadUnifiedListResponse {
     private final List<SearchQnaInfo> qnaList;
 
     public LoadUnifiedListResponse(
+        Long noticeCount, Long disclosureCount, Long postCount, Long qnaCount,
         List<SearchNoticeInfo> pinnedNoticeList,
         List<SearchNoticeInfo> noticeList,
         List<SearchDisclosureInfo> pinnedDisclosureList,
@@ -30,6 +35,10 @@ public class LoadUnifiedListResponse {
         List<SearchQnaInfo> pinnedQnaList,
         List<SearchQnaInfo> qnaList
     ) {
+        this.noticeCount = noticeCount;
+        this.disclosureCount = disclosureCount;
+        this.postCount = postCount;
+        this.qnaCount = qnaCount;
         this.pinnedNoticeList = pinnedNoticeList;
         this.noticeList = noticeList;
         this.pinnedDisclosureList = pinnedDisclosureList;

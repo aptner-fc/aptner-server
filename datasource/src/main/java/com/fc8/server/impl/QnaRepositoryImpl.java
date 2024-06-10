@@ -172,6 +172,37 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
+    public Long getQnaCountByKeyword(Long memberId, String apartCode, String keyword) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        Long count = jpaQueryFactory
+            .select(qna.count())
+            .from(qna)
+            .innerJoin(member).on(qna.member.id.eq(member.id))
+            .innerJoin(apart).on(qna.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(qna),
+
+                // 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
+
+                // 검색어
+                containsSearch(qna, member, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
+    @Override
     public Qna getQnaWithCategoryByIdAndApartCode(Long memberId, Long qnaId, String apartCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);

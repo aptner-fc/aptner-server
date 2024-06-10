@@ -113,6 +113,27 @@ public class NoticeRepositoryImpl implements NoticeRepository {
             .fetch();
     }
 
+    @Override
+    public Long getNoticeCountByKeyword(String apartCode, String keyword) {
+        Long count = jpaQueryFactory
+            .select(notice.count())
+            .from(notice)
+            .innerJoin(apart).on(notice.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(notice),
+
+                // 검색어
+                containsSearch(notice, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
     private BooleanExpression eqId(QNotice notice, Long noticeId) {
         return notice.id.eq(noticeId);
     }

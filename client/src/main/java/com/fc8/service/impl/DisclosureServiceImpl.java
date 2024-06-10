@@ -119,6 +119,7 @@ public class DisclosureServiceImpl implements DisclosureService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SearchDisclosureInfo> searchDisclosureList(String apartCode, String keyword, int pinnedDisclosureCount) {
         if (pinnedDisclosureCount >= 5) return null;
 
@@ -127,6 +128,12 @@ public class DisclosureServiceImpl implements DisclosureService {
         return disclosureList.stream()
             .map(disclosure -> SearchDisclosureInfo.fromDisclosure(disclosure, disclosure.getAdmin(), disclosure.getCategory()))
             .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getDisclosureCount(String apartCode, String keyword) {
+        return disclosureRepository.getDisclosureCountByKeyword(apartCode, keyword);
     }
 }
 

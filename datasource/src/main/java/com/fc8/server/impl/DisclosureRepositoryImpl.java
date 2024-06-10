@@ -113,6 +113,27 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
             .fetch();
     }
 
+    @Override
+    public Long getDisclosureCountByKeyword(String apartCode, String keyword) {
+        Long count = jpaQueryFactory
+            .select(disclosure.count())
+            .from(disclosure)
+            .innerJoin(apart).on(disclosure.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(disclosure),
+
+                // 검색어
+                containsSearch(disclosure, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
     private BooleanExpression eqId(QDisclosure disclosure, Long disclosureId) {
         return disclosure.id.eq(disclosureId);
     }

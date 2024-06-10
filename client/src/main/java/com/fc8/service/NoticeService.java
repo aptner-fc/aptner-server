@@ -20,4 +20,6 @@ public interface NoticeService {
     void deleteEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
 
     List<SearchNoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount);
+
+    Long getNoticeCount(String apartCode, String keyword);
 }
