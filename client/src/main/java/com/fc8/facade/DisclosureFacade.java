@@ -61,5 +61,9 @@ public class DisclosureFacade {
         );
 
     }
+
+    public WriteDisclosureCommentResponse modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image) {
+        return new WriteDisclosureCommentResponse(disclosureService.modifyComment(memberId, disclosureId, commentId, apartCode, command, image));
+    }
 }
 

@@ -199,5 +199,34 @@ public class DisclosureServiceImpl implements DisclosureService {
 
         return newDisclosureComment.getId();
     }
+
+    @Override
+    public Long modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image) {
+        // 1. 댓글 조회
+        var disclosureComment = disclosureCommentRepository.getByIdAndDisclosureIdAndMemberId(commentId, disclosureId, memberId);
+
+        // 2. 댓글 이미지 조회
+        var disclosureCommentImage = disclosureCommentImageRepository.getImageByDisclosureCommentId(commentId);
+
+        // 3. 댓글 수정
+        disclosureComment.modify(command.getContent());
+
+        // 4. 기존 이미지가 있는 경우 기존 이미지 삭제 및 변경
+        if (disclosureCommentImage != null) {
+            disclosureCommentImage.delete();
+        }
+
+        // 5. 새로운 이미지가 있는 경우 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var newDisclosureCommentImage = DisclosureCommentImage.create(disclosureComment, uploadImageInfo.originalImageUrl());
+                disclosureCommentImageRepository.store(newDisclosureCommentImage);
+            });
+
+        return disclosureComment.getId();
+    }
 }
 

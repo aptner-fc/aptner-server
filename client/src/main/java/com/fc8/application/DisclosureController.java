@@ -70,21 +70,21 @@ public class DisclosureController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, disclosureFacade.writeComment(currentMember.id(), disclosureId, apartCode, command, image));
     }
 
-//    @Operation(summary = "공개사항 댓글 수정 API")
-//    @CheckApartType
-//    @PatchMapping(value = "/{apartCode}/{disclosureId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-//    public ResponseEntity<CommonResponse<WriteDisclosureCommentResponse>> modifyComment(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long disclosureId,
-//        @NotNull @PathVariable Long commentId,
-//        @CheckCurrentMember CurrentMember currentMember,
-//        @Valid @RequestPart(value = "request") WriteDisclosureCommentRequest request,
-//        @RequestPart(value = "image", required = false) MultipartFile image
-//    ) {
-//        var command = disclosureMapper.of(request);
-//        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, disclosureFacade.modifyComment(currentMember.id(), disclosureId, commentId, apartCode, command, image));
-//    }
-//
+    @Operation(summary = "공개사항 댓글 수정 API")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{disclosureId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WriteDisclosureCommentResponse>> modifyComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long disclosureId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @Valid @RequestPart(value = "request") WriteDisclosureCommentRequest request,
+        @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        var command = disclosureMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, disclosureFacade.modifyComment(currentMember.id(), disclosureId, commentId, apartCode, command, image));
+    }
+
 //    @Operation(summary = "공개사항 댓글 삭제 API")
 //    @CheckApartType
 //    @DeleteMapping(value = "/{apartCode}/{disclosureId}/comments/{commentId}")
