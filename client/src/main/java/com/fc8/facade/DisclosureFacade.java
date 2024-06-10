@@ -41,7 +41,7 @@ public class DisclosureFacade {
     }
 
     public PageResponse<LoadDisclosureCommentListResponse> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command) {
-        final Page<DisclosureCommentInfo> commentList = disclosureService.loadCommentList(memberId, apartCode, disclosureId, command);
+        final Page<CommentInfo> commentList = disclosureService.loadCommentList(memberId, apartCode, disclosureId, command);
         return new PageResponse<>(commentList, new LoadDisclosureCommentListResponse(commentList.getContent()));
     }
 

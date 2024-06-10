@@ -17,5 +17,7 @@ public interface DisclosureCommentRepository {
     DisclosureComment getByIdAndDisclosureIdAndMemberId(Long commentId, Long disclosureId, Long memberId);
 
     boolean isWriter(DisclosureComment comment, Member member);
+
+    Page<DisclosureComment> getAllByDisclosureIdAndMemberId(Long disclosureId, Long memberId, Pageable pageable);
 }
 

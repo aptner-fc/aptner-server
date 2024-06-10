@@ -15,7 +15,7 @@ public interface DisclosureService {
 
     Page<DisclosureInfo> loadDisclosureList(Long memberId, String apartCode, SearchPageCommand command);
 
-    Page<DisclosureCommentInfo> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command);
+    Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command);
 
     EmojiInfo registerEmoji(Long memberId, Long disclosureId, String apartCode, EmojiType emoji);
 

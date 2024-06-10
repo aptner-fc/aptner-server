@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.disclosure.*;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.dto.record.DisclosureCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.DisclosureCommentRepository;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class DisclosureCommentRepositoryImpl implements DisclosureCommentReposit
     QDisclosureComment disclosureComment = QDisclosureComment.disclosureComment;
     QDisclosure disclosure = QDisclosure.disclosure;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QDisclosureCommentImage disclosureCommentImage = QDisclosureCommentImage.disclosureCommentImage;
 
     @Override
@@ -124,6 +127,68 @@ public class DisclosureCommentRepositoryImpl implements DisclosureCommentReposit
             )
             .fetchFirst() != null;
 
+    }
+
+    @Override
+    public Page<DisclosureComment> getAllByDisclosureIdAndMemberId(Long disclosureId, Long memberId, Pageable pageable) {
+        QDisclosureComment parent = new QDisclosureComment("parent");
+        List<DisclosureComment> commentList = jpaQueryFactory
+            .selectFrom(disclosureComment)
+            .innerJoin(disclosure).on(disclosureComment.disclosure.eq(disclosure))
+            .leftJoin(parent).on(disclosureComment.parent.eq(parent))
+            .where(
+                disclosure.id.eq(disclosureId),
+                disclosure.deletedAt.isNull()
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(disclosureComment.createdAt.asc())
+            .fetch();
+
+        List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
+
+        // 차단된 댓글 여부 설정
+        commentList.forEach(comment -> {
+            if (blockedOrBlockingMemberIds.contains(comment.getMember().getId())) {
+                comment.changeBlockStatus(true);
+            }
+        });
+
+        JPAQuery<Long> count = jpaQueryFactory
+            .select(disclosureComment.count())
+            .from(disclosureComment)
+            .innerJoin(disclosure).on(disclosureComment.disclosure.eq(disclosure))
+            .where(
+                disclosure.id.eq(disclosureId),
+                disclosure.deletedAt.isNull()
+            );
+
+        return PageableExecutionUtils.getPage(commentList, pageable, count::fetchOne);
+    }
+
+    private List<Long> getBlockedOrBlockingMemberIds(Long memberId) {
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return Stream.concat(blockedMemberIds.stream(), blockingMemberIds.stream())
+            .distinct()
+            .toList();
+    }
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.blocked.id)
+            .from(memberBlock)
+            .where(memberBlock.member.id.eq(memberId))
+            .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.member.id)
+            .from(memberBlock)
+            .where(memberBlock.blocked.id.eq(memberId))
+            .fetch();
     }
 
     private BooleanExpression isNotDeleted() {

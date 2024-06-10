@@ -3,11 +3,14 @@ package com.fc8.platform.domain.entity.disclosure;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.BaseTimeEntity;
+import com.fc8.platform.domain.entity.admin.Admin;
 import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Getter
@@ -30,6 +33,10 @@ public class DisclosureComment extends BaseTimeEntity {
     private Disclosure disclosure;
 
     @ManyToOne
+    @JoinColumn(name = "admin_id", columnDefinition = "bigint unsigned comment '어드민 ID'")
+    private Admin admin;
+
+    @ManyToOne
     @JoinColumn(name = "member_id", columnDefinition = "bigint unsigned comment '회원 ID'")
     private Member member;
 
@@ -42,6 +49,12 @@ public class DisclosureComment extends BaseTimeEntity {
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
+
+    @OneToMany(mappedBy = "DisclosureComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DisclosureCommentImage> disclosureCommentImages = new ArrayList<>();
+
+    @Transient
+    private boolean isBlocked;
 
     public static DisclosureComment createComment(Disclosure disclosure, Member member, String content) {
         return DisclosureComment.builder()
@@ -74,5 +87,9 @@ public class DisclosureComment extends BaseTimeEntity {
         }
 
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void changeBlockStatus(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
 }
