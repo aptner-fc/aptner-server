@@ -82,12 +82,18 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
-    public Page<NoticeCommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
+    @Transactional(readOnly = true)
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return noticeCommentRepository.getCommentListByQna(noticeId, pageable);
+        var noticeCommentList = noticeCommentRepository.getAllByNoticeIdAndMemberId(noticeId, memberId, pageable);
+        final List<CommentInfo> commentInfoList = noticeCommentList.stream()
+            .map(comment -> CommentInfo.fromEntity(comment, comment.getNoticeCommentImages(), comment.getAdmin(), comment.getMember()))
+            .toList();
+
+        return new PageImpl<>(commentInfoList, pageable, noticeCommentList.getTotalElements());
     }
 
     @Override
