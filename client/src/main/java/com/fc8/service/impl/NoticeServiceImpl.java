@@ -1,11 +1,16 @@
 package com.fc8.service.impl;
 
+import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
+import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.notice.Notice;
+import com.fc8.platform.domain.entity.notice.NoticeCommentImage;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.NoticeFile;
+import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.enums.EmojiType;
+import com.fc8.platform.dto.command.WriteNoticeCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.NoticeService;
@@ -17,8 +22,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -30,6 +37,9 @@ public class NoticeServiceImpl implements NoticeService {
     private final NoticeEmojiRepository noticeEmojiRepository;
     private final NoticeFileRepository noticeFileRepository;
     private final NoticeCommentRepository noticeCommentRepository;
+    private final NoticeCommentImageRepository noticeCommentImageRepository;
+
+    private final S3UploadService s3UploadService;
 
     @Override
     @Transactional(readOnly = true)
@@ -134,5 +144,62 @@ public class NoticeServiceImpl implements NoticeService {
     @Transactional(readOnly = true)
     public Long getNoticeCount(String apartCode, String keyword) {
         return noticeRepository.getNoticeCountByKeyword(apartCode, keyword);
+    }
+
+    @Override
+    @Transactional
+    public Long writeReply(Long memberId, Long noticeId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 및 답글 조회
+        Long commentId = Optional.ofNullable(command.getParentId())
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+
+        var notice = noticeRepository.getByIdAndApartCode(noticeId, apartCode);
+        var noticeComment = noticeCommentRepository.getByIdAndNotice(commentId, notice);
+
+        // 3. 답글 저장
+        var noticeReply = command.toEntity(notice, noticeComment, member);
+        var newNoticeReply = noticeCommentRepository.store(noticeReply);
+
+        // 4. 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var noticeCommentImage = NoticeCommentImage.create(noticeComment, uploadImageInfo.originalImageUrl());
+                noticeCommentImageRepository.store(noticeCommentImage);
+            });
+
+        return newNoticeReply.getId();
+    }
+
+    @Override
+    @Transactional
+    public Long writeComment(Long memberId, Long noticeId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var notice = noticeRepository.getByIdAndApartCode(noticeId, apartCode);
+
+        // 3. 댓글 저장
+        var noticeComment = command.toEntity(notice, member);
+        var newNoticeComment = noticeCommentRepository.store(noticeComment);
+
+        // 4. 댓글 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var noticeCommentImage = NoticeCommentImage.create(noticeComment, uploadImageInfo.originalImageUrl());
+                noticeCommentImageRepository.store(noticeCommentImage);
+            });
+
+        return newNoticeComment.getId();
+
     }
 }

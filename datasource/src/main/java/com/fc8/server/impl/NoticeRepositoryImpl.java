@@ -134,6 +134,21 @@ public class NoticeRepositoryImpl implements NoticeRepository {
         return count != null ? count : 0;
     }
 
+    @Override
+    public Notice getByIdAndApartCode(Long noticeId, String apartCode) {
+        Notice activeNotice = jpaQueryFactory
+            .selectFrom(notice)
+            .where(
+                eqId(notice, noticeId),
+                eqApartCode(notice, apartCode),
+                isNotDeleted(notice)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeNotice)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
     private BooleanExpression eqId(QNotice notice, Long noticeId) {
         return notice.id.eq(noticeId);
     }

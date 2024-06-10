@@ -40,4 +40,20 @@ public class NoticeComment extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static NoticeComment createComment(Notice notice, Member member, String content) {
+        return NoticeComment.builder()
+            .notice(notice)
+            .member(member)
+            .content(content)
+            .build();
+    }
+
+    public static NoticeComment createReply(Notice notice, NoticeComment comment, Member member, String content) {
+        return NoticeComment.builder()
+            .notice(notice)
+            .parent(comment)
+            .member(member)
+            .content(content)
+            .build();
+    }
 }
