@@ -82,12 +82,17 @@ public class DisclosureServiceImpl implements DisclosureService {
     }
 
     @Override
-    public Page<DisclosureCommentInfo> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command) {
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return disclosureCommentRepository.getCommentListByDisclosure(disclosureId, pageable);
+        var disclosureCommentList = disclosureCommentRepository.getAllByDisclosureIdAndMemberId(disclosureId, memberId, pageable);
+        final List<CommentInfo> commentInfoList = disclosureCommentList.stream()
+            .map(comment -> CommentInfo.fromEntity(comment, comment.getDisclosureCommentImages(), comment.getAdmin(), comment.getMember()))
+            .toList();
+
+        return new PageImpl<>(commentInfoList, pageable, disclosureCommentList.getTotalElements());
     }
 
     @Override
