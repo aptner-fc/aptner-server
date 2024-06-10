@@ -1,6 +1,6 @@
 package com.fc8.platform.dto.response;
 
-import com.fc8.platform.dto.record.NoticeCommentInfo;
+import com.fc8.platform.dto.record.CommentInfo;
 import lombok.Getter;
 
 import java.util.List;
@@ -8,9 +8,9 @@ import java.util.List;
 @Getter
 public class LoadNoticeCommentListResponse {
 
-    private final List<NoticeCommentInfo> comments;
+    private final List<CommentInfo> comments;
 
-    public LoadNoticeCommentListResponse(List<NoticeCommentInfo> comments) {
+    public LoadNoticeCommentListResponse(List<CommentInfo> comments) {
         this.comments = comments;
     }
 }

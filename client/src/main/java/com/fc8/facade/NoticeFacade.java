@@ -36,7 +36,7 @@ public class NoticeFacade {
     }
 
     public PageResponse<LoadNoticeCommentListResponse> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
-        final Page<NoticeCommentInfo> commentList = noticeService.loadCommentList(memberId, apartCode, noticeId, command);
+        final Page<CommentInfo> commentList = noticeService.loadCommentList(memberId, apartCode, noticeId, command);
         return new PageResponse<>(commentList, new LoadNoticeCommentListResponse(commentList.getContent()));
     }
 

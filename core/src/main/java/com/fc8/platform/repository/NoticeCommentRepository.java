@@ -17,4 +17,6 @@ public interface NoticeCommentRepository {
     NoticeComment getByIdAndNoticeIdAndMemberId(Long commentId, Long noticeId, Long memberId);
 
     boolean isWriter(NoticeComment comment, Member member);
+
+    Page<NoticeComment> getAllByNoticeIdAndMemberId(Long noticeId, Long memberId, Pageable pageable);
 }
