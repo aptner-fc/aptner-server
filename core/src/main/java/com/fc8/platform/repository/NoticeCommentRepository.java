@@ -12,4 +12,6 @@ public interface NoticeCommentRepository {
     NoticeComment getByIdAndNotice(Long commentId, Notice notice);
 
     NoticeComment store(NoticeComment noticeComment);
+
+    NoticeComment getByIdAndNoticeIdAndMemberId(Long commentId, Long noticeId, Long memberId);
 }

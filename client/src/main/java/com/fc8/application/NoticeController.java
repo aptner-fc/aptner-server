@@ -70,21 +70,21 @@ public class NoticeController {
         return CommonResponse.success(SuccessCode.SUCCESS_INSERT, noticeFacade.writeComment(currentMember.id(), noticeId, apartCode, command, image));
     }
 
-//    @Operation(summary = "공지사항 댓글 수정 API")
-//    @CheckApartType
-//    @PatchMapping(value = "/{apartCode}/{noticeId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
-//    public ResponseEntity<CommonResponse<WriteNoticeCommentResponse>> modifyComment(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long noticeId,
-//        @NotNull @PathVariable Long commentId,
-//        @CheckCurrentMember CurrentMember currentMember,
-//        @Valid @RequestPart(value = "request") WriteNoticeCommentRequest request,
-//        @RequestPart(value = "image", required = false) MultipartFile image
-//    ) {
-//        var command = noticeMapper.of(request);
-//        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, noticeFacade.modifyComment(currentMember.id(), noticeId, commentId, apartCode, command, image));
-//    }
-//
+    @Operation(summary = "공지사항 댓글 수정 API")
+    @CheckApartType
+    @PatchMapping(value = "/{apartCode}/{noticeId}/comments/{commentId}", consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE})
+    public ResponseEntity<CommonResponse<WriteNoticeCommentResponse>> modifyComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long noticeId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember,
+        @Valid @RequestPart(value = "request") WriteNoticeCommentRequest request,
+        @RequestPart(value = "image", required = false) MultipartFile image
+    ) {
+        var command = noticeMapper.of(request);
+        return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, noticeFacade.modifyComment(currentMember.id(), noticeId, commentId, apartCode, command, image));
+    }
+
 //    @Operation(summary = "공지사항 댓글 삭제 API")
 //    @CheckApartType
 //    @DeleteMapping(value = "/{apartCode}/{noticeId}/comments/{commentId}")

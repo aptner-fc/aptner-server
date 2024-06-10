@@ -28,4 +28,6 @@ public interface NoticeService {
     Long writeReply(Long memberId, Long noticeId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image);
 
     Long writeComment(Long memberId, Long noticeId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image);
+
+    Long modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image);
 }

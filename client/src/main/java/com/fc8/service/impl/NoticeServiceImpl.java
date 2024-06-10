@@ -202,4 +202,34 @@ public class NoticeServiceImpl implements NoticeService {
         return newNoticeComment.getId();
 
     }
+
+    @Override
+    public Long modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
+        // 1. 댓글 조회
+        var noticeComment = noticeCommentRepository.getByIdAndNoticeIdAndMemberId(commentId, noticeId, memberId);
+
+        // 2. 댓글 이미지 조회
+        var noticeCommentImage = noticeCommentImageRepository.getImageByNoticeCommentId(commentId);
+
+        // 3. 댓글 수정
+        noticeComment.modify(command.getContent());
+
+        // 4. 기존 이미지가 있는 경우 기존 이미지 삭제 및 변경
+        if (noticeCommentImage != null) {
+            noticeCommentImage.delete();
+        }
+
+        // 5. 새로운 이미지가 있는 경우 이미지 저장
+        Optional.ofNullable(image)
+            .filter(img -> !img.isEmpty())
+            .ifPresent(img -> {
+                UploadImageInfo uploadImageInfo = s3UploadService.uploadPostImage(image);
+
+                var newNoticeCommentImage = NoticeCommentImage.create(noticeComment, uploadImageInfo.originalImageUrl());
+                noticeCommentImageRepository.store(newNoticeCommentImage);
+            });
+
+        return noticeComment.getId();
+
+    }
 }
