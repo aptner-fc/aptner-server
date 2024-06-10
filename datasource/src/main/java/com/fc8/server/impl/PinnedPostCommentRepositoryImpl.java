@@ -3,6 +3,7 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.pinned.PinnedPost;
 import com.fc8.platform.domain.entity.pinned.PinnedPostComment;
 import com.fc8.platform.domain.entity.pinned.QPinnedPost;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class PinnedPostCommentRepositoryImpl implements PinnedPostCommentReposit
     QPinnedPost pinnedPost = QPinnedPost.pinnedPost;
     QPinnedPostComment pinnedPostComment = QPinnedPostComment.pinnedPostComment;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
 
     @Override
     public PinnedPostComment store(PinnedPostComment pinnedPostComment) {
@@ -38,21 +41,29 @@ public class PinnedPostCommentRepositoryImpl implements PinnedPostCommentReposit
     }
 
     @Override
-    public Page<PinnedPostComment> getAllByPinnedPost(Long pinnedPostId, Pageable pageable) {
+    public Page<PinnedPostComment> getAllByPinnedPost(Long memberId, Long pinnedPostId, Pageable pageable) {
         QPinnedPostComment parent = new QPinnedPostComment("parent");
         List<PinnedPostComment> commentList = jpaQueryFactory
                 .selectFrom(pinnedPostComment)
                 .innerJoin(pinnedPost).on(pinnedPostComment.pinnedPost.eq(pinnedPost))
-                .innerJoin(parent).on(pinnedPostComment.parent.eq(parent))
+                .leftJoin(parent).on(pinnedPostComment.parent.eq(parent))
                 .where(
                         pinnedPost.id.eq(pinnedPostId),
-                        pinnedPost.deletedAt.isNull(),
-                        pinnedPostComment.deletedAt.isNull()
+                        pinnedPost.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(pinnedPostComment.createdAt.desc())
+                .orderBy(pinnedPostComment.createdAt.asc())
                 .fetch();
+
+        List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
+
+        // 차단된 댓글 여부 설정
+        commentList.forEach(comment -> {
+            if (blockedOrBlockingMemberIds.contains(comment.getMember().getId())) {
+                comment.changeBlockStatus(true);
+            }
+        });
 
         JPAQuery<Long> count = jpaQueryFactory
                 .select(pinnedPostComment.count())
@@ -64,6 +75,31 @@ public class PinnedPostCommentRepositoryImpl implements PinnedPostCommentReposit
                 );
 
         return PageableExecutionUtils.getPage(commentList, pageable, count::fetchOne);
+    }
+
+    private List<Long> getBlockedOrBlockingMemberIds(Long memberId) {
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return Stream.concat(blockedMemberIds.stream(), blockingMemberIds.stream())
+            .distinct()
+            .toList();
+    }
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.blocked.id)
+            .from(memberBlock)
+            .where(memberBlock.member.id.eq(memberId))
+            .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.member.id)
+            .from(memberBlock)
+            .where(memberBlock.blocked.id.eq(memberId))
+            .fetch();
     }
 
     @Override

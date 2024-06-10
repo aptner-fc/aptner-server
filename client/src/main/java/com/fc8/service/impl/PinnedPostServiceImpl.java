@@ -78,7 +78,7 @@ public class PinnedPostServiceImpl implements PinnedPostService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        var pinnedPostCommentList = pinnedPostCommentRepository.getAllByPinnedPost(pinnedPostId, pageable);
+        var pinnedPostCommentList = pinnedPostCommentRepository.getAllByPinnedPost(memberId, pinnedPostId, pageable);
         final List<CommentInfo> commentInfoList = pinnedPostCommentList.stream()
                 .map(comment -> CommentInfo.fromEntity(comment, comment.getPinnedPostCommentImages(), comment.getAdmin(), comment.getMember()))
                 .toList();

@@ -31,68 +31,71 @@ public record CommentInfo(
     public static CommentInfo fromEntity(PinnedPostComment comment, List<PinnedPostCommentImage> images, Admin admin, Member member) {
         // 기획 -> 이미지는 1장, 확장성을 고려하여 작성
         String imagePath = Optional.ofNullable(images)
-                .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0).getImagePath())
-                .orElse(null);
+            .filter(list -> !list.isEmpty())
+            .map(list -> list.get(0).getImagePath())
+            .orElse(null);
 
         return CommentInfo.builder()
-                .id(comment.getId())
-                .parentId(comment.getParent().getId())
-                .content(comment.getContent())
-                .imageUrl(imagePath)
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .deletedAt(comment.getDeletedAt())
-                .writer(Optional.ofNullable(admin)
-                        .map(WriterInfo::fromAdminEntity)
-                        .orElseGet(() -> Optional.ofNullable(member)
-                                .map(WriterInfo::fromMemberEntity)
-                                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
-                .build();
+            .id(comment.getId())
+            .parentId(Optional.ofNullable(comment.getParent()).map(PinnedPostComment::getId).orElse(null))
+            .content(comment.getContent())
+            .imageUrl(imagePath)
+            .isBlocked(comment.isBlocked())
+            .createdAt(comment.getCreatedAt())
+            .updatedAt(comment.getUpdatedAt())
+            .deletedAt(comment.getDeletedAt())
+            .writer(Optional.ofNullable(admin)
+                .map(WriterInfo::fromAdminEntity)
+                .orElseGet(() -> Optional.ofNullable(member)
+                    .map(WriterInfo::fromMemberEntity)
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
+            .build();
     }
 
     public static CommentInfo fromEntity(PostComment comment, List<PostCommentImage> images, Admin admin, Member member) {
         // 기획 -> 이미지는 1장, 확장성을 고려하여 작성
         String imagePath = Optional.ofNullable(images)
-                .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0).getImagePath())
-                .orElse(null);
+            .filter(list -> !list.isEmpty())
+            .map(list -> list.get(0).getImagePath())
+            .orElse(null);
 
         return CommentInfo.builder()
-                .id(comment.getId())
-                .parentId(comment.getParent().getId())
-                .content(comment.getContent())
-                .imageUrl(imagePath)
-                .isBlocked(comment.isBlocked())
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .writer(Optional.ofNullable(admin)
-                        .map(WriterInfo::fromAdminEntity)
-                        .orElseGet(() -> Optional.ofNullable(member)
-                                .map(WriterInfo::fromMemberEntity)
-                                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
-                .build();
+            .id(comment.getId())
+            .parentId(Optional.ofNullable(comment.getParent()).map(PostComment::getId).orElse(null))
+            .content(comment.getContent())
+            .imageUrl(imagePath)
+            .isBlocked(comment.isBlocked())
+            .createdAt(comment.getCreatedAt())
+            .updatedAt(comment.getUpdatedAt())
+            .deletedAt(comment.getDeletedAt())
+            .writer(Optional.ofNullable(admin)
+                .map(WriterInfo::fromAdminEntity)
+                .orElseGet(() -> Optional.ofNullable(member)
+                    .map(WriterInfo::fromMemberEntity)
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
+            .build();
     }
 
     public static CommentInfo fromEntity(QnaComment comment, List<QnaCommentImage> images, Admin admin, Member member) {
         String imagePath = Optional.ofNullable(images)
-                .filter(list -> !list.isEmpty())
-                .map(list -> list.get(0).getImagePath())
-                .orElse(null);
+            .filter(list -> !list.isEmpty())
+            .map(list -> list.get(0).getImagePath())
+            .orElse(null);
 
         return CommentInfo.builder()
-                .id(comment.getId())
-                .parentId(Optional.ofNullable(comment.getParent()).map(QnaComment::getId).orElse(null))
-                .content(comment.getContent())
-                .imageUrl(imagePath)
-                .createdAt(comment.getCreatedAt())
-                .updatedAt(comment.getUpdatedAt())
-                .isBlocked(comment.isBlocked())
-                .writer(Optional.ofNullable(admin)
-                        .map(WriterInfo::fromAdminEntity)
-                        .orElseGet(() -> Optional.ofNullable(member)
-                                .map(WriterInfo::fromMemberEntity)
-                                .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
-                .build();
+            .id(comment.getId())
+            .parentId(Optional.ofNullable(comment.getParent()).map(QnaComment::getId).orElse(null))
+            .content(comment.getContent())
+            .imageUrl(imagePath)
+            .isBlocked(comment.isBlocked())
+            .createdAt(comment.getCreatedAt())
+            .updatedAt(comment.getUpdatedAt())
+            .deletedAt(comment.getDeletedAt())
+            .writer(Optional.ofNullable(admin)
+                .map(WriterInfo::fromAdminEntity)
+                .orElseGet(() -> Optional.ofNullable(member)
+                    .map(WriterInfo::fromMemberEntity)
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
+            .build();
     }
 }

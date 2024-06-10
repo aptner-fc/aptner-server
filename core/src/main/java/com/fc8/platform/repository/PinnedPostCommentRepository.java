@@ -9,7 +9,7 @@ public interface PinnedPostCommentRepository {
 
     PinnedPostComment store(PinnedPostComment pinnedPostComment);
 
-    Page<PinnedPostComment> getAllByPinnedPost(Long pinnedPostId, Pageable pageable);
+    Page<PinnedPostComment> getAllByPinnedPost(Long memberId, Long pinnedPostId, Pageable pageable);
 
     PinnedPostComment getByIdAndPinnedPost(Long id, PinnedPost pinnedPost);
 

@@ -157,7 +157,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(qnaComment.createdAt.desc())
+                .orderBy(qnaComment.createdAt.asc())
                 .fetch();
 
         List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
