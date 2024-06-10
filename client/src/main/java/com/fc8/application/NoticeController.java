@@ -85,17 +85,17 @@ public class NoticeController {
         return CommonResponse.success(SuccessCode.SUCCESS_UPDATE, noticeFacade.modifyComment(currentMember.id(), noticeId, commentId, apartCode, command, image));
     }
 
-//    @Operation(summary = "공지사항 댓글 삭제 API")
-//    @CheckApartType
-//    @DeleteMapping(value = "/{apartCode}/{noticeId}/comments/{commentId}")
-//    public ResponseEntity<CommonResponse<DeleteNoticeCommentResponse>> deleteComment(
-//        @NotNull @PathVariable String apartCode,
-//        @NotNull @PathVariable Long noticeId,
-//        @NotNull @PathVariable Long commentId,
-//        @CheckCurrentMember CurrentMember currentMember
-//    ) {
-//        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, noticeFacade.deleteComment(currentMember.id(), noticeId, commentId, apartCode));
-//    }
+    @Operation(summary = "공지사항 댓글 삭제 API")
+    @CheckApartType
+    @DeleteMapping(value = "/{apartCode}/{noticeId}/comments/{commentId}")
+    public ResponseEntity<CommonResponse<DeleteNoticeCommentResponse>> deleteComment(
+        @NotNull @PathVariable String apartCode,
+        @NotNull @PathVariable Long noticeId,
+        @NotNull @PathVariable Long commentId,
+        @CheckCurrentMember CurrentMember currentMember
+    ) {
+        return CommonResponse.success(SuccessCode.SUCCESS_DELETE, noticeFacade.deleteComment(currentMember.id(), noticeId, commentId, apartCode));
+    }
 
 
     @Operation(summary = "공지사항 댓글 목록 조회 API")

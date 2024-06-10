@@ -59,4 +59,8 @@ public class NoticeFacade {
     public WriteNoticeCommentResponse modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image) {
         return new WriteNoticeCommentResponse(noticeService.modifyComment(memberId, noticeId, commentId, apartCode, command, image));
     }
+
+    public DeleteNoticeCommentResponse deleteComment(Long memberId, Long noticeId, Long commentId, String apartCode) {
+        return new DeleteNoticeCommentResponse(noticeService.deleteComment(memberId, noticeId, commentId, apartCode));
+    }
 }

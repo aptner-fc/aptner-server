@@ -8,7 +8,6 @@ import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.NoticeCommentImage;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
 import com.fc8.platform.domain.entity.notice.NoticeFile;
-import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteNoticeCommentCommand;
 import com.fc8.platform.dto.record.*;
@@ -231,5 +230,29 @@ public class NoticeServiceImpl implements NoticeService {
 
         return noticeComment.getId();
 
+    }
+
+    @Override
+    @Transactional
+    public Long deleteComment(Long memberId, Long noticeId, Long commentId, String apartCode) {
+        // 1. 회원 조회
+        var member = memberRepository.getActiveMemberById(memberId);
+
+        // 2. 게시글 조회
+        var notice = noticeRepository.getByIdAndApartCode(noticeId, apartCode);
+
+        // 3. 댓글 조회
+        var comment = noticeCommentRepository.getByIdAndNotice(commentId, notice);
+
+        // 4. 본인 작성 댓글 여부
+        boolean affected = noticeCommentRepository.isWriter(comment, member);
+        if (!affected) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_COMMENT_WRITER);
+        }
+
+        // 5. 삭제
+        comment.delete();
+
+        return commentId;
     }
 }
