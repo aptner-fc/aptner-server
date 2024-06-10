@@ -12,5 +12,7 @@ public interface DisclosureCommentRepository {
     DisclosureComment getByIdAndDisclosure(Long commentId, Disclosure disclosure);
 
     DisclosureComment store(DisclosureComment disclosureComment);
+
+    DisclosureComment getByIdAndDisclosureIdAndMemberId(Long commentId, Long disclosureId, Long memberId);
 }
 

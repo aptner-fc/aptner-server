@@ -3,6 +3,7 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.disclosure.*;
+import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.dto.record.DisclosureCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.DisclosureCommentRepository;
@@ -30,6 +31,7 @@ public class DisclosureCommentRepositoryImpl implements DisclosureCommentReposit
 
     QDisclosureComment disclosureComment = QDisclosureComment.disclosureComment;
     QDisclosure disclosure = QDisclosure.disclosure;
+    QMember member = QMember.member;
     QDisclosureCommentImage disclosureCommentImage = QDisclosureCommentImage.disclosureCommentImage;
 
     @Override
@@ -90,6 +92,36 @@ public class DisclosureCommentRepositoryImpl implements DisclosureCommentReposit
     @Override
     public DisclosureComment store(DisclosureComment disclosureComment) {
         return disclosureCommentJpaRepository.save(disclosureComment);
+    }
+
+    @Override
+    public DisclosureComment getByIdAndDisclosureIdAndMemberId(Long commentId, Long disclosureId, Long memberId) {
+        DisclosureComment writtenComment = jpaQueryFactory
+            .selectFrom(disclosureComment)
+            .innerJoin(disclosure).on(disclosureComment.disclosure.id.eq(disclosure.id))
+            .innerJoin(member).on(disclosureComment.member.id.eq(member.id))
+            .where(
+                eqId(commentId),
+                eqDisclosureCommentDisclosure(disclosureComment.disclosure, disclosureId),
+                eqDisclosureCommentWriter(disclosureComment.member, memberId),
+                isNotDeleted()
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(writtenComment)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+    }
+
+    private BooleanExpression isNotDeleted() {
+        return disclosureComment.deletedAt.isNull();
+    }
+
+    private BooleanExpression eqDisclosureCommentWriter(QMember member, Long memberId) {
+        return member.id.eq(memberId);
+    }
+
+    private BooleanExpression eqDisclosureCommentDisclosure(QDisclosure disclosure, Long disclosureId) {
+        return disclosure.id.eq(disclosureId);
     }
 
     private BooleanExpression eqDisclosure(Disclosure disclosure) {

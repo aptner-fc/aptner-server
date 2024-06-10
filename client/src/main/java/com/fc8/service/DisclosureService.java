@@ -28,5 +28,7 @@ public interface DisclosureService {
     Long writeReply(Long memberId, Long disclosureId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image);
 
     Long writeComment(Long memberId, Long disclosureId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image);
+
+    Long modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image);
 }
 

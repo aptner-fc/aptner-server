@@ -23,4 +23,16 @@ public class DisclosureCommentImageRepositoryImpl implements DisclosureCommentIm
     public DisclosureCommentImage store(DisclosureCommentImage disclosureCommentImage) {
         return disclosureCommentImageJpaRepository.save(disclosureCommentImage);
     }
+
+    @Override
+    public DisclosureCommentImage getImageByDisclosureCommentId(Long commentId) {
+        return jpaQueryFactory
+            .selectFrom(disclosureCommentImage)
+            .innerJoin(disclosureCommentImage.disclosureComment, disclosureComment)
+            .where(
+                disclosureCommentImage.disclosureComment.id.eq(commentId),
+                disclosureCommentImage.deletedAt.isNull()
+            )
+            .fetchOne();
+    }
 }
