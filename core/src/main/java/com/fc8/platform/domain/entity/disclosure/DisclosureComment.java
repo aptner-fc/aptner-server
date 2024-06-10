@@ -50,7 +50,7 @@ public class DisclosureComment extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
-    @OneToMany(mappedBy = "DisclosureComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "disclosureComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<DisclosureCommentImage> disclosureCommentImages = new ArrayList<>();
 
     @Transient
