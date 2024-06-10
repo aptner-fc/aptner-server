@@ -33,4 +33,12 @@ public class DisclosureCommentImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static DisclosureCommentImage create(DisclosureComment disclosureComment, String imagePath) {
+        return DisclosureCommentImage.builder()
+            .disclosureComment(disclosureComment)
+            .imagePath(imagePath)
+            .build();
+    }
+
+
 }

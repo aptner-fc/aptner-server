@@ -2,6 +2,7 @@ package com.fc8.facade;
 
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.enums.EmojiType;
+import com.fc8.platform.dto.command.WriteDisclosureCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.DisclosureService;
@@ -11,8 +12,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
@@ -48,6 +51,15 @@ public class DisclosureFacade {
 
     public void deleteEmoji(Long memberId, Long disclosureId, String apartCode, EmojiType emoji) {
         disclosureService.deleteEmoji(memberId, disclosureId, apartCode, emoji);
+    }
+
+    public WriteDisclosureCommentResponse writeComment(Long memberId, Long disclosureId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image) {
+        return new WriteDisclosureCommentResponse(
+            Optional.ofNullable(command.getParentId())
+                .map(parentId -> disclosureService.writeReply(memberId, disclosureId, apartCode, command, image))
+                .orElseGet(() -> disclosureService.writeComment(memberId, disclosureId, apartCode, command, image))
+        );
+
     }
 }
 

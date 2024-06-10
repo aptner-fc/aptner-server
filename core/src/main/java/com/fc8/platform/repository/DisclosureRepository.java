@@ -15,5 +15,7 @@ public interface DisclosureRepository {
     List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount);
 
     Long getDisclosureCountByKeyword(String apartCode, String keyword);
+
+    Disclosure getByIdAndApartCode(Long disclosureId, String apartCode);
 }
 

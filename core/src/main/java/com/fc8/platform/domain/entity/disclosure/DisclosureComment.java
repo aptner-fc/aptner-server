@@ -40,4 +40,20 @@ public class DisclosureComment extends BaseTimeEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static DisclosureComment createComment(Disclosure disclosure, Member member, String content) {
+        return DisclosureComment.builder()
+            .disclosure(disclosure)
+            .member(member)
+            .content(content)
+            .build();
+    }
+
+    public static DisclosureComment createReply(Disclosure disclosure, DisclosureComment comment, Member member, String content) {
+        return DisclosureComment.builder()
+            .disclosure(disclosure)
+            .parent(comment)
+            .member(member)
+            .content(content)
+            .build();
+    }
 }
