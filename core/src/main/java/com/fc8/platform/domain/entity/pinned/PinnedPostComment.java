@@ -53,6 +53,9 @@ public class PinnedPostComment extends BaseTimeEntity {
     @OneToMany(mappedBy = "pinnedPostComment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PinnedPostCommentImage> pinnedPostCommentImages = new ArrayList<>();
 
+    @Transient
+    private boolean isBlocked;
+
     public static PinnedPostComment createCommentByMember(PinnedPost pinnedPost,
                                                   Member member,
                                                   String content) {
@@ -111,5 +114,9 @@ public class PinnedPostComment extends BaseTimeEntity {
         }
 
         this.deletedAt = LocalDateTime.now();
+    }
+
+    public void changeBlockStatus(boolean isBlocked) {
+        this.isBlocked = isBlocked;
     }
 }
