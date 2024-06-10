@@ -1,5 +1,6 @@
 package com.fc8.platform.repository;
 
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.NoticeComment;
 import com.fc8.platform.dto.record.NoticeCommentInfo;
@@ -14,4 +15,6 @@ public interface NoticeCommentRepository {
     NoticeComment store(NoticeComment noticeComment);
 
     NoticeComment getByIdAndNoticeIdAndMemberId(Long commentId, Long noticeId, Long memberId);
+
+    boolean isWriter(NoticeComment comment, Member member);
 }

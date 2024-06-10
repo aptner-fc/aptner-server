@@ -2,13 +2,13 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.*;
 import com.fc8.platform.dto.record.NoticeCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.NoticeCommentRepository;
 import com.fc8.server.NoticeCommentJpaRepository;
-import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
@@ -110,6 +110,19 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
 
         return Optional.ofNullable(writtenComment)
             .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST_COMMENT));
+    }
+
+    @Override
+    public boolean isWriter(NoticeComment comment, Member member) {
+        return jpaQueryFactory
+            .selectOne()
+            .from(noticeComment)
+            .innerJoin(noticeComment.member, this.member)
+            .where(
+                noticeComment.eq(comment),
+                this.member.eq(member)
+            )
+            .fetchFirst() != null;
     }
 
     private BooleanExpression isNotDeleted() {
