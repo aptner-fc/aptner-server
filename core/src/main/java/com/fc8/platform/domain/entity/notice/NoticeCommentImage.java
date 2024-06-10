@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.notice;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,4 +35,19 @@ public class NoticeCommentImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static NoticeCommentImage create(NoticeComment noticeComment, String imagePath) {
+        return NoticeCommentImage.builder()
+            .noticeComment(noticeComment)
+            .imagePath(imagePath)
+            .build();
+    }
+
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST_COMMENT_IMAGE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }

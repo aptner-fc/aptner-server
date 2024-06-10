@@ -13,5 +13,9 @@ public interface DisclosureRepository {
     Page<Disclosure> getDisclosureListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
 
     List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount);
+
+    Long getDisclosureCountByKeyword(String apartCode, String keyword);
+
+    Disclosure getByIdAndApartCode(Long disclosureId, String apartCode);
 }
 

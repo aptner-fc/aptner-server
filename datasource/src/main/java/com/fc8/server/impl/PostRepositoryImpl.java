@@ -3,6 +3,7 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.apartment.QApartArea;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.mapping.QApartAreaPostMapping;
 import com.fc8.platform.domain.entity.member.Member;
@@ -39,6 +40,7 @@ public class PostRepositoryImpl implements PostRepository {
     QMember member = QMember.member;
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
+    QApart apart = QApart.apart;
 
     @Override
     public Post store(Post post) {
@@ -194,21 +196,55 @@ public class PostRepositoryImpl implements PostRepository {
 
         return jpaQueryFactory
             .selectFrom(post)
-            .innerJoin(category).on(post.category.id.eq(category.id))
             .innerJoin(member).on(post.member.id.eq(member.id))
+            .innerJoin(apart).on(post.apart.eq(apart))
             .where(
-                // 1. 삭제된 포스트
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
                 isNotDeleted(post),
-                // 2. 아파트 코드
-                eqApartCode(post, apartCode),
-                // 3. 차단한 회원 및 차단된 회원 포스트 제거
+
+                // 차단한 회원 및 차단된 회원 포스트 제거
                 removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
-                // 4. 검색어
+
+                // 검색어
                 containsSearch(post, member, keyword, SearchType.TITLE_AND_CONTENT)
             )
             .limit(5 - pinnedPostCount)
             .orderBy(post.createdAt.desc())
             .fetch();
+    }
+
+    @Override
+    public Long getPostCountByKeyword(Long memberId, String apartCode, String keyword) {
+        // 해당 회원이 차단한 회원의 목록
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+
+        // 해당 회원이 차단당한 회원의 목록
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        Long count = jpaQueryFactory
+            .select(post.count())
+            .from(post)
+            .innerJoin(member).on(post.member.id.eq(member.id))
+            .innerJoin(apart).on(post.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(post),
+
+                // 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
+
+                // 검색어
+                containsSearch(post, member, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
     }
 
     private List<Long> getBlockedMemberIds(Long memberId) {

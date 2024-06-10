@@ -11,7 +11,7 @@ public interface PostEmojiRepository {
 
     PostEmoji store(PostEmoji postEmoji);
 
-    boolean existsByPostAndMemberAndEmoji(Post post, Member member, EmojiType emoji);
+    boolean existsByPostAndMemberAndEmoji(Post post, Member member);
 
     PostEmoji getByPostAndMemberAndEmoji(Post post, Member member, EmojiType emoji);
 

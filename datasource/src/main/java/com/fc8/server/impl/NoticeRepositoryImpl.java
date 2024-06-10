@@ -3,8 +3,8 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.admin.QAdmin;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
-import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.QNotice;
 import com.fc8.platform.domain.enums.SearchType;
@@ -30,8 +30,8 @@ public class NoticeRepositoryImpl implements NoticeRepository {
 
     QNotice notice = QNotice.notice;
     QCategory category = QCategory.category;
-    QMember member = QMember.member;
     QAdmin admin = QAdmin.admin;
+    QApart apart = QApart.apart;
 
     @Override
     public Notice getNoticeWithCategoryByIdAndApartCode(Long noticeId, String apartCode) {
@@ -97,18 +97,56 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     public List<Notice> getNoticeListByKeyword(String apartCode, String keyword, int pinnedNoticeCount) {
         return jpaQueryFactory
             .selectFrom(notice)
-            .innerJoin(category).on(notice.category.id.eq(category.id))
+            .innerJoin(apart).on(notice.apart.eq(apart))
             .where(
-                // 1. 삭제된 포스트
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
                 isNotDeleted(notice),
-                // 2. 아파트 코드
-                eqApartCode(notice, apartCode),
-                // 4. 검색어
+
+                // 검색어
                 containsSearch(notice, null, keyword, SearchType.TITLE_AND_CONTENT)
             )
             .limit(5 - pinnedNoticeCount)
             .orderBy(notice.createdAt.desc())
             .fetch();
+    }
+
+    @Override
+    public Long getNoticeCountByKeyword(String apartCode, String keyword) {
+        Long count = jpaQueryFactory
+            .select(notice.count())
+            .from(notice)
+            .innerJoin(apart).on(notice.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(notice),
+
+                // 검색어
+                containsSearch(notice, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
+    @Override
+    public Notice getByIdAndApartCode(Long noticeId, String apartCode) {
+        Notice activeNotice = jpaQueryFactory
+            .selectFrom(notice)
+            .where(
+                eqId(notice, noticeId),
+                eqApartCode(notice, apartCode),
+                isNotDeleted(notice)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeNotice)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
     }
 
     private BooleanExpression eqId(QNotice notice, Long noticeId) {

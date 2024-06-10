@@ -37,15 +37,14 @@ public class QnaEmojiRepositoryImpl implements QnaEmojiRepository {
     }
 
     @Override
-    public boolean existsByQnaAndMemberAndEmoji(Qna activeQna, Member loginMember, EmojiType emoji) {
+    public boolean existsByQnaAndMemberAndEmoji(Qna activeQna, Member loginMember) {
         return jpaQueryFactory
             .selectOne()
             .from(qnaEmoji)
             .innerJoin(qna).on(eqQna(qnaEmoji, activeQna))
             .innerJoin(member).on(eqMember(qnaEmoji, loginMember))
             .where(
-                isNotDeleted(qna),
-                eqEmojiType(qnaEmoji, emoji)
+                isNotDeleted(qna)
             )
             .fetchFirst() != null;
     }

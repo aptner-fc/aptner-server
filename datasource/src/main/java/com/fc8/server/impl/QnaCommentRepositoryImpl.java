@@ -4,6 +4,7 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.qna.*;
 import com.fc8.platform.dto.record.QnaCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
 
     QQnaCommentImage qnaCommentImage = QQnaCommentImage.qnaCommentImage;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QQna qna = QQna.qna;
     QQnaComment qnaComment = QQnaComment.qnaComment;
 
@@ -141,6 +144,43 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
                 .fetch();
     }
 
+    @Override
+    public Page<QnaComment> getAllByQnaIdAndMemberId(Long qnaId, Long memberId, Pageable pageable) {
+        QQnaComment parent = new QQnaComment("parent");
+        List<QnaComment> commentList = jpaQueryFactory
+                .selectFrom(qnaComment)
+                .innerJoin(qna).on(qnaComment.qna.eq(qna))
+                .leftJoin(parent).on(qnaComment.parent.eq(parent))
+                .where(
+                        qna.id.eq(qnaId),
+                        qna.deletedAt.isNull()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(qnaComment.createdAt.desc())
+                .fetch();
+
+        List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
+
+        // 차단된 댓글 여부 설정
+        commentList.forEach(comment -> {
+            if (blockedOrBlockingMemberIds.contains(comment.getMember().getId())) {
+                comment.changeBlockStatus(true);
+            }
+        });
+
+        JPAQuery<Long> count = jpaQueryFactory
+                .select(qnaComment.count())
+                .from(qnaComment)
+                .innerJoin(qna).on(qnaComment.qna.eq(qna))
+                .where(
+                        qna.id.eq(qnaId),
+                        qna.deletedAt.isNull()
+                );
+
+        return PageableExecutionUtils.getPage(commentList, pageable, count::fetchOne);
+    }
+
     private BooleanExpression eqQnaCommentWriter(QMember member, Long memberId) {
         return member.id.eq(memberId);
     }
@@ -163,6 +203,32 @@ public class QnaCommentRepositoryImpl implements QnaCommentRepository {
 
     private BooleanExpression isNotDeleted(QQna qna) {
         return qna.deletedAt.isNull();
+    }
+
+    private List<Long> getBlockedOrBlockingMemberIds(Long memberId) {
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return Stream.concat(blockedMemberIds.stream(), blockingMemberIds.stream())
+                .distinct()
+                .toList();
+    }
+
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
     }
 
 }

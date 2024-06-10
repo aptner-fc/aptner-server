@@ -27,4 +27,12 @@ public interface PinnedPostService {
     void deleteEmoji(Long memberId, Long pinnedPostId, String apartCode, EmojiType emoji);
 
     List<PinnedPostSummary> loadPinnedPostList(String apartCode, String categoryCode);
+
+    List<SearchNoticeInfo> searchPinnedNoticeList(String apartCode, String keyword, String categoryCode);
+
+    List<SearchDisclosureInfo> searchPinnedDisclosureList(String apartCode, String keyword, String categoryCode);
+
+    List<SearchPostInfo> searchPinnedPostList(String apartCode, String keyword, String categoryCode);
+
+    List<SearchQnaInfo> searchPinnedQnaList(String apartCode, String keyword, String categoryCode);
 }

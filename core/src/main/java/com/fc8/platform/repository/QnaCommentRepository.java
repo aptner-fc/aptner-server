@@ -22,4 +22,6 @@ public interface QnaCommentRepository {
     QnaComment getByIdAndQnaIdAndMemberId(Long id, Long qnaId, Long memberId);
 
     List<QnaComment> getAllByIdsAndMember(List<Long> qnaCommentIds, Member member);
+
+    Page<QnaComment> getAllByQnaIdAndMemberId(Long qnaId, Long memberId, Pageable pageable);
 }

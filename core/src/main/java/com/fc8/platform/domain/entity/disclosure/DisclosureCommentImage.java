@@ -1,5 +1,7 @@
 package com.fc8.platform.domain.entity.disclosure;
 
+import com.fc8.platform.common.exception.InvalidParamException;
+import com.fc8.platform.common.exception.code.ErrorCode;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -33,4 +35,19 @@ public class DisclosureCommentImage {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    public static DisclosureCommentImage create(DisclosureComment disclosureComment, String imagePath) {
+        return DisclosureCommentImage.builder()
+            .disclosureComment(disclosureComment)
+            .imagePath(imagePath)
+            .build();
+    }
+
+
+    public void delete() {
+        if (this.deletedAt != null) {
+            throw new InvalidParamException(ErrorCode.ALREADY_DELETED_POST_COMMENT_IMAGE);
+        }
+
+        this.deletedAt = LocalDateTime.now();
+    }
 }

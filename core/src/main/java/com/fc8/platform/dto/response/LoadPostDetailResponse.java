@@ -9,8 +9,8 @@ import java.util.List;
 @Getter
 public class LoadPostDetailResponse {
 
-    PostDetailInfo post;
-    List<PostFileInfo> postFileInfoList;
+    private final PostDetailInfo post;
+    private final List<PostFileInfo> postFileInfoList;
 
     public LoadPostDetailResponse(PostDetailInfo post, List<PostFileInfo> postFileInfoList) {
         this.post = post;

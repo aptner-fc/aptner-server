@@ -12,7 +12,7 @@ public interface NoticeEmojiRepository {
 
     EmojiReactionInfo getEmojiReactionInfoByNoticeAndMember(Notice notice, Member member);
 
-    boolean existsByNoticeAndMemberAndEmoji(Notice notice, Member member, EmojiType emoji);
+    boolean existsByNoticeAndMemberAndEmoji(Notice notice, Member member);
 
     NoticeEmoji store(NoticeEmoji noticeEmoji);
 

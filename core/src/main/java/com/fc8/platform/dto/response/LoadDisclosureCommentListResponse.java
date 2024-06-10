@@ -8,7 +8,7 @@ import java.util.List;
 @Getter
 public class LoadDisclosureCommentListResponse {
 
-    List<DisclosureCommentInfo> comments;
+    private final List<DisclosureCommentInfo> comments;
 
     public LoadDisclosureCommentListResponse(List<DisclosureCommentInfo> comments) {
         this.comments = comments;

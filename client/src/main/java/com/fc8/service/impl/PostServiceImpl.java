@@ -270,7 +270,7 @@ public class PostServiceImpl implements PostService {
         var post = postRepository.getByIdAndApartCode(postId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = postEmojiRepository.existsByPostAndMemberAndEmoji(post, member, emoji);
+        boolean affected = postEmojiRepository.existsByPostAndMemberAndEmoji(post, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }
@@ -344,12 +344,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return postCommentRepository.getCommentListByPost(postId, pageable);
+        var postCommentList = postCommentRepository.getAllByPostIdAndMemberId(postId, memberId, pageable);
+        final List<CommentInfo> commentInfoList = postCommentList.stream()
+                .map(comment -> CommentInfo.fromEntity(comment, comment.getPostCommentImages(), comment.getAdmin(), comment.getMember()))
+                .toList();
+
+        return new PageImpl<>(commentInfoList, pageable, postCommentList.getTotalElements());
     }
 
     @Override
@@ -370,6 +375,24 @@ public class PostServiceImpl implements PostService {
         return apartAreaList.stream()
                 .map(apartArea -> ApartAreaSummary.fromEntity(apartArea))
                 .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
+        if (pinnedPostCount >= 5) return null;
+
+        List<Post> postList = postRepository.getPostListByKeyword(memberId, apartCode, keyword, pinnedPostCount);
+
+        return postList.stream()
+            .map(post -> SearchPostInfo.fromPost(post, post.getMember(), post.getCategory()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getPostCount(Long memberId, String apartCode, String keyword) {
+        return postRepository.getPostCountByKeyword(memberId, apartCode, keyword);
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {

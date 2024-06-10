@@ -3,15 +3,12 @@ package com.fc8.server.impl;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.admin.QAdmin;
+import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.disclosure.Disclosure;
 import com.fc8.platform.domain.entity.disclosure.QDisclosure;
-import com.fc8.platform.domain.entity.member.QMember;
-import com.fc8.platform.domain.entity.notice.Notice;
-import com.fc8.platform.domain.entity.notice.QNotice;
 import com.fc8.platform.domain.enums.SearchType;
 import com.fc8.platform.repository.DisclosureRepository;
-import com.fc8.platform.repository.NoticeRepository;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -33,7 +30,7 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
 
     QDisclosure disclosure = QDisclosure.disclosure;
     QCategory category = QCategory.category;
-    QMember member = QMember.member;
+    QApart apart = QApart.apart;
     QAdmin admin = QAdmin.admin;
 
     @Override
@@ -100,18 +97,56 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
     public List<Disclosure> getDisclosureListByKeyword(String apartCode, String keyword, int pinnedDisclosureCount) {
         return jpaQueryFactory
             .selectFrom(disclosure)
-            .innerJoin(category).on(disclosure.category.id.eq(category.id))
+            .innerJoin(apart).on(disclosure.apart.eq(apart))
             .where(
-                // 1. 삭제된 포스트
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
                 isNotDeleted(disclosure),
-                // 2. 아파트 코드
-                eqApartCode(disclosure, apartCode),
-                // 4. 검색어
+
+                // 검색어
                 containsSearch(disclosure, null, keyword, SearchType.TITLE_AND_CONTENT)
             )
             .limit(5 - pinnedDisclosureCount)
             .orderBy(disclosure.createdAt.desc())
             .fetch();
+    }
+
+    @Override
+    public Long getDisclosureCountByKeyword(String apartCode, String keyword) {
+        Long count = jpaQueryFactory
+            .select(disclosure.count())
+            .from(disclosure)
+            .innerJoin(apart).on(disclosure.apart.eq(apart))
+            .where(
+                // 아파트 체크
+                apart.code.eq(apartCode),
+
+                // 삭제 여부
+                isNotDeleted(disclosure),
+
+                // 검색어
+                containsSearch(disclosure, null, keyword, SearchType.TITLE_AND_CONTENT)
+            )
+            .fetchOne();
+
+        return count != null ? count : 0;
+    }
+
+    @Override
+    public Disclosure getByIdAndApartCode(Long disclosureId, String apartCode) {
+        Disclosure activeDisclosure = jpaQueryFactory
+            .selectFrom(disclosure)
+            .where(
+                eqId(disclosure, disclosureId),
+                eqApartCode(disclosure, apartCode),
+                isNotDeleted(disclosure)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeDisclosure)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
     }
 
     private BooleanExpression eqId(QDisclosure disclosure, Long disclosureId) {

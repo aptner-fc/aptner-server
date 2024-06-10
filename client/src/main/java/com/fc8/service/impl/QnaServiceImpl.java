@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
 import com.fc8.platform.domain.entity.qna.QnaFile;
@@ -156,6 +157,11 @@ public class QnaServiceImpl implements QnaService {
         // 2. 게시글 조회
         var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
+        // 3. 비밀글일 경우 본인 작성글 여부
+        if (!memberId.equals(qna.getMember().getId()) && qna.isPrivate()) {
+            throw new InvalidParamException(ErrorCode.NOT_POST_WRITER);
+        }
+
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
 
@@ -259,12 +265,17 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return qnaCommentRepository.getCommentListByQna(qnaId, pageable);
+        var qnaCommentList = qnaCommentRepository.getAllByQnaIdAndMemberId(qnaId, memberId, pageable);
+        final List<CommentInfo> qnaCommentInfoList = qnaCommentList.stream()
+                .map(comment -> CommentInfo.fromEntity(comment, comment.getQnaCommentImages(), comment.getAdmin(), comment.getMember()))
+                .toList();
+
+        return new PageImpl<>(qnaCommentInfoList, pageable, qnaCommentList.getTotalElements());
     }
 
     @Override
@@ -307,7 +318,7 @@ public class QnaServiceImpl implements QnaService {
         var qna = qnaRepository.getQnaWithCategoryByIdAndApartCode(memberId, qnaId, apartCode);
 
         // 3. 레코드 검사 (이미 등록된 경우 삭제 요청이 필요하다.)
-        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member, emoji);
+        boolean affected = qnaEmojiRepository.existsByQnaAndMemberAndEmoji(qna, member);
         if (affected) {
             throw new BaseException(ErrorCode.ALREADY_REGISTER_EMOJI);
         }
@@ -343,6 +354,24 @@ public class QnaServiceImpl implements QnaService {
         final List<QnaFile> qnaFileList = qnaFileRepository.getQnaFileListByQna(qna);
 
         return qnaFileList.stream().map(QnaFileInfo::fromEntity).toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount) {
+        if (pinnedQnaCount >= 5) return null;
+
+        List<Qna> qnaList = qnaRepository.getQnaListByKeyword(memberId, apartCode, keyword, pinnedQnaCount);
+
+        return qnaList.stream()
+            .map(qna -> SearchQnaInfo.fromQna(qna, qna.getMember(), qna.getCategory()))
+            .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getQnaCount(Long memberId, String apartCode, String keyword) {
+        return qnaRepository.getQnaCountByKeyword(memberId, apartCode, keyword);
     }
 
 }

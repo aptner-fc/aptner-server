@@ -4,6 +4,7 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.post.*;
 import com.fc8.platform.dto.record.PostCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     QPost post = QPost.post;
     QPostComment postComment = QPostComment.postComment;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QPostCommentImage postCommentImage = QPostCommentImage.postCommentImage;
 
     @Override
@@ -128,6 +131,43 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
     }
 
     @Override
+    public Page<PostComment> getAllByPostIdAndMemberId(Long postId, Long memberId, Pageable pageable) {
+        QPostComment parent = new QPostComment("parent");
+        List<PostComment> commentList = jpaQueryFactory
+                .selectFrom(postComment)
+                .innerJoin(post).on(postComment.post.eq(post))
+                .innerJoin(parent).on(postComment.parent.eq(parent))
+                .where(
+                        post.id.eq(postId),
+                        post.deletedAt.isNull()
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(postComment.createdAt.desc())
+                .fetch();
+
+        List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
+
+        // 차단된 댓글 여부 설정
+        commentList.forEach(comment -> {
+            if (blockedOrBlockingMemberIds.contains(comment.getMember().getId())) {
+                comment.changeBlockStatus(true);
+            }
+        });
+
+        JPAQuery<Long> count = jpaQueryFactory
+                .select(postComment.count())
+                .from(postComment)
+                .innerJoin(post).on(postComment.post.eq(post))
+                .where(
+                        post.id.eq(postId),
+                        post.deletedAt.isNull()
+                );
+
+        return PageableExecutionUtils.getPage(commentList, pageable, count::fetchOne);
+    }
+
+        @Override
     public List<PostComment> getAllByIdsAndMember(List<Long> postCommentIds, Member activeMember) {
         return jpaQueryFactory
                 .selectFrom(postComment)
@@ -164,6 +204,32 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
 
     private BooleanExpression eqId(Long id) {
         return postComment.id.eq(id);
+    }
+
+    private List<Long> getBlockedOrBlockingMemberIds(Long memberId) {
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return Stream.concat(blockedMemberIds.stream(), blockingMemberIds.stream())
+                .distinct()
+                .toList();
+    }
+
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+                .select(memberBlock.blocked.id)
+                .from(memberBlock)
+                .where(memberBlock.member.id.eq(memberId))
+                .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+                .select(memberBlock.member.id)
+                .from(memberBlock)
+                .where(memberBlock.blocked.id.eq(memberId))
+                .fetch();
     }
 
 }

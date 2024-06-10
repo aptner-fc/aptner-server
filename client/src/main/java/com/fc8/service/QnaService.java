@@ -27,7 +27,7 @@ public interface QnaService {
 
     Long deleteComment(Long memberId, Long qnaId, Long qnaCommentId, String apartCode);
 
-    Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command);
+    Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command);
 
     Long writeReply(Long memberId, Long qnaId, String apartCode, WriteQnaCommentCommand command, MultipartFile image);
 
@@ -36,4 +36,8 @@ public interface QnaService {
     void deleteEmoji(Long memberId, Long qnaId, String apartCode, EmojiType emoji);
 
     List<QnaFileInfo> loadQnaFileList(Long qnaId, String apartCode);
+
+    List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount);
+
+    Long getQnaCount(Long memberId, String apartCode, String keyword);
 }
