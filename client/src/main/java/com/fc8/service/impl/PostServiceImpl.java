@@ -373,6 +373,7 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount) {
         if (pinnedPostCount >= 5) return null;
 
@@ -381,6 +382,12 @@ public class PostServiceImpl implements PostService {
         return postList.stream()
             .map(post -> SearchPostInfo.fromPost(post, post.getMember(), post.getCategory()))
             .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getPostCount(Long memberId, String apartCode, String keyword) {
+        return postRepository.getPostCountByKeyword(memberId, apartCode, keyword);
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {

@@ -35,7 +35,14 @@ public class SearchFacade {
         List<SearchPostInfo> postList = postService.searchPostList(memberId, apartCode, keyword, pinnedPostList.size());
         List<SearchQnaInfo> qnaList = qnaService.searchQnaList(memberId, apartCode, keyword, pinnedQnaList.size());
 
+        // 3. 게시글 총 개수 조회
+        Long noticeCount = noticeService.getNoticeCount(apartCode, keyword);
+        Long disclosureCount = disclosureService.getDisclosureCount(apartCode, keyword);
+        Long postCount = postService.getPostCount(memberId, apartCode, keyword);
+        Long QnaCount = qnaService.getQnaCount(memberId, apartCode, keyword);
+
         return new LoadUnifiedListResponse(
+            noticeCount, disclosureCount, postCount, QnaCount,
             pinnedNoticeList, noticeList, pinnedDisclosureList, disclosureList, pinnedPostList, postList, pinnedQnaList, qnaList);
     }
 }

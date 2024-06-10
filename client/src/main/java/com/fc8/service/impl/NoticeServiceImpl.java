@@ -119,6 +119,7 @@ public class NoticeServiceImpl implements NoticeService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SearchNoticeInfo> searchNoticeList(String apartCode, String keyword, int pinnedNoticeCount) {
         if (pinnedNoticeCount >= 5) return null;
 
@@ -127,5 +128,11 @@ public class NoticeServiceImpl implements NoticeService {
         return noticeList.stream()
             .map(notice -> SearchNoticeInfo.fromNotice(notice, notice.getAdmin(), notice.getCategory()))
             .toList();
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Long getNoticeCount(String apartCode, String keyword) {
+        return noticeRepository.getNoticeCountByKeyword(apartCode, keyword);
     }
 }
