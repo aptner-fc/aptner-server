@@ -134,6 +134,21 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
         return count != null ? count : 0;
     }
 
+    @Override
+    public Disclosure getByIdAndApartCode(Long disclosureId, String apartCode) {
+        Disclosure activeDisclosure = jpaQueryFactory
+            .selectFrom(disclosure)
+            .where(
+                eqId(disclosure, disclosureId),
+                eqApartCode(disclosure, apartCode),
+                isNotDeleted(disclosure)
+            )
+            .fetchOne();
+
+        return Optional.ofNullable(activeDisclosure)
+            .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_POST));
+    }
+
     private BooleanExpression eqId(QDisclosure disclosure, Long disclosureId) {
         return disclosure.id.eq(disclosureId);
     }
