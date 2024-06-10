@@ -65,5 +65,9 @@ public class DisclosureFacade {
     public WriteDisclosureCommentResponse modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image) {
         return new WriteDisclosureCommentResponse(disclosureService.modifyComment(memberId, disclosureId, commentId, apartCode, command, image));
     }
+
+    public DeleteDisclosureCommentResponse deleteComment(Long memberId, Long disclosureId, Long commentId, String apartCode) {
+        return new DeleteDisclosureCommentResponse(disclosureService.deleteComment(memberId, disclosureId, commentId, apartCode));
+    }
 }
 
