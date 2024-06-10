@@ -4,6 +4,8 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.admin.Admin;
 import com.fc8.platform.domain.entity.member.Member;
+import com.fc8.platform.domain.entity.notice.NoticeComment;
+import com.fc8.platform.domain.entity.notice.NoticeCommentImage;
 import com.fc8.platform.domain.entity.pinned.PinnedPostComment;
 import com.fc8.platform.domain.entity.pinned.PinnedPostCommentImage;
 import com.fc8.platform.domain.entity.post.PostComment;
@@ -98,4 +100,28 @@ public record CommentInfo(
                     .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
             .build();
     }
+
+    public static CommentInfo fromEntity(NoticeComment comment, List<NoticeCommentImage> images, Admin admin, Member member) {
+        String imagePath = Optional.ofNullable(images)
+            .filter(list -> !list.isEmpty())
+            .map(list -> list.get(0).getImagePath())
+            .orElse(null);
+
+        return CommentInfo.builder()
+            .id(comment.getId())
+            .parentId(Optional.ofNullable(comment.getParent()).map(NoticeComment::getId).orElse(null))
+            .content(comment.getContent())
+            .imageUrl(imagePath)
+            .isBlocked(comment.isBlocked())
+            .createdAt(comment.getCreatedAt())
+            .updatedAt(comment.getUpdatedAt())
+            .deletedAt(comment.getDeletedAt())
+            .writer(Optional.ofNullable(admin)
+                .map(WriterInfo::fromAdminEntity)
+                .orElseGet(() -> Optional.ofNullable(member)
+                    .map(WriterInfo::fromMemberEntity)
+                    .orElseThrow(() -> new InvalidParamException(ErrorCode.NOT_FOUND_COMMENT_WRITER))))
+            .build();
+    }
+
 }

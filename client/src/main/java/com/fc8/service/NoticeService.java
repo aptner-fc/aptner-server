@@ -15,7 +15,7 @@ public interface NoticeService {
 
     Page<NoticeInfo> loadNoticeList(Long memberId, String apartCode, SearchPageCommand command);
 
-    Page<NoticeCommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command);
+    Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command);
 
     EmojiInfo registerEmoji(Long memberId, Long noticeId, String apartCode, EmojiType emoji);
 

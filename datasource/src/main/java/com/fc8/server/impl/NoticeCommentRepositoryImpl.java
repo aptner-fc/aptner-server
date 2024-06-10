@@ -4,6 +4,7 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
+import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.notice.*;
 import com.fc8.platform.dto.record.NoticeCommentInfo;
 import com.fc8.platform.dto.record.WriterInfo;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Repository
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
     QNoticeComment noticeComment = QNoticeComment.noticeComment;
     QNotice notice = QNotice.notice;
     QMember member = QMember.member;
+    QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QNoticeCommentImage noticeCommentImage = QNoticeCommentImage.noticeCommentImage;
 
     @Override
@@ -123,6 +126,69 @@ public class NoticeCommentRepositoryImpl implements NoticeCommentRepository {
                 this.member.eq(member)
             )
             .fetchFirst() != null;
+    }
+
+    @Override
+    public Page<NoticeComment> getAllByNoticeIdAndMemberId(Long noticeId, Long memberId, Pageable pageable) {
+        QNoticeComment parent = new QNoticeComment("parent");
+        List<NoticeComment> commentList = jpaQueryFactory
+            .selectFrom(noticeComment)
+            .innerJoin(notice).on(noticeComment.notice.eq(notice))
+            .leftJoin(parent).on(noticeComment.parent.eq(parent))
+            .where(
+                notice.id.eq(noticeId),
+                notice.deletedAt.isNull()
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(noticeComment.createdAt.asc())
+            .fetch();
+
+        List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
+
+        // 차단된 댓글 여부 설정
+        commentList.forEach(comment -> {
+            if (blockedOrBlockingMemberIds.contains(comment.getMember().getId())) {
+                comment.changeBlockStatus(true);
+            }
+        });
+
+        JPAQuery<Long> count = jpaQueryFactory
+            .select(noticeComment.count())
+            .from(noticeComment)
+            .innerJoin(notice).on(noticeComment.notice.eq(notice))
+            .where(
+                notice.id.eq(noticeId),
+                notice.deletedAt.isNull()
+            );
+
+        return PageableExecutionUtils.getPage(commentList, pageable, count::fetchOne);
+    }
+
+    private List<Long> getBlockedOrBlockingMemberIds(Long memberId) {
+        List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
+        List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
+
+        return Stream.concat(blockedMemberIds.stream(), blockingMemberIds.stream())
+            .distinct()
+            .toList();
+    }
+
+
+    private List<Long> getBlockedMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.blocked.id)
+            .from(memberBlock)
+            .where(memberBlock.member.id.eq(memberId))
+            .fetch();
+    }
+
+    private List<Long> getBlockingMemberIds(Long memberId) {
+        return jpaQueryFactory
+            .select(memberBlock.member.id)
+            .from(memberBlock)
+            .where(memberBlock.blocked.id.eq(memberId))
+            .fetch();
     }
 
     private BooleanExpression isNotDeleted() {
