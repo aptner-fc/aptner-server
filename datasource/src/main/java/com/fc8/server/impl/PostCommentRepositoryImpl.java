@@ -136,14 +136,14 @@ public class PostCommentRepositoryImpl implements PostCommentRepository {
         List<PostComment> commentList = jpaQueryFactory
                 .selectFrom(postComment)
                 .innerJoin(post).on(postComment.post.eq(post))
-                .innerJoin(parent).on(postComment.parent.eq(parent))
+                .leftJoin(parent).on(postComment.parent.eq(parent))
                 .where(
                         post.id.eq(postId),
                         post.deletedAt.isNull()
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(postComment.createdAt.desc())
+                .orderBy(postComment.createdAt.asc())
                 .fetch();
 
         List<Long> blockedOrBlockingMemberIds = getBlockedOrBlockingMemberIds(memberId);
