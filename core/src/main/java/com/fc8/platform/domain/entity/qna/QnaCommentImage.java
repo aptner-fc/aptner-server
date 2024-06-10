@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @Entity
 @Table(
-    name = "qna_reply_image"
+    name = "qna_comment_image"
 )
 public class QnaCommentImage {
 
