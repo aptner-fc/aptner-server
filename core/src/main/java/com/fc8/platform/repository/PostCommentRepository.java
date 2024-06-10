@@ -22,4 +22,6 @@ public interface PostCommentRepository {
     List<PostComment> getAllByIdsAndMember(List<Long> postCommentIds, Member member);
 
     Page<PostCommentInfo> getCommentListByPost(Long postId, Pageable pageable);
+
+    Page<PostComment> getAllByPostIdAndMemberId(Long postId, Long memberId, Pageable pageable);
 }

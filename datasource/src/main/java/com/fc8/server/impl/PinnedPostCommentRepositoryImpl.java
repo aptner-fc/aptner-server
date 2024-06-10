@@ -39,9 +39,11 @@ public class PinnedPostCommentRepositoryImpl implements PinnedPostCommentReposit
 
     @Override
     public Page<PinnedPostComment> getAllByPinnedPost(Long pinnedPostId, Pageable pageable) {
+        QPinnedPostComment parent = new QPinnedPostComment("parent");
         List<PinnedPostComment> commentList = jpaQueryFactory
                 .selectFrom(pinnedPostComment)
                 .innerJoin(pinnedPost).on(pinnedPostComment.pinnedPost.eq(pinnedPost))
+                .innerJoin(parent).on(pinnedPostComment.parent.eq(parent))
                 .where(
                         pinnedPost.id.eq(pinnedPostId),
                         pinnedPost.deletedAt.isNull(),

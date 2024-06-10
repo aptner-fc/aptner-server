@@ -265,12 +265,17 @@ public class QnaServiceImpl implements QnaService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<QnaCommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return qnaCommentRepository.getCommentListByQna(qnaId, pageable);
+        var qnaCommentList = qnaCommentRepository.getAllByQnaIdAndMemberId(qnaId, memberId, pageable);
+        final List<CommentInfo> qnaCommentInfoList = qnaCommentList.stream()
+                .map(comment -> CommentInfo.fromEntity(comment, comment.getQnaCommentImages(), comment.getAdmin(), comment.getMember()))
+                .toList();
+
+        return new PageImpl<>(qnaCommentInfoList, pageable, qnaCommentList.getTotalElements());
     }
 
     @Override

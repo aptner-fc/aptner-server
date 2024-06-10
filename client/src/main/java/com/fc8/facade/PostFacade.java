@@ -82,7 +82,7 @@ public class PostFacade {
     }
 
     public PageResponse<LoadPostCommentListResponse> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
-        final Page<PostCommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
+        final Page<CommentInfo> commentList = postService.loadCommentList(memberId, apartCode, postId, command);
         return new PageResponse<>(commentList, new LoadPostCommentListResponse(commentList.getContent()));
     }
 

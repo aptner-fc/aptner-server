@@ -70,7 +70,7 @@ public class QnaFacade {
     }
 
     public PageResponse<LoadQnaCommentListResponse> loadCommentList(Long memberId, String apartCode, Long qnaId, CustomPageCommand command) {
-        final Page<QnaCommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
+        final Page<CommentInfo> commentList = qnaService.loadCommentList(memberId, apartCode, qnaId, command);
         return new PageResponse<>(commentList, new LoadQnaCommentListResponse(commentList.getContent()));
     }
 

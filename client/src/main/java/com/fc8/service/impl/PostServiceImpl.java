@@ -344,12 +344,17 @@ public class PostServiceImpl implements PostService {
 
     @Override
     @Transactional(readOnly = true)
-    public Page<PostCommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
+    public Page<CommentInfo> loadCommentList(Long memberId, String apartCode, Long postId, CustomPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 댓글 조회
-        return postCommentRepository.getCommentListByPost(postId, pageable);
+        var postCommentList = postCommentRepository.getAllByPostIdAndMemberId(postId, memberId, pageable);
+        final List<CommentInfo> commentInfoList = postCommentList.stream()
+                .map(comment -> CommentInfo.fromEntity(comment, comment.getPostCommentImages(), comment.getAdmin(), comment.getMember()))
+                .toList();
+
+        return new PageImpl<>(commentInfoList, pageable, postCommentList.getTotalElements());
     }
 
     @Override
