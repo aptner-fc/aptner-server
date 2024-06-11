@@ -73,12 +73,7 @@ public class NoticeServiceImpl implements NoticeService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var noticeList = noticeRepository.getNoticeListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
-        final List<NoticeInfo> noticeInfoList = noticeList.stream()
-            .map(notice -> NoticeInfo.fromEntity(notice, notice.getAdmin(), notice.getCategory()))
-            .toList();
-
-        return new PageImpl<>(noticeInfoList, pageable, noticeList.getTotalElements());
+        return noticeRepository.getNoticeInfoList(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
     }
 
     @Override
