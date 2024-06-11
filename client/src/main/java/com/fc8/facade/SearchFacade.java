@@ -1,5 +1,6 @@
 package com.fc8.facade;
 
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.LoadUnifiedListResponse;
 import com.fc8.service.*;
@@ -24,10 +25,10 @@ public class SearchFacade {
     @Transactional(readOnly = true)
     public LoadUnifiedListResponse search(Long memberId, String apartCode, String keyword) {
         // 1. 중요글 조회
-        List<SearchNoticeInfo> pinnedNoticeList = pinnedPostService.searchPinnedNoticeList(apartCode, keyword, "NT000");
-        List<SearchDisclosureInfo> pinnedDisclosureList = pinnedPostService.searchPinnedDisclosureList(apartCode, keyword, "DC000");
-        List<SearchPostInfo> pinnedPostList = pinnedPostService.searchPinnedPostList(apartCode, keyword, "PT000");
-        List<SearchQnaInfo> pinnedQnaList = pinnedPostService.searchPinnedQnaList(apartCode, keyword, "QA000");
+        List<SearchNoticeInfo> pinnedNoticeList = pinnedPostService.searchPinnedNoticeList(apartCode, keyword, AptnerProperties.CATEGORY_CODE_NOTICE);
+        List<SearchDisclosureInfo> pinnedDisclosureList = pinnedPostService.searchPinnedDisclosureList(apartCode, keyword, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
+        List<SearchPostInfo> pinnedPostList = pinnedPostService.searchPinnedPostList(apartCode, keyword, AptnerProperties.CATEGORY_CODE_POST);
+        List<SearchQnaInfo> pinnedQnaList = pinnedPostService.searchPinnedQnaList(apartCode, keyword, AptnerProperties.CATEGORY_CODE_QNA);
 
         // 2. 게시글 조회
         List<SearchNoticeInfo> noticeList = noticeService.searchNoticeList(apartCode, keyword, pinnedNoticeList.size());
