@@ -15,18 +15,20 @@ public record NoticeInfo(
     WriterInfo writer,
     CategoryInfo category,
     Long commentCount,
+    Long viewCount,
     boolean isFileAttached
 ) {
-    public static NoticeInfo fromEntity(Notice notice, Admin admin, Category category, Long commentCount, boolean isFileAttached) {
+    public static NoticeInfo fromEntity(Notice notice, Admin admin, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new NoticeInfo(
-            notice.getId(),
-            notice.getTitle(),
-            notice.getCreatedAt(),
-            notice.getUpdatedAt(),
-            WriterInfo.fromAdminEntity(admin),
-            CategoryInfo.fromEntity(category),
-            commentCount,
-            isFileAttached
+                notice.getId(),
+                notice.getTitle(),
+                notice.getCreatedAt(),
+                notice.getUpdatedAt(),
+                WriterInfo.fromAdminEntity(admin),
+                CategoryInfo.fromEntity(category),
+                commentCount,
+                viewCount,
+                isFileAttached
         );
     }
 }

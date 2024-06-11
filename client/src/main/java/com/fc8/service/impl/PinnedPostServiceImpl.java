@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.pinned.PinnedPost;
 import com.fc8.platform.domain.entity.pinned.PinnedPostCommentImage;
 import com.fc8.platform.domain.entity.pinned.PinnedPostEmoji;
@@ -41,6 +42,8 @@ public class PinnedPostServiceImpl implements PinnedPostService {
 
     private final S3UploadService s3UploadService;
 
+    private final ViewCountUtils viewCountUtils;
+
     @Override
     @Transactional(readOnly = true)
     public PinnedPostDetailInfo loadPinnedPostDetail(Long memberId, String apartCode, String categoryCode, Long pinnedPostId) {
@@ -53,6 +56,8 @@ public class PinnedPostServiceImpl implements PinnedPostService {
 
         final EmojiCountInfo emojiCount = pinnedPostEmojiRepository.getEmojiCountInfoByPost(pinnedPost);
         final EmojiReactionInfo emojiReaction = pinnedPostEmojiRepository.getEmojiReactionInfoByPostAndMember(pinnedPost, member);
+
+        viewCountUtils.increasePinnedPostViewCount(pinnedPost);
 
         return PinnedPostDetailInfo.fromEntityWithDomain(pinnedPost, pinnedPost.getAdmin(), pinnedPost.getCategory(), emojiCount, emojiReaction);
     }

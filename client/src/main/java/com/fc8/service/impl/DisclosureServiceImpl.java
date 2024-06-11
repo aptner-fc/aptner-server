@@ -4,6 +4,7 @@ import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.disclosure.Disclosure;
 import com.fc8.platform.domain.entity.disclosure.DisclosureCommentImage;
 import com.fc8.platform.domain.entity.disclosure.DisclosureEmoji;
@@ -40,6 +41,8 @@ public class DisclosureServiceImpl implements DisclosureService {
 
     private final S3UploadService s3UploadService;
 
+    private final ViewCountUtils viewCountUtils;
+
     @Override
     @Transactional(readOnly = true)
     public DisclosureDetailInfo loadDisclosureDetail(Long memberId, Long disclosureId, String apartCode) {
@@ -51,6 +54,8 @@ public class DisclosureServiceImpl implements DisclosureService {
 
         final EmojiCountInfo emojiCount = disclosureEmojiRepository.getEmojiCountInfoByDisclosureAndMember(disclosure);
         final EmojiReactionInfo emojiReaction = disclosureEmojiRepository.getEmojiReactionInfoByDisclosureAndMember(disclosure, member);
+
+        viewCountUtils.increaseDisclosureViewCount(disclosure);
 
         return DisclosureDetailInfo.fromEntity(disclosure, disclosure.getAdmin(), disclosure.getCategory(), emojiCount, emojiReaction);
     }
@@ -252,6 +257,12 @@ public class DisclosureServiceImpl implements DisclosureService {
         comment.delete();
 
         return commentId;
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long disclosureId, Long viewCount) {
+        disclosureRepository.updateViewCount(disclosureId, viewCount);
     }
 }
 

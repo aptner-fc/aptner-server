@@ -28,4 +28,6 @@ public interface PostRepository {
     Long getPostCountByKeyword(Long memberId, String apartCode, String keyword);
 
     Page<PostSummary> getPostSummaryList(Long memberId, String apartCode, Long apartAreaId, Pageable pageable, String search, SearchType type, String categoryCode);
+
+    void updateViewCount(Long postId, Long viewCount);
 }

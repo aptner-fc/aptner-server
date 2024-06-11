@@ -30,4 +30,6 @@ public interface QnaRepository {
     Long getQnaCountByKeyword(Long memberId, String apartCode, String keyword);
 
     Page<QnaInfo> getQnaInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
+
+    void updateViewCount(Long qnaId, Long viewCount);
 }

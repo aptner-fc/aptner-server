@@ -18,5 +18,7 @@ public interface DisclosureRepository {
     Disclosure getByIdAndApartCode(Long disclosureId, String apartCode);
 
     Page<DisclosureInfo> getDisclosureInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
+
+    void updateViewCount(Long disclosureId, Long viewCount);
 }
 

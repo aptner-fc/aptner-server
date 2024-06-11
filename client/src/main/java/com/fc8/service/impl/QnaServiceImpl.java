@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
@@ -45,6 +46,8 @@ public class QnaServiceImpl implements QnaService {
     private final S3UploadService s3UploadService;
     private final QnaCommentImageRepository qnaCommentImageRepository;
     private final QnaFileRepository qnaFileRepository;
+
+    private final ViewCountUtils viewCountUtils;
 
     @Override
     @Transactional
@@ -164,6 +167,8 @@ public class QnaServiceImpl implements QnaService {
 
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
+
+        viewCountUtils.increaseQnaViewCount(qna);
 
         return QnaDetailInfo.fromEntity(qna, qna.getMember(), qna.getCategory(), emojiCount, emojiReaction);
     }
@@ -366,6 +371,12 @@ public class QnaServiceImpl implements QnaService {
     @Transactional(readOnly = true)
     public Long getQnaCount(Long memberId, String apartCode, String keyword) {
         return qnaRepository.getQnaCountByKeyword(memberId, apartCode, keyword);
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long postId, Long viewCount) {
+        qnaRepository.updateViewCount(postId, viewCount);
     }
 
 }

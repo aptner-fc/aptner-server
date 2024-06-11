@@ -18,4 +18,6 @@ public interface NoticeRepository {
     Notice getByIdAndApartCode(Long noticeId, String apartCode);
 
     Page<NoticeInfo> getNoticeInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode);
+
+    void updateViewCount(Long noticeId, Long viewCount);
 }

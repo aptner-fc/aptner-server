@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.apartment.ApartArea;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.entity.mapping.ApartAreaPostMapping;
@@ -51,6 +52,8 @@ public class PostServiceImpl implements PostService {
     private final CategoryRepository categoryRepository;
     private final PostCommentImageRepository postCommentImageRepository;
     private final S3UploadService s3UploadService;
+
+    private final ViewCountUtils viewCountUtils;
 
     @Override
     @Transactional
@@ -252,6 +255,8 @@ public class PostServiceImpl implements PostService {
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
 
+        viewCountUtils.increasePostViewCount(post);
+
         return PostDetailInfo.fromEntityWithDomain(post, post.getMember(), post.getCategory(), apartArea, emojiCount, emojiReaction);
     }
 
@@ -388,6 +393,12 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public Long getPostCount(Long memberId, String apartCode, String keyword) {
         return postRepository.getPostCountByKeyword(memberId, apartCode, keyword);
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long postId, Long viewCount) {
+        postRepository.updateViewCount(postId, viewCount);
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {

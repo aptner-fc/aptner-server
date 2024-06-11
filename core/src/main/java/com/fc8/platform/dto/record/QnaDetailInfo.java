@@ -11,6 +11,7 @@ public record QnaDetailInfo(
     Long id,
     String title,
     String content,
+    Long viewCount,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
@@ -31,6 +32,7 @@ public record QnaDetailInfo(
             qna.getId(),
             qna.getTitle(),
             qna.getContent(),
+            qna.getViewCount(),
             qna.getCreatedAt(),
             qna.getUpdatedAt(),
             qna.isPrivate(),

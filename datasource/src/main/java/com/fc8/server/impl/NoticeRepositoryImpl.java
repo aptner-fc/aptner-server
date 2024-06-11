@@ -59,49 +59,50 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     @Override
     public Page<NoticeInfo> getNoticeInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
         List<NoticeInfo> noticeInfoList = jpaQueryFactory
-            .select(Projections.constructor(
-                NoticeInfo.class,
-                notice.id,
-                notice.title,
-                notice.createdAt,
-                notice.updatedAt,
-                Projections.constructor(
-                    WriterInfo.class,
-                    notice.admin.id,
-                    notice.admin.name,
-                    notice.admin.nickname
-                ),
-                Projections.constructor(
-                    CategoryInfo.class,
-                    notice.category.id,
-                    notice.category.type,
-                    notice.category.code,
-                    notice.category.name
-                ),
-                jpaQueryFactory.select(noticeComment.count())
-                    .from(noticeComment)
-                    .where(noticeComment.notice.id.eq(notice.id)),
-                jpaQueryFactory.select(noticeFile.count())
-                    .from(noticeFile)
-                    .where(noticeFile.notice.id.eq(notice.id)).gt(0L)
-            ))
-            .from(notice)
-            .innerJoin(category).on(notice.category.id.eq(category.id))
-            .innerJoin(admin).on(notice.admin.id.eq(admin.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(notice),
-                // 2. 아파트 코드
-                eqApartCode(notice, apartCode),
-                // 4. 카테고리
-                eqCategoryCode(category, categoryCode),
-                // 5. 검색어
-                containsSearch(notice, admin, search, type)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(notice.createdAt.desc())
-            .fetch();
+                .select(Projections.constructor(
+                        NoticeInfo.class,
+                        notice.id,
+                        notice.title,
+                        notice.createdAt,
+                        notice.updatedAt,
+                        Projections.constructor(
+                                WriterInfo.class,
+                                notice.admin.id,
+                                notice.admin.name,
+                                notice.admin.nickname
+                        ),
+                        Projections.constructor(
+                                CategoryInfo.class,
+                                notice.category.id,
+                                notice.category.type,
+                                notice.category.code,
+                                notice.category.name
+                        ),
+                        jpaQueryFactory.select(noticeComment.count())
+                                .from(noticeComment)
+                                .where(noticeComment.notice.id.eq(notice.id)),
+                        notice.viewCount,
+                        jpaQueryFactory.select(noticeFile.count())
+                                .from(noticeFile)
+                                .where(noticeFile.notice.id.eq(notice.id)).gt(0L)
+                ))
+                .from(notice)
+                .innerJoin(category).on(notice.category.id.eq(category.id))
+                .innerJoin(admin).on(notice.admin.id.eq(admin.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(notice),
+                        // 2. 아파트 코드
+                        eqApartCode(notice, apartCode),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(notice, admin, search, type)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(notice.createdAt.desc())
+                .fetch();
 
         JPAQuery<Long> countQuery = jpaQueryFactory
             .select(notice.count())
@@ -115,6 +116,15 @@ public class NoticeRepositoryImpl implements NoticeRepository {
             );
 
         return PageableExecutionUtils.getPage(noticeInfoList, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long noticeId, Long viewCount) {
+        jpaQueryFactory
+                .update(notice)
+                .set(notice.viewCount, viewCount)
+                .where(notice.id.eq(noticeId))
+                .execute();
     }
 
     @Override

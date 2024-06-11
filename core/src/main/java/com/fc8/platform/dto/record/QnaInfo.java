@@ -16,19 +16,21 @@ public record QnaInfo(
     CategoryInfo category,
     boolean isPrivate,
     Long commentCount,
+    Long viewCount,
     boolean isFileAttached
 ) {
-    public static QnaInfo fromEntity(Qna qna, Member member, Category category, Long commentCount, boolean isFileAttached) {
+    public static QnaInfo fromEntity(Qna qna, Member member, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new QnaInfo(
-            qna.getId(),
-            qna.getTitle(),
-            qna.getCreatedAt(),
-            qna.getUpdatedAt(),
-            WriterInfo.fromMemberEntity(member),
-            CategoryInfo.fromEntity(category),
-            qna.isPrivate(),
-            commentCount,
-            isFileAttached
+                qna.getId(),
+                qna.getTitle(),
+                qna.getCreatedAt(),
+                qna.getUpdatedAt(),
+                WriterInfo.fromMemberEntity(member),
+                CategoryInfo.fromEntity(category),
+                qna.isPrivate(),
+                commentCount,
+                viewCount,
+                isFileAttached
         );
     }
 
@@ -42,7 +44,9 @@ public record QnaInfo(
             CategoryInfo.fromEntity(category),
             qna.isPrivate(),
             null,
+            null,
             false
         );
     }
 }
+

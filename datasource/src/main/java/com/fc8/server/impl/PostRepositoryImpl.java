@@ -87,6 +87,7 @@ public class PostRepositoryImpl implements PostRepository {
                 jpaQueryFactory.select(postComment.count())
                     .from(postComment)
                     .where(postComment.post.id.eq(post.id)),
+                post.viewCount,
                 jpaQueryFactory.select(postFile.count())
                     .from(postFile)
                     .where(postFile.post.id.eq(post.id)).gt(0L)
@@ -138,6 +139,15 @@ public class PostRepositoryImpl implements PostRepository {
             );
 
         return PageableExecutionUtils.getPage(postSummaryList, pageable, count::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long postId, Long viewCount) {
+        jpaQueryFactory
+                .update(post)
+                .set(post.viewCount, viewCount)
+                .where(post.id.eq(postId))
+                .execute();
     }
 
     @Override

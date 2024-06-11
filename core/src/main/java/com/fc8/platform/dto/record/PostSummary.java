@@ -16,10 +16,11 @@ public record PostSummary(
     WriterInfo writer,
     CategoryInfo category,
     Long commentCount,
+    Long viewCount,
     boolean isFileAttached
 ) {
 
-    public static PostSummary fromEntity(Post post, Member member, Category category, Long commentCount, boolean isFileAttached) {
+    public static PostSummary fromEntity(Post post, Member member, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new PostSummary(
             post.getId(),
             post.getTitle(),
@@ -29,6 +30,7 @@ public record PostSummary(
             WriterInfo.fromMemberEntity(member),
             CategoryInfo.fromEntity(category),
             commentCount,
+            viewCount,
             isFileAttached
         );
     }

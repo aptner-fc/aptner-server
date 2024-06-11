@@ -32,5 +32,7 @@ public interface DisclosureService {
     Long modifyComment(Long memberId, Long disclosureId, Long commentId, String apartCode, WriteDisclosureCommentCommand command, MultipartFile image);
 
     Long deleteComment(Long memberId, Long disclosureId, Long commentId, String apartCode);
+
+    void updateViewCount(Long disclosureId, Long viewCount);
 }
 

@@ -15,18 +15,20 @@ public record PinnedPostInfo(
     WriterInfo writer,
     CategoryInfo category,
     Long commentCount,
+    Long viewCount,
     boolean isFileAttached
 ) {
-    public static PinnedPostInfo fromEntity(PinnedPost pinnedPost, Admin admin, Category category, Long commentCount, boolean isFileAttached) {
+    public static PinnedPostInfo fromEntity(PinnedPost pinnedPost, Admin admin, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new PinnedPostInfo(
-            pinnedPost.getId(),
-            pinnedPost.getTitle(),
-            pinnedPost.getCreatedAt(),
-            pinnedPost.getUpdatedAt(),
-            WriterInfo.fromAdminEntity(admin),
-            CategoryInfo.fromEntity(category),
-            commentCount,
-            isFileAttached
+                pinnedPost.getId(),
+                pinnedPost.getTitle(),
+                pinnedPost.getCreatedAt(),
+                pinnedPost.getUpdatedAt(),
+                WriterInfo.fromAdminEntity(admin),
+                CategoryInfo.fromEntity(category),
+                commentCount,
+                viewCount,
+                isFileAttached
         );
     }
 }

@@ -42,4 +42,6 @@ public interface PostService {
     List<SearchPostInfo> searchPostList(Long memberId, String apartCode, String keyword, int pinnedPostCount);
 
     Long getPostCount(Long memberId, String apartCode, String keyword);
+
+    void updateViewCount(Long postId, Long viewCount);
 }

@@ -60,52 +60,53 @@ public class QnaRepositoryImpl implements QnaRepository {
         List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
 
         List<QnaInfo> qnaInfoList = jpaQueryFactory
-            .select(Projections.constructor(
-                QnaInfo.class,
-                qna.id,
-                qna.title,
-                qna.createdAt,
-                qna.updatedAt,
-                Projections.constructor(
-                    WriterInfo.class,
-                    qna.member.id,
-                    qna.member.name,
-                    qna.member.nickname
-                ),
-                Projections.constructor(
-                    CategoryInfo.class,
-                    qna.category.id,
-                    qna.category.type,
-                    qna.category.code,
-                    qna.category.name
-                ),
-                qna.isPrivate,
-                jpaQueryFactory.select(qnaComment.count())
-                    .from(qnaComment)
-                    .where(qnaComment.qna.id.eq(qna.id)),
-                jpaQueryFactory.select(qnaFile.count())
-                    .from(qnaFile)
-                    .where(qnaFile.qna.id.eq(qna.id)).gt(0L)
-            ))
-            .from(qna)
-            .innerJoin(category).on(qna.category.id.eq(category.id))
-            .innerJoin(member).on(qna.member.id.eq(member.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(qna),
-                // 2. 아파트 코드
-                eqApartCode(qna, apartCode),
-                // 3. 차단한 회원 및 차단된 회원 포스트 제거
-                removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
-                // 4. 카테고리
-                eqCategoryCode(category, categoryCode),
-                // 5. 검색어
-                containsSearch(qna, member, search, type)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(qna.createdAt.desc())
-            .fetch();
+                .select(Projections.constructor(
+                        QnaInfo.class,
+                        qna.id,
+                        qna.title,
+                        qna.createdAt,
+                        qna.updatedAt,
+                        Projections.constructor(
+                                WriterInfo.class,
+                                qna.member.id,
+                                qna.member.name,
+                                qna.member.nickname
+                        ),
+                        Projections.constructor(
+                                CategoryInfo.class,
+                                qna.category.id,
+                                qna.category.type,
+                                qna.category.code,
+                                qna.category.name
+                        ),
+                        qna.isPrivate,
+                        jpaQueryFactory.select(qnaComment.count())
+                                .from(qnaComment)
+                                .where(qnaComment.qna.id.eq(qna.id)),
+                        qna.viewCount,
+                        jpaQueryFactory.select(qnaFile.count())
+                                .from(qnaFile)
+                                .where(qnaFile.qna.id.eq(qna.id)).gt(0L)
+                ))
+                .from(qna)
+                .innerJoin(category).on(qna.category.id.eq(category.id))
+                .innerJoin(member).on(qna.member.id.eq(member.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(qna),
+                        // 2. 아파트 코드
+                        eqApartCode(qna, apartCode),
+                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                        removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(qna, member, search, type)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(qna.createdAt.desc())
+                .fetch();
 
         JPAQuery<Long> countQuery = jpaQueryFactory
             .select(qna.count())
@@ -120,6 +121,15 @@ public class QnaRepositoryImpl implements QnaRepository {
             );
 
         return PageableExecutionUtils.getPage(qnaInfoList, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long qnaId, Long viewCount) {
+        jpaQueryFactory
+                .update(qna)
+                .set(qna.viewCount, viewCount)
+                .where(qna.id.eq(qnaId))
+                .execute();
     }
 
     @Override

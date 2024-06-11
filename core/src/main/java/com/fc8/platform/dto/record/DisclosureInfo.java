@@ -15,18 +15,20 @@ public record DisclosureInfo(
     WriterInfo writer,
     CategoryInfo category,
     Long commentCount,
+    Long viewCount,
     boolean isFileAttached
 ) {
-    public static DisclosureInfo fromEntity(Disclosure disclosure, Admin admin, Category category, Long commentCount, boolean isFileAttached) {
+    public static DisclosureInfo fromEntity(Disclosure disclosure, Admin admin, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new DisclosureInfo(
-            disclosure.getId(),
-            disclosure.getTitle(),
-            disclosure.getCreatedAt(),
-            disclosure.getUpdatedAt(),
-            WriterInfo.fromAdminEntity(admin),
-            CategoryInfo.fromEntity(category),
-            commentCount,
-            isFileAttached
+                disclosure.getId(),
+                disclosure.getTitle(),
+                disclosure.getCreatedAt(),
+                disclosure.getUpdatedAt(),
+                WriterInfo.fromAdminEntity(admin),
+                CategoryInfo.fromEntity(category),
+                commentCount,
+                viewCount,
+                isFileAttached
         );
     }
 }
