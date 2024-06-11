@@ -1,7 +1,7 @@
 package com.fc8.platform.dto.response;
 
 import com.fc8.platform.dto.record.DisclosureInfo;
-import com.fc8.platform.dto.record.PinnedPostSummary;
+import com.fc8.platform.dto.record.PinnedPostInfo;
 import lombok.Getter;
 
 import java.util.List;
@@ -11,9 +11,9 @@ public class LoadDisclosureListResponse {
 
     private final List<DisclosureInfo> disclosureInfoList;
 
-    private final List<PinnedPostSummary> pinnedDisclosureList;
+    private final List<PinnedPostInfo> pinnedDisclosureList;
 
-    public LoadDisclosureListResponse(List<DisclosureInfo> disclosureInfoList, List<PinnedPostSummary> pinnedDisclosureList) {
+    public LoadDisclosureListResponse(List<DisclosureInfo> disclosureInfoList, List<PinnedPostInfo> pinnedDisclosureList) {
         this.disclosureInfoList = disclosureInfoList;
         this.pinnedDisclosureList = pinnedDisclosureList;
     }

@@ -1,6 +1,6 @@
 package com.fc8.platform.dto.response;
 
-import com.fc8.platform.dto.record.PinnedPostSummary;
+import com.fc8.platform.dto.record.PinnedPostInfo;
 import com.fc8.platform.dto.record.QnaInfo;
 import lombok.Getter;
 
@@ -10,9 +10,9 @@ import java.util.List;
 public class LoadQnaListResponse {
 
     private final List<QnaInfo> qnas;
-    private final List<PinnedPostSummary> pinnedQnas;
+    private final List<PinnedPostInfo> pinnedQnas;
 
-    public LoadQnaListResponse(List<QnaInfo> qnas, List<PinnedPostSummary> pinnedQnas) {
+    public LoadQnaListResponse(List<QnaInfo> qnas, List<PinnedPostInfo> pinnedQnas) {
         this.qnas = qnas;
         this.pinnedQnas = pinnedQnas;
     }

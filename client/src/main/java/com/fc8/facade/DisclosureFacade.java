@@ -38,7 +38,7 @@ public class DisclosureFacade {
         final Page<DisclosureInfo> disclosureList = disclosureService.loadDisclosureList(memberId, apartCode, command);
 
         // 2. 상단 고정 게시물(중요글) 조회
-        List<PinnedPostSummary> pinnedDisclosureList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
+        List<PinnedPostInfo> pinnedDisclosureList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
 
         return new PageResponse<>(disclosureList, new LoadDisclosureListResponse(disclosureList.getContent(), pinnedDisclosureList));
     }

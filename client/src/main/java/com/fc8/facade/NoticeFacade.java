@@ -38,7 +38,7 @@ public class NoticeFacade {
         final Page<NoticeInfo> noticeList = noticeService.loadNoticeList(memberId, apartCode, command);
 
         // 상단 게시물(중요글) 조회
-        List<PinnedPostSummary> pinnedNoticeList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_NOTICE);
+        List<PinnedPostInfo> pinnedNoticeList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_NOTICE);
 
         return new PageResponse<>(noticeList, new LoadNoticeListResponse(noticeList.getContent(), pinnedNoticeList));
     }
