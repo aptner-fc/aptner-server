@@ -211,11 +211,8 @@ public class PinnedPostServiceImpl implements PinnedPostService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<PinnedPostSummary> loadPinnedPostList(String apartCode, String categoryCode) {
-        List<PinnedPost> pinnedPosts = pinnedPostRepository.getAllByApartCodeAndCategoryCode(apartCode, categoryCode);
-        return pinnedPosts.stream()
-                .map(pinnedPost -> PinnedPostSummary.fromEntity(pinnedPost, pinnedPost.getAdmin(), pinnedPost.getCategory()))
-                .toList();
+    public List<PinnedPostInfo> loadPinnedPostList(String apartCode, String categoryCode) {
+        return pinnedPostRepository.getAllByApartCodeAndCategoryCode(apartCode, categoryCode);
     }
 
     @Override

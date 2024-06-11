@@ -1,7 +1,7 @@
 package com.fc8.platform.dto.response;
 
 import com.fc8.platform.dto.record.NoticeInfo;
-import com.fc8.platform.dto.record.PinnedPostSummary;
+import com.fc8.platform.dto.record.PinnedPostInfo;
 import lombok.Getter;
 
 import java.util.List;
@@ -10,9 +10,9 @@ import java.util.List;
 public class LoadNoticeListResponse {
 
     private final List<NoticeInfo> noticeInfoList;
-    private final List<PinnedPostSummary> pinnedNoticeList;
+    private final List<PinnedPostInfo> pinnedNoticeList;
 
-    public LoadNoticeListResponse(List<NoticeInfo> noticeInfoList, List<PinnedPostSummary> pinnedNoticeList) {
+    public LoadNoticeListResponse(List<NoticeInfo> noticeInfoList, List<PinnedPostInfo> pinnedNoticeList) {
         this.noticeInfoList = noticeInfoList;
         this.pinnedNoticeList = pinnedNoticeList;
     }

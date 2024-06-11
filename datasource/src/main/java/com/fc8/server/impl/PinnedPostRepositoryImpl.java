@@ -4,11 +4,15 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
-import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.pinned.PinnedPost;
 import com.fc8.platform.domain.entity.pinned.QPinnedPost;
+import com.fc8.platform.domain.entity.pinned.QPinnedPostComment;
+import com.fc8.platform.domain.entity.pinned.QPinnedPostFile;
+import com.fc8.platform.dto.record.CategoryInfo;
+import com.fc8.platform.dto.record.PinnedPostInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.PinnedPostRepository;
-import com.fc8.server.PinnedPostJpaRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +31,8 @@ public class PinnedPostRepositoryImpl implements PinnedPostRepository {
     QPinnedPost pinnedPost = QPinnedPost.pinnedPost;
     QApart apart = QApart.apart;
     QCategory category = QCategory.category;
+    QPinnedPostComment pinnedPostComment = QPinnedPostComment.pinnedPostComment;
+    QPinnedPostFile pinnedPostFile = QPinnedPostFile.pinnedPostFile;
 
     @Override
     public PinnedPost getPinnedPostByIdAndApartCode(Long memberId, Long pinnedPostId, String apartCode) {
@@ -58,9 +64,35 @@ public class PinnedPostRepositoryImpl implements PinnedPostRepository {
     }
 
     @Override
-    public List<PinnedPost> getAllByApartCodeAndCategoryCode(String apartCode, String categoryCode) {
+    public List<PinnedPostInfo> getAllByApartCodeAndCategoryCode(String apartCode, String categoryCode) {
         return jpaQueryFactory
-            .selectFrom(pinnedPost)
+            .select(Projections.constructor(
+                PinnedPostInfo.class,
+                pinnedPost.id,
+                pinnedPost.title,
+                pinnedPost.createdAt,
+                pinnedPost.updatedAt,
+                Projections.constructor(
+                    WriterInfo.class,
+                    pinnedPost.admin.id,
+                    pinnedPost.admin.name,
+                    pinnedPost.admin.nickname
+                ),
+                Projections.constructor(
+                    CategoryInfo.class,
+                    pinnedPost.category.id,
+                    pinnedPost.category.type,
+                    pinnedPost.category.code,
+                    pinnedPost.category.name
+                ),
+                jpaQueryFactory.select(pinnedPostComment.count())
+                    .from(pinnedPostComment)
+                    .where(pinnedPostComment.pinnedPost.id.eq(pinnedPost.id)),
+                jpaQueryFactory.select(pinnedPostFile.count())
+                    .from(pinnedPostFile)
+                    .where(pinnedPostFile.pinnedPost.id.eq(pinnedPost.id)).gt(0L)
+            ))
+            .from(pinnedPost)
             .innerJoin(category).on(pinnedPost.category.eq(category))
             .innerJoin(apart).on(pinnedPost.apart.eq(apart))
             .where(
@@ -69,6 +101,8 @@ public class PinnedPostRepositoryImpl implements PinnedPostRepository {
                 category.parent.isNull(),
                 apart.code.eq(apartCode)
             )
+            .limit(5)
+            .orderBy(pinnedPost.createdAt.desc())
             .fetch();
     }
 
