@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.entity.qna.QnaCommentImage;
 import com.fc8.platform.domain.entity.qna.QnaEmoji;
@@ -45,6 +46,8 @@ public class QnaServiceImpl implements QnaService {
     private final S3UploadService s3UploadService;
     private final QnaCommentImageRepository qnaCommentImageRepository;
     private final QnaFileRepository qnaFileRepository;
+
+    private final ViewCountUtils viewCountUtils;
 
     @Override
     @Transactional
@@ -165,6 +168,8 @@ public class QnaServiceImpl implements QnaService {
         final EmojiCountInfo emojiCount = qnaEmojiRepository.getEmojiCountInfoByQnaAndMember(qna);
         final EmojiReactionInfo emojiReaction = qnaEmojiRepository.getEmojiReactionInfoByQnaAndMember(qna, member);
 
+        viewCountUtils.increaseQnaViewCount(qna);
+
         return QnaDetailInfo.fromEntity(qna, qna.getMember(), qna.getCategory(), emojiCount, emojiReaction);
     }
 
@@ -173,14 +178,8 @@ public class QnaServiceImpl implements QnaService {
     public Page<QnaInfo> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
         // 1. 페이지 생성
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
-
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var qnaList = qnaRepository.getQnaListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
-        final List<QnaInfo> qnaInfoList = qnaList.stream()
-            .map(qna -> QnaInfo.fromEntity(qna, qna.getMember(), qna.getCategory()))
-            .toList();
-
-        return new PageImpl<>(qnaInfoList, pageable, qnaList.getTotalElements());
+        return qnaRepository.getQnaInfoList(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
     }
 
     @Override
@@ -372,6 +371,12 @@ public class QnaServiceImpl implements QnaService {
     @Transactional(readOnly = true)
     public Long getQnaCount(Long memberId, String apartCode, String keyword) {
         return qnaRepository.getQnaCountByKeyword(memberId, apartCode, keyword);
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long postId, Long viewCount) {
+        qnaRepository.updateViewCount(postId, viewCount);
     }
 
 }

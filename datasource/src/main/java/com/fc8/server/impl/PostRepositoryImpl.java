@@ -2,8 +2,8 @@ package com.fc8.server.impl;
 
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
-import com.fc8.platform.domain.entity.apartment.QApartArea;
 import com.fc8.platform.domain.entity.apartment.QApart;
+import com.fc8.platform.domain.entity.apartment.QApartArea;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.mapping.QApartAreaPostMapping;
 import com.fc8.platform.domain.entity.member.Member;
@@ -11,9 +11,15 @@ import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.post.Post;
 import com.fc8.platform.domain.entity.post.QPost;
+import com.fc8.platform.domain.entity.post.QPostComment;
+import com.fc8.platform.domain.entity.post.QPostFile;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.CategoryInfo;
+import com.fc8.platform.dto.record.PostSummary;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.PostRepository;
 import com.fc8.server.PostJpaRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -41,6 +47,8 @@ public class PostRepositoryImpl implements PostRepository {
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
     QApart apart = QApart.apart;
+    QPostComment postComment = QPostComment.postComment;
+    QPostFile postFile = QPostFile.postFile;
 
     @Override
     public Post store(Post post) {
@@ -48,61 +56,98 @@ public class PostRepositoryImpl implements PostRepository {
     }
 
     @Override
-    public Page<Post> getPostListByApartCodeAndApartAreaId(Long memberId, String apartCode, Long apartAreaId, Pageable pageable, String search, SearchType type, String categoryCode) {
+    public Page<PostSummary> getPostSummaryList(Long memberId, String apartCode, Long apartAreaId, Pageable pageable, String search, SearchType type, String categoryCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
         // 해당 회원이 차단당한 회원의 목록
         List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
 
-        List<Post> postList = jpaQueryFactory
-                .selectFrom(post)
-                .innerJoin(category).on(post.category.id.eq(category.id))
-                .innerJoin(member).on(post.member.id.eq(member.id))
-                .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
-                .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
-                .where(
-                        // 1. 삭제된 포스트
-                        isNotDeleted(post),
-                        // 2. 아파트 코드
-                        eqApartCode(post, apartCode),
-                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
-                        removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
-                        // 4. 카테고리
-                        eqCategoryCode(category, categoryCode),
-                        // 5. 검색어
-                        containsSearch(post, member, search, type),
-                        // 6. 평수 조회
-                        containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
-                )
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(post.createdAt.desc())
-                .fetch();
+        List<PostSummary> postSummaryList = jpaQueryFactory
+            .select(Projections.constructor(
+                PostSummary.class,
+                post.id,
+                post.title,
+                post.thumbnailPath,
+                post.createdAt,
+                post.updatedAt,
+                Projections.constructor(
+                    WriterInfo.class,
+                    post.member.id,
+                    post.member.name,
+                    post.member.nickname
+                ),
+                Projections.constructor(
+                    CategoryInfo.class,
+                    post.category.id,
+                    post.category.type,
+                    post.category.code,
+                    post.category.name
+                ),
+                jpaQueryFactory.select(postComment.count())
+                    .from(postComment)
+                    .where(postComment.post.id.eq(post.id)),
+                post.viewCount,
+                jpaQueryFactory.select(postFile.count())
+                    .from(postFile)
+                    .where(postFile.post.id.eq(post.id)).gt(0L)
+            ))
+            .from(post)
+            .innerJoin(category).on(post.category.id.eq(category.id))
+            .innerJoin(member).on(post.member.id.eq(member.id))
+            .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
+            .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
+            .where(
+                // 1. 삭제된 포스트
+                isNotDeleted(post),
+                // 2. 아파트 코드
+                eqApartCode(post, apartCode),
+                // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
+                // 4. 카테고리
+                eqCategoryCode(category, categoryCode),
+                // 5. 검색어
+                containsSearch(post, member, search, type),
+                // 6. 평수 조회
+                containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
+            )
+            .offset(pageable.getOffset())
+            .limit(pageable.getPageSize())
+            .orderBy(post.createdAt.desc())
+            .fetch();
 
         JPAQuery<Long> count = jpaQueryFactory
-                .select(post.count())
-                .from(post)
-                .innerJoin(category).on(post.category.id.eq(category.id))
-                .innerJoin(member).on(post.member.id.eq(member.id))
-                .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
-                .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
-                .where(
-                        // 1. 삭제된 포스트
-                        isNotDeleted(post),
-                        // 2. 아파트 코드
-                        eqApartCode(post, apartCode),
-                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
-                        removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
-                        // 4. 카테고리
-                        eqCategoryCode(category, categoryCode),
-                        // 5. 검색어
-                        containsSearch(post, member, search, type),
-                        // 6. 평수 조회
-                        containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
-                );
+            .select(post.count())
+            .from(post)
+            .innerJoin(category).on(post.category.id.eq(category.id))
+            .innerJoin(member).on(post.member.id.eq(member.id))
+            .leftJoin(apartAreaPostMapping).on(post.id.eq(apartAreaPostMapping.post.id))
+            .leftJoin(apartArea).on(apartAreaPostMapping.apartArea.id.eq(apartArea.id))
+            .where(
+                // 1. 삭제된 포스트
+                isNotDeleted(post),
+                // 2. 아파트 코드
+                eqApartCode(post, apartCode),
+                // 3. 차단한 회원 및 차단된 회원 포스트 제거
+                removeMemberBlock(post.member, blockedMemberIds, blockingMemberIds),
+                // 4. 카테고리
+                eqCategoryCode(category, categoryCode),
+                // 5. 검색어
+                containsSearch(post, member, search, type),
+                // 6. 평수 조회
+                containsApartArea(apartAreaPostMapping.apartArea, apartAreaId)
+            );
 
-        return PageableExecutionUtils.getPage(postList, pageable, count::fetchOne);
+        return PageableExecutionUtils.getPage(postSummaryList, pageable, count::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long postId, Long viewCount) {
+        jpaQueryFactory
+                .update(post)
+                .set(post.viewCount, viewCount)
+                .where(post.id.eq(postId))
+                .execute();
     }
 
     @Override

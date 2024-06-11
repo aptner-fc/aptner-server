@@ -3,7 +3,6 @@ package com.fc8.platform.domain.entity.notice;
 import com.fc8.platform.domain.BaseApartEntity;
 import com.fc8.platform.domain.entity.admin.Admin;
 import com.fc8.platform.domain.entity.category.Category;
-import com.fc8.platform.domain.entity.member.Member;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -40,5 +39,9 @@ public class Notice extends BaseApartEntity {
 
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
+
+    @Builder.Default
+    @Column(name = "view_count", columnDefinition = "bigint unsigned comment '조회수'")
+    private Long viewCount = 0L;
 
 }

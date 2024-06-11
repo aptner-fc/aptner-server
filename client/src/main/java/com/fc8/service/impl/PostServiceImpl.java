@@ -7,6 +7,7 @@ import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.apartment.ApartArea;
 import com.fc8.platform.domain.entity.category.Category;
 import com.fc8.platform.domain.entity.mapping.ApartAreaPostMapping;
@@ -51,6 +52,8 @@ public class PostServiceImpl implements PostService {
     private final CategoryRepository categoryRepository;
     private final PostCommentImageRepository postCommentImageRepository;
     private final S3UploadService s3UploadService;
+
+    private final ViewCountUtils viewCountUtils;
 
     @Override
     @Transactional
@@ -146,12 +149,7 @@ public class PostServiceImpl implements PostService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var postList = postRepository.getPostListByApartCodeAndApartAreaId(memberId, apartCode, apartAreaId, pageable, command.search(), command.type(), command.categoryCode());
-        final List<PostSummary> postInfoList = postList.stream()
-                .map(post -> PostSummary.fromEntity(post, post.getMember(), post.getCategory()))
-                .toList();
-
-        return new PageImpl<>(postInfoList, pageable, postList.getTotalElements());
+        return postRepository.getPostSummaryList(memberId, apartCode, apartAreaId, pageable, command.search(), command.type(), command.categoryCode());
     }
 
     @Override
@@ -256,6 +254,8 @@ public class PostServiceImpl implements PostService {
 
         final EmojiCountInfo emojiCount = postEmojiRepository.getEmojiCountInfoByPostAndMember(post);
         final EmojiReactionInfo emojiReaction = postEmojiRepository.getEmojiReactionInfoByPostAndMember(post, member);
+
+        viewCountUtils.increasePostViewCount(post);
 
         return PostDetailInfo.fromEntityWithDomain(post, post.getMember(), post.getCategory(), apartArea, emojiCount, emojiReaction);
     }
@@ -393,6 +393,12 @@ public class PostServiceImpl implements PostService {
     @Transactional(readOnly = true)
     public Long getPostCount(Long memberId, String apartCode, String keyword) {
         return postRepository.getPostCountByKeyword(memberId, apartCode, keyword);
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long postId, Long viewCount) {
+        postRepository.updateViewCount(postId, viewCount);
     }
 
     private void uploadPostThumbnailImage(Post post, MultipartFile image) {

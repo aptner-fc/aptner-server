@@ -8,10 +8,16 @@ import com.fc8.platform.domain.entity.member.Member;
 import com.fc8.platform.domain.entity.member.QMember;
 import com.fc8.platform.domain.entity.member.QMemberBlock;
 import com.fc8.platform.domain.entity.qna.QQna;
+import com.fc8.platform.domain.entity.qna.QQnaComment;
+import com.fc8.platform.domain.entity.qna.QQnaFile;
 import com.fc8.platform.domain.entity.qna.Qna;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.CategoryInfo;
+import com.fc8.platform.dto.record.QnaInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.QnaRepository;
 import com.fc8.server.QnaJpaRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -37,6 +43,8 @@ public class QnaRepositoryImpl implements QnaRepository {
     QMemberBlock memberBlock = QMemberBlock.memberBlock;
     QCategory category = QCategory.category;
     QApart apart = QApart.apart;
+    QQnaComment qnaComment = QQnaComment.qnaComment;
+    QQnaFile qnaFile = QQnaFile.qnaFile;
 
     @Override
     public Qna store(Qna qna) {
@@ -44,15 +52,43 @@ public class QnaRepositoryImpl implements QnaRepository {
     }
 
     @Override
-    public Page<Qna> getQnaListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+    public Page<QnaInfo> getQnaInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
         // 해당 회원이 차단한 회원의 목록
         List<Long> blockedMemberIds = getBlockedMemberIds(memberId);
 
         // 해당 회원이 차단당한 회원의 목록
         List<Long> blockingMemberIds = getBlockingMemberIds(memberId);
 
-        List<Qna> qnaList = jpaQueryFactory
-                .selectFrom(qna)
+        List<QnaInfo> qnaInfoList = jpaQueryFactory
+                .select(Projections.constructor(
+                        QnaInfo.class,
+                        qna.id,
+                        qna.title,
+                        qna.createdAt,
+                        qna.updatedAt,
+                        Projections.constructor(
+                                WriterInfo.class,
+                                qna.member.id,
+                                qna.member.name,
+                                qna.member.nickname
+                        ),
+                        Projections.constructor(
+                                CategoryInfo.class,
+                                qna.category.id,
+                                qna.category.type,
+                                qna.category.code,
+                                qna.category.name
+                        ),
+                        qna.isPrivate,
+                        jpaQueryFactory.select(qnaComment.count())
+                                .from(qnaComment)
+                                .where(qnaComment.qna.id.eq(qna.id)),
+                        qna.viewCount,
+                        jpaQueryFactory.select(qnaFile.count())
+                                .from(qnaFile)
+                                .where(qnaFile.qna.id.eq(qna.id)).gt(0L)
+                ))
+                .from(qna)
                 .innerJoin(category).on(qna.category.id.eq(category.id))
                 .innerJoin(member).on(qna.member.id.eq(member.id))
                 .where(
@@ -72,24 +108,28 @@ public class QnaRepositoryImpl implements QnaRepository {
                 .orderBy(qna.createdAt.desc())
                 .fetch();
 
-        JPAQuery<Long> count = jpaQueryFactory
-                .select(qna.count())
-                .from(qna)
-                .innerJoin(category).on(qna.category.id.eq(category.id))
-                .where(
-                        // 1. 삭제된 게시글
-                        isNotDeleted(qna),
-                        // 2. 아파트 코드
-                        eqApartCode(qna, apartCode),
-                        // 3. 차단한 회원 및 차단된 회원 포스트 제거
-                        removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
-                        // 4. 카테고리
-                        eqCategoryCode(category, categoryCode),
-                        // 5. 검색어
-                        containsSearch(qna, member, search, type)
-                );
+        JPAQuery<Long> countQuery = jpaQueryFactory
+            .select(qna.count())
+            .from(qna)
+            .innerJoin(qna.category, category)
+            .where(
+                isNotDeleted(qna),
+                eqApartCode(qna, apartCode),
+                removeMemberBlock(qna.member, blockedMemberIds, blockingMemberIds),
+                eqCategoryCode(category, categoryCode),
+                containsSearch(qna, member, search, type)
+            );
 
-        return PageableExecutionUtils.getPage(qnaList, pageable, count::fetchOne);
+        return PageableExecutionUtils.getPage(qnaInfoList, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long qnaId, Long viewCount) {
+        jpaQueryFactory
+                .update(qna)
+                .set(qna.viewCount, viewCount)
+                .where(qna.id.eq(qnaId))
+                .execute();
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.fc8.facade;
 
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
-import com.fc8.platform.dto.record.ApartInfo;
 import com.fc8.platform.dto.record.AuthMemberInfo;
 import com.fc8.platform.dto.record.SignInAdminInfo;
 import com.fc8.platform.dto.response.AuthMemberResponse;
@@ -29,8 +28,8 @@ public class AdminFacade {
         return new SignInAdminResponse(new SignInAdminResponse.SignInAdmin(signInAdminInfo.adminInfo()), signInAdminInfo.tokenInfo());
     }
 
-    public AuthMemberResponse authenticateMember(Long adminId, Long memberId, ApartInfo apartInfo) {
-        AuthMemberInfo authMemberInfo = adminService.authenticateMember(adminId, memberId, apartInfo);
+    public AuthMemberResponse authenticateMember(Long adminId, Long memberId, String apartCode) {
+        AuthMemberInfo authMemberInfo = adminService.authenticateMember(adminId, memberId, apartCode);
         return new AuthMemberResponse(
                 new AuthMemberResponse.AuthMember(authMemberInfo.memberInfo()),
                 new AuthMemberResponse.AuthAdmin(authMemberInfo.adminInfo()),

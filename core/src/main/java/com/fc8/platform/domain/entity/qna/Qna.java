@@ -52,6 +52,9 @@ public class Qna extends BaseApartEntity {
     @Column(name = "is_private", nullable = false, columnDefinition = "tinyint(1) comment '비밀글 여부'")
     private boolean isPrivate;
 
+    @Builder.Default
+    @Column(name = "view_count", columnDefinition = "bigint unsigned comment '조회수'")
+    private Long viewCount = 0L;
 
     public static Qna create(
         Category category, Member member, Apart apart, String title, String content, boolean isPrivate

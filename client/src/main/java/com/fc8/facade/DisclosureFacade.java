@@ -34,10 +34,13 @@ public class DisclosureFacade {
 
     @Transactional(readOnly = true)
     public PageResponse<LoadDisclosureListResponse> loadDisclosureList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 일반 게시물 조회
         final Page<DisclosureInfo> disclosureList = disclosureService.loadDisclosureList(memberId, apartCode, command);
+
         // 2. 상단 고정 게시물(중요글) 조회
-        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
-        return new PageResponse<>(disclosureList, new LoadDisclosureListResponse(disclosureList.getContent(), pinnedPosts));
+        List<PinnedPostInfo> pinnedDisclosureList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_DISCLOSURE);
+
+        return new PageResponse<>(disclosureList, new LoadDisclosureListResponse(disclosureList.getContent(), pinnedDisclosureList));
     }
 
     public PageResponse<LoadDisclosureCommentListResponse> loadCommentList(Long memberId, String apartCode, Long disclosureId, CustomPageCommand command) {

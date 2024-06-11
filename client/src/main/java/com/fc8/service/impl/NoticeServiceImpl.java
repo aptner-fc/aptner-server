@@ -4,6 +4,7 @@ import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.NoticeCommentImage;
 import com.fc8.platform.domain.entity.notice.NoticeEmoji;
@@ -40,6 +41,8 @@ public class NoticeServiceImpl implements NoticeService {
 
     private final S3UploadService s3UploadService;
 
+    private final ViewCountUtils viewCountUtils;
+
     @Override
     @Transactional(readOnly = true)
     public NoticeDetailInfo loadNoticeDetail(Long memberId, Long noticeId, String apartCode) {
@@ -51,6 +54,8 @@ public class NoticeServiceImpl implements NoticeService {
 
         final EmojiCountInfo emojiCount = noticeEmojiRepository.getEmojiCountInfoByNoticeAndMember(notice);
         final EmojiReactionInfo emojiReaction = noticeEmojiRepository.getEmojiReactionInfoByNoticeAndMember(notice, member);
+
+        viewCountUtils.increaseNoticeViewCount(notice);
 
         return NoticeDetailInfo.fromEntity(notice, notice.getAdmin(), notice.getCategory(), emojiCount, emojiReaction);
     }
@@ -73,12 +78,7 @@ public class NoticeServiceImpl implements NoticeService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var noticeList = noticeRepository.getNoticeListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
-        final List<NoticeInfo> noticeInfoList = noticeList.stream()
-            .map(notice -> NoticeInfo.fromEntity(notice, notice.getAdmin(), notice.getCategory()))
-            .toList();
-
-        return new PageImpl<>(noticeInfoList, pageable, noticeList.getTotalElements());
+        return noticeRepository.getNoticeInfoList(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
     }
 
     @Override
@@ -261,5 +261,11 @@ public class NoticeServiceImpl implements NoticeService {
         comment.delete();
 
         return commentId;
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long noticeId, Long viewCount) {
+        noticeRepository.updateViewCount(noticeId, viewCount);
     }
 }

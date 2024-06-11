@@ -7,8 +7,14 @@ import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.disclosure.Disclosure;
 import com.fc8.platform.domain.entity.disclosure.QDisclosure;
+import com.fc8.platform.domain.entity.disclosure.QDisclosureComment;
+import com.fc8.platform.domain.entity.disclosure.QDisclosureFile;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.CategoryInfo;
+import com.fc8.platform.dto.record.DisclosureInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.DisclosureRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,6 +38,8 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
     QCategory category = QCategory.category;
     QApart apart = QApart.apart;
     QAdmin admin = QAdmin.admin;
+    QDisclosureComment disclosureComment = QDisclosureComment.disclosureComment;
+    QDisclosureFile disclosureFile = QDisclosureFile.disclosureFile;
 
     @Override
     public Disclosure getDisclosureWithCategoryByIdAndApartCode(Long disclosureId, String apartCode) {
@@ -49,48 +57,74 @@ public class DisclosureRepositoryImpl implements DisclosureRepository {
     }
 
     @Override
-    public Page<Disclosure> getDisclosureListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
-        List<Disclosure> disclosureList = jpaQueryFactory
-            .selectFrom(disclosure)
-            .innerJoin(category).on(disclosure.category.id.eq(category.id))
-            .innerJoin(admin).on(disclosure.admin.id.eq(admin.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(disclosure),
+    public Page<DisclosureInfo> getDisclosureInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+        List<DisclosureInfo> disclosureInfoList = jpaQueryFactory
+                .select(Projections.constructor(
+                        DisclosureInfo.class,
+                        disclosure.id,
+                        disclosure.title,
+                        disclosure.createdAt,
+                        disclosure.updatedAt,
+                        Projections.constructor(
+                                WriterInfo.class,
+                                disclosure.admin.id,
+                                disclosure.admin.name,
+                                disclosure.admin.nickname
+                        ),
+                        Projections.constructor(
+                                CategoryInfo.class,
+                                disclosure.category.id,
+                                disclosure.category.type,
+                                disclosure.category.code,
+                                disclosure.category.name
+                        ),
+                        jpaQueryFactory.select(disclosureComment.count())
+                                .from(disclosureComment)
+                                .where(disclosureComment.disclosure.id.eq(disclosure.id)),
+                        disclosure.viewCount,
+                        jpaQueryFactory.select(disclosureFile.count())
+                                .from(disclosureFile)
+                                .where(disclosureFile.disclosure.id.eq(disclosure.id)).gt(0L)
+                ))
+                .from(disclosure)
+                .innerJoin(category).on(disclosure.category.id.eq(category.id))
+                .innerJoin(admin).on(disclosure.admin.id.eq(admin.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(disclosure),
+                        // 2. 아파트 코드
+                        eqApartCode(disclosure, apartCode),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(disclosure, admin, search, type)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(disclosure.createdAt.desc())
+                .fetch();
 
-                // 2. 아파트 코드
-                eqApartCode(disclosure, apartCode),
-
-                // 3. 카테고리
-                eqCategoryCode(category, categoryCode),
-
-                // 4. 검색어
-                containsSearch(disclosure, admin, search, type)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(disclosure.createdAt.desc())
-            .fetch();
-
-        JPAQuery<Long> count = jpaQueryFactory
+        JPAQuery<Long> countQuery = jpaQueryFactory
             .select(disclosure.count())
             .from(disclosure)
-            .innerJoin(category).on(disclosure.category.id.eq(category.id))
+            .innerJoin(disclosure.category, category)
             .where(
-                // 1. 삭제된 게시글
                 isNotDeleted(disclosure),
-
-                // 2. 아파트 코드
                 eqApartCode(disclosure, apartCode),
-
-                // 3. 카테고리
                 eqCategoryCode(category, categoryCode),
-
-                // 4. 검색어
                 containsSearch(disclosure, admin, search, type)
             );
 
-        return PageableExecutionUtils.getPage(disclosureList, pageable, count::fetchOne);
+        return PageableExecutionUtils.getPage(disclosureInfoList, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long disclosureId, Long viewCount) {
+        jpaQueryFactory
+                .update(disclosure)
+                .set(disclosure.viewCount, viewCount)
+                .where(disclosure.id.eq(disclosureId))
+                .execute();
     }
 
     @Override

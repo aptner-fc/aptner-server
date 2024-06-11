@@ -4,6 +4,7 @@ import com.fc8.external.service.S3UploadService;
 import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
+import com.fc8.platform.common.utils.ViewCountUtils;
 import com.fc8.platform.domain.entity.disclosure.Disclosure;
 import com.fc8.platform.domain.entity.disclosure.DisclosureCommentImage;
 import com.fc8.platform.domain.entity.disclosure.DisclosureEmoji;
@@ -40,6 +41,8 @@ public class DisclosureServiceImpl implements DisclosureService {
 
     private final S3UploadService s3UploadService;
 
+    private final ViewCountUtils viewCountUtils;
+
     @Override
     @Transactional(readOnly = true)
     public DisclosureDetailInfo loadDisclosureDetail(Long memberId, Long disclosureId, String apartCode) {
@@ -51,6 +54,8 @@ public class DisclosureServiceImpl implements DisclosureService {
 
         final EmojiCountInfo emojiCount = disclosureEmojiRepository.getEmojiCountInfoByDisclosureAndMember(disclosure);
         final EmojiReactionInfo emojiReaction = disclosureEmojiRepository.getEmojiReactionInfoByDisclosureAndMember(disclosure, member);
+
+        viewCountUtils.increaseDisclosureViewCount(disclosure);
 
         return DisclosureDetailInfo.fromEntity(disclosure, disclosure.getAdmin(), disclosure.getCategory(), emojiCount, emojiReaction);
     }
@@ -73,12 +78,7 @@ public class DisclosureServiceImpl implements DisclosureService {
         Pageable pageable = PageRequest.of(command.page() - 1, command.size());
 
         // 2. 게시글 조회 (아파트 코드, 차단 사용자)
-        var disclosureList = disclosureRepository.getDisclosureListByApartCode(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
-        final List<DisclosureInfo> disclosureInfoList = disclosureList.stream()
-            .map(disclosure -> DisclosureInfo.fromEntity(disclosure, disclosure.getAdmin(), disclosure.getCategory()))
-            .toList();
-
-        return new PageImpl<>(disclosureInfoList, pageable, disclosureList.getTotalElements());
+        return disclosureRepository.getDisclosureInfoList(memberId, apartCode, pageable, command.search(), command.type(), command.categoryCode());
     }
 
     @Override
@@ -257,6 +257,12 @@ public class DisclosureServiceImpl implements DisclosureService {
         comment.delete();
 
         return commentId;
+    }
+
+    @Override
+    @Transactional
+    public void updateViewCount(Long disclosureId, Long viewCount) {
+        disclosureRepository.updateViewCount(disclosureId, viewCount);
     }
 }
 

@@ -40,7 +40,7 @@ public class PostFacade {
         final Page<PostSummary> posts = postService.loadPostList(memberId, apartCode, apartAreaId, command);
 
         // 2. 상단 고정 게시물(중요글) 조회
-        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_POST);
+        List<PinnedPostInfo> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_POST);
 
         return new PageResponse<>(posts, new LoadPostListResponse(posts.getContent(), pinnedPosts));
     }

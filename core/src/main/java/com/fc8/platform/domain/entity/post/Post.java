@@ -49,6 +49,10 @@ public class Post extends BaseApartEntity {
     @Column(name = "deleted_at", columnDefinition = "datetime comment '삭제 일시'")
     private LocalDateTime deletedAt;
 
+    @Builder.Default
+    @Column(name = "view_count", columnDefinition = "bigint unsigned comment '조회수'")
+    private Long viewCount = 0L;
+
     public static Post create(Category category,
                               Member member,
                               Apart apart,

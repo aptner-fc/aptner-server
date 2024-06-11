@@ -7,15 +7,20 @@ import com.fc8.platform.domain.entity.post.Post;
 
 import java.time.LocalDateTime;
 
-public record PostSummary(Long id,
-                          String title,
-                          String thumbnailPath,
-                          @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
-                          @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
-                          WriterInfo writer,
-                          CategoryInfo category) {
+public record PostSummary(
+    Long id,
+    String title,
+    String thumbnailPath,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
+    WriterInfo writer,
+    CategoryInfo category,
+    Long commentCount,
+    Long viewCount,
+    boolean isFileAttached
+) {
 
-    public static PostSummary fromEntity(Post post, Member member, Category category) {
+    public static PostSummary fromEntity(Post post, Member member, Category category, Long commentCount, Long viewCount, boolean isFileAttached) {
         return new PostSummary(
             post.getId(),
             post.getTitle(),
@@ -23,7 +28,10 @@ public record PostSummary(Long id,
             post.getCreatedAt(),
             post.getUpdatedAt(),
             WriterInfo.fromMemberEntity(member),
-            CategoryInfo.fromEntity(category)
+            CategoryInfo.fromEntity(category),
+            commentCount,
+            viewCount,
+            isFileAttached
         );
     }
 

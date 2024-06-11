@@ -40,4 +40,6 @@ public interface QnaService {
     List<SearchQnaInfo> searchQnaList(Long memberId, String apartCode, String keyword, int pinnedQnaCount);
 
     Long getQnaCount(Long memberId, String apartCode, String keyword);
+
+    void updateViewCount(Long postId, Long viewCount);
 }

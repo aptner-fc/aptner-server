@@ -32,4 +32,6 @@ public interface NoticeService {
     Long modifyComment(Long memberId, Long noticeId, Long commentId, String apartCode, WriteNoticeCommentCommand command, MultipartFile image);
 
     Long deleteComment(Long memberId, Long noticeId, Long commentId, String apartCode);
+
+    void updateViewCount(Long noticeId, Long viewCount);
 }

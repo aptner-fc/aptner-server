@@ -7,8 +7,14 @@ import com.fc8.platform.domain.entity.apartment.QApart;
 import com.fc8.platform.domain.entity.category.QCategory;
 import com.fc8.platform.domain.entity.notice.Notice;
 import com.fc8.platform.domain.entity.notice.QNotice;
+import com.fc8.platform.domain.entity.notice.QNoticeComment;
+import com.fc8.platform.domain.entity.notice.QNoticeFile;
 import com.fc8.platform.domain.enums.SearchType;
+import com.fc8.platform.dto.record.CategoryInfo;
+import com.fc8.platform.dto.record.NoticeInfo;
+import com.fc8.platform.dto.record.WriterInfo;
 import com.fc8.platform.repository.NoticeRepository;
+import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
@@ -32,6 +38,8 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     QCategory category = QCategory.category;
     QAdmin admin = QAdmin.admin;
     QApart apart = QApart.apart;
+    QNoticeComment noticeComment = QNoticeComment.noticeComment;
+    QNoticeFile noticeFile = QNoticeFile.noticeFile;
 
     @Override
     public Notice getNoticeWithCategoryByIdAndApartCode(Long noticeId, String apartCode) {
@@ -49,48 +57,74 @@ public class NoticeRepositoryImpl implements NoticeRepository {
     }
 
     @Override
-    public Page<Notice> getNoticeListByApartCode(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
-        List<Notice> noticeList = jpaQueryFactory
-            .selectFrom(notice)
-            .innerJoin(category).on(notice.category.id.eq(category.id))
-            .innerJoin(admin).on(notice.admin.id.eq(admin.id))
-            .where(
-                // 1. 삭제된 게시글
-                isNotDeleted(notice),
+    public Page<NoticeInfo> getNoticeInfoList(Long memberId, String apartCode, Pageable pageable, String search, SearchType type, String categoryCode) {
+        List<NoticeInfo> noticeInfoList = jpaQueryFactory
+                .select(Projections.constructor(
+                        NoticeInfo.class,
+                        notice.id,
+                        notice.title,
+                        notice.createdAt,
+                        notice.updatedAt,
+                        Projections.constructor(
+                                WriterInfo.class,
+                                notice.admin.id,
+                                notice.admin.name,
+                                notice.admin.nickname
+                        ),
+                        Projections.constructor(
+                                CategoryInfo.class,
+                                notice.category.id,
+                                notice.category.type,
+                                notice.category.code,
+                                notice.category.name
+                        ),
+                        jpaQueryFactory.select(noticeComment.count())
+                                .from(noticeComment)
+                                .where(noticeComment.notice.id.eq(notice.id)),
+                        notice.viewCount,
+                        jpaQueryFactory.select(noticeFile.count())
+                                .from(noticeFile)
+                                .where(noticeFile.notice.id.eq(notice.id)).gt(0L)
+                ))
+                .from(notice)
+                .innerJoin(category).on(notice.category.id.eq(category.id))
+                .innerJoin(admin).on(notice.admin.id.eq(admin.id))
+                .where(
+                        // 1. 삭제된 게시글
+                        isNotDeleted(notice),
+                        // 2. 아파트 코드
+                        eqApartCode(notice, apartCode),
+                        // 4. 카테고리
+                        eqCategoryCode(category, categoryCode),
+                        // 5. 검색어
+                        containsSearch(notice, admin, search, type)
+                )
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .orderBy(notice.createdAt.desc())
+                .fetch();
 
-                // 2. 아파트 코드
-                eqApartCode(notice, apartCode),
-
-                // 3. 카테고리
-                eqCategoryCode(category, categoryCode),
-
-                // 4. 검색어
-                containsSearch(notice, admin, search, type)
-            )
-            .offset(pageable.getOffset())
-            .limit(pageable.getPageSize())
-            .orderBy(notice.createdAt.desc())
-            .fetch();
-
-        JPAQuery<Long> count = jpaQueryFactory
+        JPAQuery<Long> countQuery = jpaQueryFactory
             .select(notice.count())
             .from(notice)
-            .innerJoin(category).on(notice.category.id.eq(category.id))
+            .innerJoin(notice.category, category)
             .where(
-                // 1. 삭제된 게시글
                 isNotDeleted(notice),
-
-                // 2. 아파트 코드
                 eqApartCode(notice, apartCode),
-
-                // 3. 카테고리
                 eqCategoryCode(category, categoryCode),
-
-                // 4. 검색어
                 containsSearch(notice, admin, search, type)
             );
 
-        return PageableExecutionUtils.getPage(noticeList, pageable, count::fetchOne);
+        return PageableExecutionUtils.getPage(noticeInfoList, pageable, countQuery::fetchOne);
+    }
+
+    @Override
+    public void updateViewCount(Long noticeId, Long viewCount) {
+        jpaQueryFactory
+                .update(notice)
+                .set(notice.viewCount, viewCount)
+                .where(notice.id.eq(noticeId))
+                .execute();
     }
 
     @Override

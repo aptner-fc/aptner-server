@@ -11,6 +11,7 @@ public record NoticeDetailInfo(
     Long id,
     String title,
     String content,
+    Long viewCount,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
     LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul")
@@ -27,14 +28,15 @@ public record NoticeDetailInfo(
         EmojiReactionInfo emojiReaction
     ) {
         return new NoticeDetailInfo(
-            notice.getId(),
-            notice.getTitle(),
-            notice.getContent(),
-            notice.getCreatedAt(),
-            notice.getUpdatedAt(),
-            WriterInfo.fromAdminEntity(admin),
-            CategoryInfo.fromEntity(category),
-            new NoticeEmojiInfo(emojiCount, emojiReaction)
+                notice.getId(),
+                notice.getTitle(),
+                notice.getContent(),
+                notice.getViewCount(),
+                notice.getCreatedAt(),
+                notice.getUpdatedAt(),
+                WriterInfo.fromAdminEntity(admin),
+                CategoryInfo.fromEntity(category),
+                new NoticeEmojiInfo(emojiCount, emojiReaction)
         );
     }
 }

@@ -49,7 +49,7 @@ public class QnaFacade {
     public PageResponse<LoadQnaListResponse> loadQnaList(Long memberId, String apartCode, SearchPageCommand command) {
         final Page<QnaInfo> qnaList = qnaService.loadQnaList(memberId, apartCode, command);
         // 2. 상단 고정 게시물(중요글) 조회
-        List<PinnedPostSummary> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_QNA);
+        List<PinnedPostInfo> pinnedPosts = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_QNA);
         return new PageResponse<>(qnaList, new LoadQnaListResponse(qnaList.getContent(), pinnedPosts));
     }
 

@@ -7,10 +7,8 @@ import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.domain.entity.member.MemberAuth;
-import com.fc8.platform.domain.enums.ProcessingStatus;
 import com.fc8.platform.dto.command.SignInAdminCommand;
 import com.fc8.platform.dto.command.SignUpAdminCommand;
-import com.fc8.platform.dto.command.WriteQnaAnswerCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.AdminService;
@@ -69,22 +67,23 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public AuthMemberInfo authenticateMember(Long adminId, Long memberId, ApartInfo apartInfo) {
+    public AuthMemberInfo authenticateMember(Long adminId, Long memberId, String apartCode) {
         var admin = adminRepository.getById(adminId);
         var member = memberRepository.getActiveMemberById(memberId);
 
         member.updateActive();
-
         var storedMember = memberRepository.store(member);
 
-        var memberAuth = MemberAuth.of(storedMember, admin);
+        var apart = apartRepository.getByCode(apartCode);
+
+        var memberAuth = MemberAuth.of(storedMember, admin, apart);
         var newMemberAuth = memberAuthRepository.store(memberAuth);
 
         return new AuthMemberInfo(
                 newMemberAuth.getId(),
                 MemberInfo.fromEntity(storedMember),
                 AdminInfo.fromEntity(admin),
-                apartInfo,
+                ApartInfo.fromEntity(apart),
                 memberAuth.getAuthenticatedAt());
     }
 

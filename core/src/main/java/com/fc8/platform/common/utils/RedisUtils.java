@@ -6,9 +6,12 @@ import com.fc8.platform.common.properties.RedisProperties;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Component;
 
+import java.time.Duration;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -16,6 +19,18 @@ import java.util.concurrent.TimeUnit;
 public class RedisUtils {
 
     private final RedisTemplate<String, String> redisTemplate;
+
+    public Set<String> getKeys(String pattern) {
+        return redisTemplate.keys(pattern);
+    }
+
+    public String getViewCountValueByKey(String key) {
+        return redisTemplate.opsForValue().get(key);
+    }
+
+    public void deleteByKey(String key) {
+        redisTemplate.delete(key);
+    }
 
     public void storeVerificationCode(String phone, String verificationCode) {
         // 1. 휴대폰 번호로 키 생성
@@ -90,6 +105,19 @@ public class RedisUtils {
             redisTemplate.delete(key);
             redisTemplate.delete(attemptKey);
             throw new CustomRedisException(ErrorCode.MAX_VERIFY_ATTEMPTS);
+        }
+    }
+
+    public void increaseViewCountToRedis(String viewPrefix, Long id, Long viewCount) {
+        String key = viewPrefix + "::" + id;
+        ValueOperations<String, String> vop = redisTemplate.opsForValue();
+        if (vop.get(key) == null) {
+            vop.set(
+                    key,
+                    String.valueOf(viewCount + 1),
+                    Duration.ofMinutes(RedisProperties.TIME_TO_UPDATE_VIEW_COUNT));
+        } else {
+            vop.increment(key);
         }
     }
 

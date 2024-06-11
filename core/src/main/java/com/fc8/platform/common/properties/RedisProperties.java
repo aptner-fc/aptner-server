@@ -20,7 +20,14 @@ public abstract class RedisProperties {
 
     public static final String CODE_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-
     public static final String ATTEMPT_COUNT_SUFFIX = ":attempts";
+
+    public static final int TIME_TO_UPDATE_VIEW_COUNT = 5;
+    public static final String VIEW_ASTERISK = "*";
+    public static final String VIEW_POST = "VIEW:POST";
+    public static final String VIEW_QNA = "VIEW:QNA";
+    public static final String VIEW_NOTICE = "VIEW:NOTICE";
+    public static final String VIEW_PINNED_POST = "VIEW:PINNED_POST";
+    public static final String VIEW_DISCLOSURE = "VIEW:DISCLOSURE";
 
 }
