@@ -44,7 +44,7 @@ public class AdminController {
             @NotNull @PathVariable String apartCode,
             @CheckCurrentAdmin CurrentAdmin currentAdmin,
             @NotNull @PathVariable Long memberId) {
-        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, adminFacade.authenticateMember(currentAdmin.id(), memberId, currentAdmin.apartInfo()));
+        return CommonResponse.success(SuccessCode.SUCCESS_INSERT, adminFacade.authenticateMember(currentAdmin.id(), memberId, apartCode));
     }
 
 }
