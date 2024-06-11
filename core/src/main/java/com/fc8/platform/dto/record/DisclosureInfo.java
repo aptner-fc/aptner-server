@@ -10,21 +10,23 @@ import java.time.LocalDateTime;
 public record DisclosureInfo(
     Long id,
     String title,
-    String content,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
     WriterInfo writer,
-    CategoryInfo category
+    CategoryInfo category,
+    Long commentCount,
+    boolean isFileAttached
 ) {
-    public static DisclosureInfo fromEntity(Disclosure disclosure, Admin admin, Category category) {
+    public static DisclosureInfo fromEntity(Disclosure disclosure, Admin admin, Category category, Long commentCount, boolean isFileAttached) {
         return new DisclosureInfo(
             disclosure.getId(),
             disclosure.getTitle(),
-            disclosure.getContent(),
             disclosure.getCreatedAt(),
             disclosure.getUpdatedAt(),
             WriterInfo.fromAdminEntity(admin),
-            CategoryInfo.fromEntity(category)
+            CategoryInfo.fromEntity(category),
+            commentCount,
+            isFileAttached
         );
     }
 }
