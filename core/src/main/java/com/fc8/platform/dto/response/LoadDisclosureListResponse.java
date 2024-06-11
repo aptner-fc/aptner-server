@@ -11,10 +11,10 @@ public class LoadDisclosureListResponse {
 
     private final List<DisclosureInfo> disclosureInfoList;
 
-    private final List<PinnedPostSummary> pinnedPosts;
+    private final List<PinnedPostSummary> pinnedDisclosureList;
 
-    public LoadDisclosureListResponse(List<DisclosureInfo> disclosureInfoList, List<PinnedPostSummary> pinnedPosts) {
+    public LoadDisclosureListResponse(List<DisclosureInfo> disclosureInfoList, List<PinnedPostSummary> pinnedDisclosureList) {
         this.disclosureInfoList = disclosureInfoList;
-        this.pinnedPosts = pinnedPosts;
+        this.pinnedDisclosureList = pinnedDisclosureList;
     }
 }

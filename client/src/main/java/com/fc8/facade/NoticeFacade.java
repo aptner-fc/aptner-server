@@ -1,10 +1,12 @@
 package com.fc8.facade;
 
+import com.fc8.platform.common.properties.AptnerProperties;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteNoticeCommentCommand;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.dto.response.*;
 import com.fc8.service.NoticeService;
+import com.fc8.service.PinnedPostService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -21,6 +23,7 @@ import java.util.Optional;
 public class NoticeFacade {
 
     private final NoticeService noticeService;
+    private final PinnedPostService pinnedPostService;
 
     @Transactional(readOnly = true)
     public LoadNoticeDetailResponse loadNoticeDetail(Long memberId, Long noticeId, String apartCode) {
@@ -31,8 +34,13 @@ public class NoticeFacade {
 
     @Transactional(readOnly = true)
     public PageResponse<LoadNoticeListResponse> loadNoticeList(Long memberId, String apartCode, SearchPageCommand command) {
+        // 일반 게시물 조회
         final Page<NoticeInfo> noticeList = noticeService.loadNoticeList(memberId, apartCode, command);
-        return new PageResponse<>(noticeList, new LoadNoticeListResponse(noticeList.getContent()));
+
+        // 상단 게시물(중요글) 조회
+        List<PinnedPostSummary> pinnedNoticeList = pinnedPostService.loadPinnedPostList(apartCode, AptnerProperties.CATEGORY_CODE_NOTICE);
+
+        return new PageResponse<>(noticeList, new LoadNoticeListResponse(noticeList.getContent(), pinnedNoticeList));
     }
 
     public PageResponse<LoadNoticeCommentListResponse> loadCommentList(Long memberId, String apartCode, Long noticeId, CustomPageCommand command) {
