@@ -5,6 +5,7 @@ import com.fc8.platform.common.exception.BaseException;
 import com.fc8.platform.common.exception.InvalidParamException;
 import com.fc8.platform.common.exception.code.ErrorCode;
 import com.fc8.platform.common.properties.AptnerProperties;
+import com.fc8.platform.common.properties.NotificationProperties;
 import com.fc8.platform.common.utils.FileUtils;
 import com.fc8.platform.common.utils.ValidateUtils;
 import com.fc8.platform.common.utils.ViewCountUtils;
@@ -16,11 +17,14 @@ import com.fc8.platform.domain.enums.CategoryType;
 import com.fc8.platform.domain.enums.EmojiType;
 import com.fc8.platform.dto.command.WriteQnaCommand;
 import com.fc8.platform.dto.command.WriteQnaCommentCommand;
+import com.fc8.platform.dto.notification.QnaNotification;
+import com.fc8.platform.dto.notification.web.QnaAnswerWebPushInfo;
 import com.fc8.platform.dto.record.*;
 import com.fc8.platform.repository.*;
 import com.fc8.service.QnaService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -30,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Slf4j
@@ -46,7 +51,7 @@ public class QnaServiceImpl implements QnaService {
     private final S3UploadService s3UploadService;
     private final QnaCommentImageRepository qnaCommentImageRepository;
     private final QnaFileRepository qnaFileRepository;
-
+    private final ApplicationEventPublisher publisher;
     private final ViewCountUtils viewCountUtils;
 
     @Override
@@ -204,6 +209,16 @@ public class QnaServiceImpl implements QnaService {
                 var qnaCommentImage = QnaCommentImage.create(qnaComment, uploadImageInfo.originalImageUrl());
                 qnaCommentImageRepository.store(qnaCommentImage);
             });
+
+        // 5. 알림 등록
+        if (!Objects.equals(qna.getMember().getId(), member.getId())) {
+            QnaNotification qnaNotification = QnaNotification.onlyWebPush(QnaAnswerWebPushInfo.fromQnaEntity(
+                NotificationProperties.QNA_COMMENT_TITLE,
+                NotificationProperties.getQnaCommentContent(member.getNickname(), command.getContent()),
+                qna));
+
+            publisher.publishEvent(qnaNotification);
+        }
 
         return newQnaComment.getId();
     }

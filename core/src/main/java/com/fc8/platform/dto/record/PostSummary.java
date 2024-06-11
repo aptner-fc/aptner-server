@@ -35,4 +35,19 @@ public record PostSummary(
         );
     }
 
+    public static PostSummary fromEntity(Post post, Member member, Category category) {
+        return new PostSummary(
+            post.getId(),
+            post.getTitle(),
+            post.getThumbnailPath(),
+            post.getCreatedAt(),
+            post.getUpdatedAt(),
+            WriterInfo.fromMemberEntity(member),
+            CategoryInfo.fromEntity(category),
+            null,
+            null,
+            false
+        );
+    }
+
 }
