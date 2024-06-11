@@ -10,23 +10,39 @@ import java.time.LocalDateTime;
 public record QnaInfo(
     Long id,
     String title,
-    String content,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime createdAt,
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss", timezone = "Asia/Seoul") LocalDateTime updatedAt,
     WriterInfo writer,
     CategoryInfo category,
-    boolean isPrivate
+    boolean isPrivate,
+    Long commentCount,
+    boolean isFileAttached
 ) {
-    public static QnaInfo fromEntity(Qna qna, Member member, Category category) {
+    public static QnaInfo fromEntity(Qna qna, Member member, Category category, Long commentCount, boolean isFileAttached) {
         return new QnaInfo(
             qna.getId(),
             qna.getTitle(),
-            qna.getContent(),
             qna.getCreatedAt(),
             qna.getUpdatedAt(),
             WriterInfo.fromMemberEntity(member),
             CategoryInfo.fromEntity(category),
-            qna.isPrivate()
+            qna.isPrivate(),
+            commentCount,
+            isFileAttached
+        );
+    }
+
+    public static QnaInfo fromEntity(Qna qna, Member member, Category category) {
+        return new QnaInfo(
+            qna.getId(),
+            qna.getTitle(),
+            qna.getCreatedAt(),
+            qna.getUpdatedAt(),
+            WriterInfo.fromMemberEntity(member),
+            CategoryInfo.fromEntity(category),
+            qna.isPrivate(),
+            null,
+            false
         );
     }
 }
